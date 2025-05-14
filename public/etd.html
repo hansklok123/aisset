@@ -59,7 +59,7 @@
   <h2>📋 Voer ETD in van schip</h2>
 
   <label id="schiplabel">Huidig schip (op loodsboot):</label>
-  <div id="huidigSchipNaam">Detecteren...</div>
+  <div id="huidigSchipNaam">[Nog niet bepaald]</div>
 
   <label><input type="checkbox" id="handmatigInvoeren" onchange="toggleHandmatig()"> Handmatig invoeren</label>
   <input type="text" id="handmatigeNaam" class="hidden" placeholder="Typ scheepsnaam..." list="namenlijst" />
@@ -100,6 +100,11 @@
         const datalist = document.getElementById("namenlijst");
 
         if (navigator.geolocation) {
+
+if (dichtbij.length > 0) {
+  document.getElementById("huidigSchipNaam").textContent = dichtbij[0].naam;
+}
+
           navigator.geolocation.getCurrentPosition(pos => {
             const lat = pos.coords.latitude;
             const lon = pos.coords.longitude;
