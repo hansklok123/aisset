@@ -2,7 +2,7 @@
 <html lang="nl">
 <head>
   <meta charset="UTF-8" />
-  <title>Schepen met Track</title>
+  <title>Schepen met Track en Voorspelling</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
     body { font-family: sans-serif; margin: 2rem; }
@@ -10,7 +10,7 @@
   </style>
 </head>
 <body>
-  <h1>Schepen binnen 500 meter (met track)</h1>
+  <h1>Schepen binnen 500 meter (met track & voorspelling)</h1>
   <div id="map"></div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -23,8 +23,17 @@
       attribution: '&copy; OpenStreetMap-bijdragers'
     }).addTo(map);
 
+    // 500m radius cirkel
+    const cirkel = L.circle([targetLat, targetLon], {
+      radius: 500,
+      color: 'red',
+      fill: false
+    }).addTo(map);
+
     const markers = {};
     const tracks = {};
+    const forecasts = {};
+    const labels = {};
 
     function afstandKm(lat1, lon1, lat2, lon2) {
       const R = 6371;
@@ -62,13 +71,42 @@
             markers[id].getPopup().setContent(`<strong>${naam}</strong><br>Laatste update: ${tijd}`);
           }
 
+          // Label
+          if (labels[id]) {
+            map.removeLayer(labels[id]);
+          }
+          labels[id] = L.marker([laatste.lat, laatste.lon], {
+            icon: L.divIcon({
+              className: 'label',
+              html: `<div style="background: rgba(255,255,255,0.8); padding: 2px 4px; border: 1px solid #000;">${naam}</div>`,
+              iconAnchor: [0, 0]
+            })
+          }).addTo(map);
+
           // Track
           if (tracks[id]) {
             map.removeLayer(tracks[id]);
           }
-
           const coords = track.map(p => [p.lat, p.lon]);
           tracks[id] = L.polyline(coords, { color: 'blue' }).addTo(map);
+
+          // Voorspelling (simpel: 6 minuten = extrapolatie van laatste 2 punten)
+          if (forecasts[id]) {
+            map.removeLayer(forecasts[id]);
+          }
+          if (track.length >= 2) {
+            const p1 = track[track.length - 2];
+            const p2 = track[track.length - 1];
+            const latDelta = p2.lat - p1.lat;
+            const lonDelta = p2.lon - p1.lon;
+            const forecastLat = p2.lat + latDelta * 6;
+            const forecastLon = p2.lon + lonDelta * 6;
+            forecasts[id] = L.polyline([[p2.lat, p2.lon], [forecastLat, forecastLon]], {
+              color: 'red',
+              dashArray: '5, 10',
+              opacity: 0.5
+            }).addTo(map);
+          }
         });
       } catch (err) {
         console.error("Fout bij ophalen schepen:", err);
