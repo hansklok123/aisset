@@ -1,6 +1,6 @@
 const WebSocket = require("ws");
 
-let schepen = {}; // { MMSI: { lat, lon, naam, time } }
+let schepen = {}; // { MMSI: { naam, tijd, track: [ { lat, lon } ] } }
 
 function afstandKm(lat1, lon1, lat2, lon2) {
   const R = 6371;
@@ -10,13 +10,6 @@ function afstandKm(lat1, lon1, lat2, lon2) {
     Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
     Math.sin(dLon / 2) ** 2;
   return 2 * R * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-}
-
-const targetLat = 51.966775344428456;
-const targetLon = 4.112534920608608;
-
-function isBinnenBereik(lat, lon) {
-  return afstandKm(lat, lon, targetLat, targetLon) <= 0.5;
 }
 
 function startStream() {
@@ -46,12 +39,22 @@ function startStream() {
       const { latitude, longitude, ShipName, time_utc } = msg.MetaData;
 
       if (latitude && longitude) {
-        schepen[mmsi] = {
-          lat: latitude,
-          lon: longitude,
-          naam: ShipName || "",
-          time: time_utc || ""
-        };
+        if (!schepen[mmsi]) {
+          schepen[mmsi] = {
+            naam: ShipName || "",
+            tijd: time_utc || "",
+            track: [{ lat: latitude, lon: longitude }]
+          };
+        } else {
+          schepen[mmsi].naam = ShipName || schepen[mmsi].naam;
+          schepen[mmsi].tijd = time_utc || schepen[mmsi].tijd;
+          const track = schepen[mmsi].track;
+          const laatste = track[track.length - 1];
+          if (!laatste || laatste.lat !== latitude || laatste.lon !== longitude) {
+            track.push({ lat: latitude, lon: longitude });
+            if (track.length > 20) track.shift(); // max 20 punten
+          }
+        }
       }
     } catch (err) {
       console.error("❌ Fout bij verwerken bericht:", err);

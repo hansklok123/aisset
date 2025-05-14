@@ -2,7 +2,7 @@
 <html lang="nl">
 <head>
   <meta charset="UTF-8" />
-  <title>Schepen binnen 500 meter</title>
+  <title>Schepen met Track</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
     body { font-family: sans-serif; margin: 2rem; }
@@ -10,7 +10,7 @@
   </style>
 </head>
 <body>
-  <h1>Alle schepen binnen 500 meter</h1>
+  <h1>Schepen binnen 500 meter (met track)</h1>
   <div id="map"></div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -24,6 +24,7 @@
     }).addTo(map);
 
     const markers = {};
+    const tracks = {};
 
     function afstandKm(lat1, lon1, lat2, lon2) {
       const R = 6371;
@@ -39,32 +40,35 @@
       try {
         const res = await fetch("/api/schepen");
         const data = await res.json();
-        console.log("🔄 Ontvangen schepen:", data);
 
         data.forEach((schip) => {
           const id = schip.mmsi;
-          const lat = schip.lat;
-          const lon = schip.lon;
           const naam = schip.naam || `MMSI: ${id}`;
-          const tijd = schip.time || "onbekend";
-          const afstand = afstandKm(lat, lon, targetLat, targetLon);
+          const tijd = schip.tijd || "onbekend";
+          const track = schip.track || [];
+          if (track.length === 0) return;
 
-          if (afstand <= 0.5) {
-            if (!markers[id]) {
-              const marker = L.marker([lat, lon])
-                .addTo(map)
-                .bindPopup(`<strong>${naam}</strong><br>Laatste update: ${tijd}`);
-              markers[id] = marker;
-            } else {
-              markers[id].setLatLng([lat, lon]);
-              markers[id].getPopup().setContent(`<strong>${naam}</strong><br>Laatste update: ${tijd}`);
-            }
+          const laatste = track[track.length - 1];
+          const afstand = afstandKm(laatste.lat, laatste.lon, targetLat, targetLon);
+          if (afstand > 0.5) return;
+
+          // Marker
+          if (!markers[id]) {
+            markers[id] = L.marker([laatste.lat, laatste.lon])
+              .addTo(map)
+              .bindPopup(`<strong>${naam}</strong><br>Laatste update: ${tijd}`);
           } else {
-            if (markers[id]) {
-              map.removeLayer(markers[id]);
-              delete markers[id];
-            }
+            markers[id].setLatLng([laatste.lat, laatste.lon]);
+            markers[id].getPopup().setContent(`<strong>${naam}</strong><br>Laatste update: ${tijd}`);
           }
+
+          // Track
+          if (tracks[id]) {
+            map.removeLayer(tracks[id]);
+          }
+
+          const coords = track.map(p => [p.lat, p.lon]);
+          tracks[id] = L.polyline(coords, { color: 'blue' }).addTo(map);
         });
       } catch (err) {
         console.error("Fout bij ophalen schepen:", err);
