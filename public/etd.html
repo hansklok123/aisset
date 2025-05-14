@@ -67,7 +67,7 @@
   </select>
   <textarea id="overigReden" class="hidden" placeholder="Voer toelichting in..."></textarea>
 
-  <button onclick="maakCSV()">📥 Download + Verstuur</button>
+  
 
   <div id="csv-output" class="hidden"></div>
 
@@ -173,5 +173,42 @@
       document.getElementById("etd").value = vandaag;
     };
   </script>
+
+<script>
+document.getElementById("etdForm").addEventListener("submit", async function (e) {
+  e.preventDefault();
+
+  const data = {
+    scheepsnaam: document.getElementById("huidigSchipNaam").textContent.trim(),
+    etd: document.getElementById("etd")?.value || "",
+    reden: document.getElementById("reden")?.value || "",
+    toelichting: document.getElementById("toelichting")?.value || "",
+    timestamp: new Date().toISOString()
+  };
+
+  const csv = [
+    "Scheepsnaam,ETD,RedenGeenETD,Toelichting,Timestamp",
+    \`\${data.scheepsnaam},\${data.etd},\${data.reden},\${data.toelichting},\${data.timestamp}\`
+  ].join("\n");
+
+  const onderwerp = data.etd ? 
+    \`ETD Positive, \${data.scheepsnaam}, \${data.timestamp}\` :
+    \`ETD Negative, \${data.scheepsnaam}, \${data.timestamp}\`;
+
+  const res = await fetch("/api/verstuur", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ csv, onderwerp })
+  });
+
+  if (res.ok) {
+    alert("✅ ETD succesvol verzonden");
+    document.getElementById("etdForm").reset();
+  } else {
+    alert("❌ Fout bij verzenden");
+  }
+});
+</script>
+
 </body>
 </html>
