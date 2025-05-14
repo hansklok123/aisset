@@ -1,26 +1,67 @@
+
 const express = require("express");
 const fs = require("fs");
 const path = require("path");
-const basicAuth = require("express-basic-auth");
+const session = require("express-session");
 const nodemailer = require("nodemailer");
 const { startStream, getNearbyShips } = require("./aisstream");
 
 startStream();
 const app = express();
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public"));
+app.use(session({
+  secret: "geheime-lvw-sleutel",
+  resave: false,
+  saveUninitialized: false
+}));
 
 const SUBMIT_PATH = path.join(__dirname, "data", "submissions.json");
 
-app.get("/api/schepen", (req, res) => {
-  res.json(getNearbyShips());
+// AUTH middleware
+function requireLogin(req, res, next) {
+  if (req.session && req.session.ingelogd) return next();
+  return res.redirect("/admin/login");
+}
+
+// INLOGROUTE
+app.get("/admin/login", (req, res) => {
+  res.sendFile(path.join(__dirname, "private", "login.html"));
+});
+
+app.post("/admin/login", (req, res) => {
+  const { gebruikersnaam, wachtwoord } = req.body;
+  if (gebruikersnaam === "LVW" && wachtwoord === "MMP14") {
+    req.session.ingelogd = true;
+    return res.redirect("/admin");
+  }
+  res.send("<p>Ongeldige gegevens. <a href='/admin/login'>Probeer opnieuw</a></p>");
+});
+
+app.get("/admin/logout", (req, res) => {
+  req.session.destroy(() => {
+    res.redirect("/admin/login");
+  });
+});
+
+app.get("/admin", requireLogin, (req, res) => {
+  res.sendFile(path.join(__dirname, "private", "admin.html"));
+});
+
+app.get("/admin/data", requireLogin, (req, res) => {
+  if (fs.existsSync(SUBMIT_PATH)) {
+    const data = JSON.parse(fs.readFileSync(SUBMIT_PATH));
+    res.json(data);
+  } else {
+    res.json([]);
+  }
 });
 
 app.post("/api/verstuur", async (req, res) => {
   const { csv, onderwerp } = req.body;
   if (!csv || !onderwerp) return res.status(400).send("Ongeldige gegevens");
 
-  const tijd = new Date().toISOString();
   const regels = csv.split("\n");
   if (regels.length >= 2) {
     const [_, inhoud] = regels;
@@ -62,14 +103,15 @@ app.post("/api/verstuur", async (req, res) => {
     });
 
     try {
-      const info = await transporter.sendMail({
+      await transporter.sendMail({
         from: \`ETD Formulier <\${process.env.GMAIL_USER}>\`,
         to: "shipsetd@gmail.com",
         subject: onderwerp,
-        text: "In bijlage het ETD formulier",
+        text: "Bijgevoegd het ETD-formulier.",
         attachments: [{ filename: "etd.csv", content: inhoudCSV }]
       });
-      console.log("✅ Mail verzonden:", info.response);
+
+      console.log("✅ Mail verzonden");
       res.send("Verzonden");
     } catch (err) {
       console.error("❌ MAIL FOUT:", err);
@@ -78,33 +120,11 @@ app.post("/api/verstuur", async (req, res) => {
   }
 });
 
-// Admin beveiliging
-app.use("/admin", basicAuth({
-  users: { "LVW": "MMP14" },
-  challenge: true,
-}));
-
-
-
-app.get("/admin/data", (req, res) => {
-  if (fs.existsSync(SUBMIT_PATH)) {
-    const data = JSON.parse(fs.readFileSync(SUBMIT_PATH));
-    res.json(data);
-  } else {
-    res.json([]);
-  }
+app.get("/api/schepen", (req, res) => {
+  res.json(getNearbyShips());
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log("🌍 Draait op poort", PORT));
-
-
-const adminPath = path.resolve(__dirname, "private", "admin.html");
-
-app.get("/admin/", (req, res) => {
-  res.redirect("/admin");
-});
-
-app.get("/admin", (req, res) => {
-  res.sendFile(adminPath);
+app.listen(PORT, () => {
+  console.log("✅ Server draait op poort", PORT);
 });
