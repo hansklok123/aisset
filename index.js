@@ -84,9 +84,7 @@ app.use("/admin", basicAuth({
   challenge: true,
 }));
 
-app.get("/admin", (req, res) => {
-  res.sendFile(path.join(__dirname, "private", "admin.html"));
-});
+
 
 app.get("/admin/data", (req, res) => {
   if (fs.existsSync(SUBMIT_PATH)) {
@@ -99,3 +97,14 @@ app.get("/admin/data", (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log("🌍 Draait op poort", PORT));
+
+
+const adminPath = path.resolve(__dirname, "private", "admin.html");
+
+app.get("/admin/", (req, res) => {
+  res.redirect("/admin");
+});
+
+app.get("/admin", (req, res) => {
+  res.sendFile(adminPath);
+});
