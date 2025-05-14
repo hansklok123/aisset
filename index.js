@@ -11,16 +11,16 @@ app.get("/api/schepen", (req, res) => {
   res.json(getNearbyShips());
 });
 
-// NIEUW: Zoek op tijd en locatie (binnen 50m, tijd binnen ±15s)
+// Pas zoekfunctie aan om huidige tijd te gebruiken
 app.post("/api/zoek", (req, res) => {
-  const { tijd, lat, lon } = req.body;
-  if (!tijd || typeof lat !== "number" || typeof lon !== "number") {
+  const { lat, lon } = req.body;
+  if (typeof lat !== "number" || typeof lon !== "number") {
     return res.status(400).json({ naam: null });
   }
 
-  const tijdInMs = new Date(tijd).getTime();
-  const maxAfstandKm = 0.05; // 50 meter
-  const maxTijdVerschil = 15 * 1000; // 15 seconden
+  const tijdInMs = Date.now(); // gebruik huidige tijd
+  const maxAfstandKm = 0.05;
+  const maxTijdVerschil = 15 * 1000;
 
   const schepen = getNearbyShips();
   for (const schip of schepen) {
