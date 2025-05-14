@@ -1,6 +1,6 @@
 const WebSocket = require("ws");
 
-let schepen = {}; // { MMSI: { naam, lat, lon } }
+let schepen = {}; // { MMSI: { naam, lat, lon, type } }
 
 function afstandKm(lat1, lon1, lat2, lon2) {
   const R = 6371;
@@ -12,12 +12,13 @@ function afstandKm(lat1, lon1, lat2, lon2) {
   return 2 * R * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
-// Doellocatie: 1 km straal rond deze coördinaten
-const targetLat = 51.98847472643675;
-const targetLon = 4.0424819651889;
-
+// Doellocatie: monding Nieuwe Waterweg
 function isBinnenBereik(lat, lon) {
-  return afstandKm(lat, lon, targetLat, targetLon) <= 1;
+  return afstandKm(lat, lon, 51.98, 4.05) <= 10;
+}
+
+function isCommercieelType(type) {
+  return type && ![36].includes(type); // 36 = pleziervaart
 }
 
 function startStream() {
@@ -28,7 +29,7 @@ function startStream() {
 
     const subscription = {
       APIKey: process.env.AIS_API_KEY,
-      BoundingBoxes: [[[51.9, 3.9], [52.1, 4.2]]],
+      BoundingBoxes: [[[51.95, 3.95], [52.05, 4.15]]], // Nieuwe Waterweg monding
       FilterMessageTypes: ["PositionReport", "StaticDataReport"]
     };
 
@@ -54,15 +55,20 @@ function startStream() {
           schepen[mmsi].lat = Latitude;
           schepen[mmsi].lon = Longitude;
 
-          console.log(`📍 DICHTBIJ: ${mmsi} (${Latitude.toFixed(5)}, ${Longitude.toFixed(5)})`);
+          console.log(`📍 Positie: ${mmsi} (${Latitude.toFixed(4)}, ${Longitude.toFixed(4)})`);
         }
       }
 
       if (msg.MessageType === "StaticDataReport" && msg.MetaData.ShipName) {
         if (!schepen[mmsi]) schepen[mmsi] = {};
         schepen[mmsi].naam = msg.MetaData.ShipName;
+        schepen[mmsi].type = msg.MetaData.ShipType;
 
-        console.log(`🛳️ Naam: ${mmsi} – ${msg.MetaData.ShipName}`);
+        if (isCommercieelType(msg.MetaData.ShipType)) {
+          console.log(`🛳️ Commercieel schip: ${mmsi} – ${msg.MetaData.ShipName} (type ${msg.MetaData.ShipType})`);
+        } else {
+          delete schepen[mmsi]; // pleziervaart eruit filteren
+        }
       }
     } catch (err) {
       console.error("❌ Fout bij verwerken bericht:", err);
