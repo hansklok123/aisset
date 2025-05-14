@@ -2,30 +2,57 @@
 <html lang="nl">
 <head>
   <meta charset="UTF-8" />
-  <title>Live Schepen AIS</title>
+  <title>Live Schepen Kaart</title>
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-sA+e2G9eDf8wf+8V8tkmAq3wE5FQ4YXbdE1Xbw2LB2M="
+    crossorigin=""
+  />
+  <style>
+    html, body { margin: 0; padding: 0; height: 100%; }
+    #map { width: 100%; height: 100%; }
+  </style>
 </head>
 <body>
-  <h1>Schepen binnen 20 km van Rotterdam</h1>
-  <ul id="scheepslijst"></ul>
+  <div id="map"></div>
 
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-o9N1j7kF6QGpnl6YvXU6KqFh5HzKN9uSkmr8kMZ0cwY="
+    crossorigin="">
+  </script>
   <script>
+    const map = L.map('map').setView([51.9885, 4.0425], 12);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap-bijdragers'
+    }).addTo(map);
+
+    const markers = {};
+
     async function fetchSchepen() {
       try {
         const res = await fetch("/api/schepen");
         const data = await res.json();
-        const lijst = document.getElementById("scheepslijst");
-        lijst.innerHTML = "";
+
+        // markers bijwerken
         data.forEach(schip => {
-          const li = document.createElement("li");
-          li.textContent = `${schip.naam} (${schip.lat.toFixed(4)}, ${schip.lon.toFixed(4)})`;
-          lijst.appendChild(li);
+          const id = schip.naam;
+          if (!markers[id]) {
+            const marker = L.marker([schip.lat, schip.lon])
+              .addTo(map)
+              .bindPopup(`<strong>${schip.naam}</strong>`);
+            markers[id] = marker;
+          } else {
+            markers[id].setLatLng([schip.lat, schip.lon]);
+          }
         });
       } catch (err) {
         console.error("Fout bij ophalen schepen:", err);
       }
     }
 
-    setInterval(fetchSchepen, 5000); // Elke 5 seconden verversen
+    setInterval(fetchSchepen, 5000);
     fetchSchepen();
   </script>
 </body>

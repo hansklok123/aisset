@@ -12,13 +12,13 @@ function afstandKm(lat1, lon1, lat2, lon2) {
   return 2 * R * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
-// Doellocatie: monding Nieuwe Waterweg
+// Doellocatie: regio Hoek van Holland
 function isBinnenBereik(lat, lon) {
-  return afstandKm(lat, lon, 51.98, 4.05) <= 10;
+  return afstandKm(lat, lon, 51.9885, 4.0425) <= 20;
 }
 
 function isCommercieelType(type) {
-  return type && ![36].includes(type); // 36 = pleziervaart
+  return type !== 36; // alleen pleziervaart actief uitsluiten
 }
 
 function startStream() {
@@ -29,7 +29,7 @@ function startStream() {
 
     const subscription = {
       APIKey: process.env.AIS_API_KEY,
-      BoundingBoxes: [[[51.95, 3.95], [52.05, 4.15]]], // Nieuwe Waterweg monding
+      BoundingBoxes: [[[51.8, 3.9], [52.2, 4.3]]], // Ruimer gebied
       FilterMessageTypes: ["PositionReport", "StaticDataReport"]
     };
 
@@ -65,7 +65,7 @@ function startStream() {
         schepen[mmsi].type = msg.MetaData.ShipType;
 
         if (isCommercieelType(msg.MetaData.ShipType)) {
-          console.log(`🛳️ Commercieel schip: ${mmsi} – ${msg.MetaData.ShipName} (type ${msg.MetaData.ShipType})`);
+          console.log(`🛳️ Schip: ${mmsi} – ${msg.MetaData.ShipName} (type ${msg.MetaData.ShipType})`);
         } else {
           delete schepen[mmsi]; // pleziervaart eruit filteren
         }
