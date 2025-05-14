@@ -1,6 +1,6 @@
 const WebSocket = require("ws");
 
-let schepen = {}; // { MMSI: { lat, lon, naam } }
+let schepen = {}; // { MMSI: { lat, lon, naam, time } }
 
 function afstandKm(lat1, lon1, lat2, lon2) {
   const R = 6371;
@@ -37,18 +37,21 @@ function startStream() {
   ws.on("message", (data) => {
     try {
       const msg = JSON.parse(data);
+      console.log("📦 Volledig bericht ontvangen:");
+      console.log(JSON.stringify(msg, null, 2));
+
       if (msg.MessageType !== "PositionReport" || !msg.MetaData) return;
 
       const mmsi = msg.MetaData.MMSI;
-      const { latitude, longitude, ShipName } = msg.MetaData;
+      const { latitude, longitude, ShipName, time_utc } = msg.MetaData;
 
-      if (latitude && longitude && isBinnenBereik(latitude, longitude)) {
+      if (latitude && longitude) {
         schepen[mmsi] = {
           lat: latitude,
           lon: longitude,
           naam: ShipName || "",
+          time: time_utc || ""
         };
-        console.log(`📍 BINNEN 500m: ${mmsi} (${latitude.toFixed(5)}, ${longitude.toFixed(5)}) – ${ShipName || "?"}`);
       }
     } catch (err) {
       console.error("❌ Fout bij verwerken bericht:", err);
@@ -63,9 +66,7 @@ function startStream() {
 }
 
 function getNearbyShips() {
-  const alles = Object.entries(schepen);
-  console.log(`🧪 Schepen binnen 500m: ${alles.length}`);
-  return alles.map(([mmsi, schip]) => ({ mmsi, ...schip }));
+  return Object.entries(schepen).map(([mmsi, schip]) => ({ mmsi, ...schip }));
 }
 
 module.exports = { startStream, getNearbyShips };

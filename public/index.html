@@ -5,32 +5,25 @@
   <title>Schepen binnen 500 meter</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
-    body {
-      font-family: sans-serif;
-      margin: 2rem;
-    }
-    h1 {
-      margin-bottom: 1rem;
-    }
-    .schip {
-      margin-bottom: 2rem;
-      padding-bottom: 1rem;
-      border-bottom: 1px solid #ccc;
-    }
-    .kaart {
-      height: 200px;
-      margin-top: 0.5rem;
-    }
+    body { font-family: sans-serif; margin: 2rem; }
+    #map { height: 600px; margin-top: 1rem; }
   </style>
 </head>
 <body>
-  <h1>Schepen binnen 500 meter</h1>
-  <div id="schepen"></div>
+  <h1>Alle schepen binnen 500 meter</h1>
+  <div id="map"></div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
     const targetLat = 51.966775344428456;
     const targetLon = 4.112534920608608;
+
+    const map = L.map('map').setView([targetLat, targetLon], 15);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap-bijdragers'
+    }).addTo(map);
+
+    const markers = {};
 
     function afstandKm(lat1, lon1, lat2, lon2) {
       const R = 6371;
@@ -46,38 +39,31 @@
       try {
         const res = await fetch("/api/schepen");
         const data = await res.json();
+        console.log("🔄 Ontvangen schepen:", data);
 
-        const container = document.getElementById("schepen");
-        container.innerHTML = "";
-
-        data.forEach((schip, index) => {
+        data.forEach((schip) => {
+          const id = schip.mmsi;
           const lat = schip.lat;
           const lon = schip.lon;
-          const naam = schip.naam || `MMSI: ${schip.mmsi}`;
+          const naam = schip.naam || `MMSI: ${id}`;
           const tijd = schip.time || "onbekend";
           const afstand = afstandKm(lat, lon, targetLat, targetLon);
 
           if (afstand <= 0.5) {
-            const div = document.createElement("div");
-            div.className = "schip";
-
-            const kop = document.createElement("div");
-            kop.innerHTML = `<strong>${naam}</strong><br>(${lat.toFixed(5)}, ${lon.toFixed(5)})<br>Laatste update: ${tijd}`;
-            div.appendChild(kop);
-
-            const kaartDiv = document.createElement("div");
-            kaartDiv.id = `kaart${index}`;
-            kaartDiv.className = "kaart";
-            div.appendChild(kaartDiv);
-
-            container.appendChild(div);
-
-            const kaart = L.map(kaartDiv.id).setView([lat, lon], 15);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-              attribution: '&copy; OpenStreetMap-bijdragers'
-            }).addTo(kaart);
-
-            L.marker([lat, lon]).addTo(kaart).bindPopup(naam).openPopup();
+            if (!markers[id]) {
+              const marker = L.marker([lat, lon])
+                .addTo(map)
+                .bindPopup(`<strong>${naam}</strong><br>Laatste update: ${tijd}`);
+              markers[id] = marker;
+            } else {
+              markers[id].setLatLng([lat, lon]);
+              markers[id].getPopup().setContent(`<strong>${naam}</strong><br>Laatste update: ${tijd}`);
+            }
+          } else {
+            if (markers[id]) {
+              map.removeLayer(markers[id]);
+              delete markers[id];
+            }
           }
         });
       } catch (err) {
