@@ -2,7 +2,7 @@
 <html lang="nl">
 <head>
   <meta charset="UTF-8" />
-  <title>Statische schepen met labels</title>
+  <title>Statische schepen met labels + Zoek</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
     body { font-family: sans-serif; margin: 2rem; }
@@ -17,10 +17,25 @@
       border: 1px solid #003366;
       white-space: nowrap;
     }
+    #zoekform {
+      margin-bottom: 1rem;
+      padding: 1rem;
+      border: 1px solid #ccc;
+      background: #f9f9f9;
+    }
   </style>
 </head>
 <body>
   <h1>Statische schepen binnen 1 km (met labels)</h1>
+
+  <div id="zoekform">
+    <label>Tijd (UTC): <input type="text" id="tijd" placeholder="2025-05-14T10:25:00Z" /></label><br>
+    <label>Latitude: <input type="number" step="0.00001" id="lat" /></label><br>
+    <label>Longitude: <input type="number" step="0.00001" id="lon" /></label><br>
+    <button onclick="zoekSchip()">Zoek schip</button>
+    <p id="zoekresultaat"></p>
+  </div>
+
   <div id="map"></div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -33,17 +48,13 @@
       attribution: '&copy; OpenStreetMap-bijdragers'
     }).addTo(map);
 
-    // 1 km cirkel
     L.circle([targetLat, targetLon], {
       radius: 1000,
       color: 'red',
       fill: false
     }).addTo(map);
 
-    const markers = {};
-    const tracks = {};
-    const forecasts = {};
-    const labels = {};
+    const markers = {}, tracks = {}, forecasts = {}, labels = {};
 
     function afstandKm(lat1, lon1, lat2, lon2) {
       const R = 6371;
@@ -59,23 +70,19 @@
       try {
         const res = await fetch("/api/schepen");
         const data = await res.json();
-
         data.forEach((schip) => {
           const id = schip.mmsi;
           const naam = schip.naam || `MMSI: ${id}`;
           const tijd = schip.tijd || "onbekend";
           const track = schip.track || [];
           if (track.length < 2) return;
-
           const p1 = track[track.length - 2];
           const p2 = track[track.length - 1];
+          const forecastLat = p2.lat + (p2.lat - p1.lat) * 6;
+          const forecastLon = p2.lon + (p2.lon - p1.lon) * 6;
           const afstand = afstandKm(p2.lat, p2.lon, targetLat, targetLon);
           if (afstand > 1) return;
 
-          const forecastLat = p2.lat + (p2.lat - p1.lat) * 6;
-          const forecastLon = p2.lon + (p2.lon - p1.lon) * 6;
-
-          // Scheepsicoontje
           const shipIcon = L.divIcon({
             html: `<div style="
               width: 0; height: 0;
@@ -83,18 +90,15 @@
               border-right: 6px solid transparent;
               border-bottom: 12px solid navy;
               transform: rotate(0deg);"></div>`,
-            iconSize: [12, 12],
-            className: ""
+            iconSize: [12, 12], className: ""
           });
 
-          // Statische marker
           if (!markers[id]) {
             markers[id] = L.marker([p2.lat, p2.lon], { icon: shipIcon }).addTo(map);
           } else {
             markers[id].setLatLng([p2.lat, p2.lon]);
           }
 
-          // Label
           if (labels[id]) map.removeLayer(labels[id]);
           labels[id] = L.marker([p2.lat, p2.lon], {
             icon: L.divIcon({
@@ -104,21 +108,42 @@
             })
           }).addTo(map);
 
-          // Blauwe track
           if (tracks[id]) map.removeLayer(tracks[id]);
           const coords = track.map(p => [p.lat, p.lon]);
           tracks[id] = L.polyline(coords, { color: 'blue' }).addTo(map);
 
-          // Rode stippellijn
           if (forecasts[id]) map.removeLayer(forecasts[id]);
           forecasts[id] = L.polyline([[p2.lat, p2.lon], [forecastLat, forecastLon]], {
-            color: 'red',
-            dashArray: '5, 10',
-            opacity: 0.5
+            color: 'red', dashArray: '5, 10', opacity: 0.5
           }).addTo(map);
         });
       } catch (err) {
         console.error("Fout bij ophalen schepen:", err);
+      }
+    }
+
+    async function zoekSchip() {
+      const tijd = document.getElementById("tijd").value;
+      const lat = parseFloat(document.getElementById("lat").value);
+      const lon = parseFloat(document.getElementById("lon").value);
+
+      if (!tijd || isNaN(lat) || isNaN(lon)) {
+        document.getElementById("zoekresultaat").textContent = "❌ Vul alle velden correct in.";
+        return;
+      }
+
+      try {
+        const res = await fetch("/api/zoek", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ tijd, lat, lon })
+        });
+        const data = await res.json();
+        document.getElementById("zoekresultaat").textContent =
+          data.naam ? `✅ Schip: ${data.naam}` : "❌ Geen schip gevonden binnen 50m.";
+      } catch (err) {
+        console.error("Zoekfout:", err);
+        document.getElementById("zoekresultaat").textContent = "❌ Fout bij opvragen schip.";
       }
     }
 
