@@ -50,7 +50,7 @@
   <h2>📋 Voer ETD in van schip</h2>
 
   <label id="schiplabel">Huidig schip (op loodsboot):</label>
-  <div id="huidigSchipNaam">Detecteren...</div>
+  <div id="huidigSchipNaam">[Wordt bepaald...]</div>
 
   <label><input type="checkbox" id="handmatigInvoeren" onchange="toggleHandmatig()"> Handmatig invoeren</label>
   <input type="text" id="handmatigeNaam" class="hidden" placeholder="Typ scheepsnaam..." list="namenlijst" />
@@ -94,12 +94,7 @@
           navigator.geolocation.getCurrentPosition(pos => {
             const lat = pos.coords.latitude;
             const lon = pos.coords.longitude;
-            const dichtbij = schepen.map(s => {
-              const track = s.track || [];
-              const laatst = track[track.length - 1];
-              const d = afstandKm(lat, lon, laatst.lat, laatst.lon);
-              return { naam: s.naam, afstand: d };
-            }).filter(s => s.afstand < 0.5).sort((a, b) => a.afstand - b.afstand);
+            const dichtbij = schepen.map(s => { const track = s.track || []; const laatst = track[track.length - 1]; const d = afstandKm(lat, lon, laatst.lat, laatst.lon); return { naam: s.naam, afstand: d }; }).sort((a, b) => a.afstand - b.afstand);
 
             if (dichtbij.length > 0) {
               document.getElementById("huidigSchipNaam").textContent = dichtbij[0].naam;

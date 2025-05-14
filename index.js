@@ -11,27 +11,16 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public"));
-app.use(session({
-  secret: "geheime-lvw-sleutel",
-  resave: false,
-  saveUninitialized: false
-}));
 
 const SUBMIT_PATH = path.join(__dirname, "data", "submissions.json");
 
 // AUTH middleware
-function requireLogin(req, res, next) {
-  if (req.session && req.session.ingelogd) return next();
-  return res.redirect("/admin/login");
-}
 
 // INLOGROUTE
-app.get("/admin/login", (req, res) => {
-  res.sendFile(path.join(__dirname, "private", "login.html"));
+
 });
 
-app.post("/admin/login", (req, res) => {
-  const { gebruikersnaam, wachtwoord } = req.body;
+
   if (gebruikersnaam === "LVW" && wachtwoord === "MMP14") {
     req.session.ingelogd = true;
     return res.redirect("/admin");
@@ -39,17 +28,15 @@ app.post("/admin/login", (req, res) => {
   res.send("<p>Ongeldige gegevens. <a href='/admin/login'>Probeer opnieuw</a></p>");
 });
 
-app.get("/admin/logout", (req, res) => {
-  req.session.destroy(() => {
-    res.redirect("/admin/login");
+
   });
 });
 
-app.get("/admin", requireLogin, (req, res) => {
+app.get("/admin", (req, res) => {
   res.sendFile(path.join(__dirname, "private", "admin.html"));
 });
 
-app.get("/admin/data", requireLogin, (req, res) => {
+app.get("/admin/data", (req, res) => {
   if (fs.existsSync(SUBMIT_PATH)) {
     const data = JSON.parse(fs.readFileSync(SUBMIT_PATH));
     res.json(data);
