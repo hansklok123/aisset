@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Schepen in haven van Rotterdam</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 1rem;
+    }
+    h1 {
+      font-size: 1.5rem;
+    }
+    pre {
+      background: #f0f0f0;
+      padding: 1rem;
+      white-space: pre-wrap;
+      border-radius: 8px;
+      font-size: 0.95rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>Schepen in de haven van Rotterdam</h1>
+  <pre id="schepen">Laden...</pre>
+
+  <script>
+    async function haalSchepenOp() {
+      try {
+        const res = await fetch("/api/schepen");
+        const data = await res.json();
+
+        const tekst = data.map(schip => {
+          const naam = schip.naam || `MMSI: ${schip.mmsi}`;
+          const tijd = schip.tijd || "onbekend";
+          const lat = schip.lat?.toFixed(5);
+          const lon = schip.lon?.toFixed(5);
+          return `${naam}, ${tijd}, (${lat}, ${lon})`;
+        }).join("\n");
+
+        document.getElementById("schepen").textContent = tekst || "Geen schepen gevonden.";
+      } catch (err) {
+        document.getElementById("schepen").textContent = "Fout bij ophalen schepen.";
+        console.error(err);
+      }
+    }
+
+    setInterval(haalSchepenOp, 5000);
+    haalSchepenOp();
+  </script>
+</body>
+</html>
