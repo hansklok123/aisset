@@ -2,48 +2,17 @@
 const express = require("express");
 const fs = require("fs");
 const path = require("path");
-const session = require("express-session");
-const nodemailer = require("nodemailer");
+const sgMail = require("@sendgrid/mail");
 const { startStream, getNearbyShips } = require("./aisstream");
 
 startStream();
 const app = express();
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
 const SUBMIT_PATH = path.join(__dirname, "public", "data", "submissions.json");
 
-// AUTH middleware
-
-// INLOGROUTE
-
-});
-
-
-  if (gebruikersnaam === "LVW" && wachtwoord === "MMP14") {
-    req.session.ingelogd = true;
-    return res.redirect("/admin");
-  }
-  res.send("<p>Ongeldige gegevens. <a href='/admin/login'>Probeer opnieuw</a></p>");
-});
-
-
-  });
-});
-
-app.get("/admin", (req, res) => {
-  res.sendFile(path.join(__dirname, "private", "admin.html"));
-});
-
-app.get("/admin/data", (req, res) => {
-  if (fs.existsSync(SUBMIT_PATH)) {
-    const data = JSON.parse(fs.readFileSync(SUBMIT_PATH));
-    res.json(data);
-  } else {
-    res.json([]);
-  }
-});
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 app.post("/api/verstuur", async (req, res) => {
   const { csv, onderwerp } = req.body;
@@ -81,27 +50,24 @@ app.post("/api/verstuur", async (req, res) => {
       `"${record.Scheepsnaam}","${record.ETD}","${record.RedenGeenETD}","${record.Toelichting}","${record.Timestamp}","${record.Latitude}","${record.Longitude}"`
     ].join("\n");
 
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.GMAIL_USER,
-        pass: process.env.GMAIL_PASS
-      }
-    });
-
     try {
-      await transporter.sendMail({
-        from: \`ETD Formulier <\${process.env.GMAIL_USER}>\`,
+      await sgMail.send({
         to: "shipsetd@gmail.com",
+        from: "noreply@aisstream-app.com",
         subject: onderwerp,
-        text: "Bijgevoegd het ETD-formulier.",
-        attachments: [{ filename: "etd.csv", content: inhoudCSV }]
+        text: "In bijlage het ETD formulier",
+        attachments: [{
+          content: Buffer.from(inhoudCSV).toString("base64"),
+          filename: "etd.csv",
+          type: "text/csv",
+          disposition: "attachment"
+        }]
       });
 
-      console.log("✅ Mail verzonden");
+      console.log("✅ SendGrid mail verzonden");
       res.send("Verzonden");
     } catch (err) {
-      console.error("❌ MAIL FOUT:", err);
+      console.error("❌ SendGrid fout:", err);
       res.status(500).send("Mailfout");
     }
   }
