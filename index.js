@@ -2,9 +2,9 @@
 const express = require("express");
 const fs = require("fs");
 const path = require("path");
+const { Dropbox } = require("dropbox");
 const sgMail = require("@sendgrid/mail");
 const { startStream, getNearbyShips } = require("./aisstream");
-const { Dropbox } = require("dropbox");
 
 startStream();
 const app = express();
@@ -12,7 +12,6 @@ app.use(express.json());
 app.use(express.static("public"));
 
 const SUBMIT_PATH = path.join(__dirname, "public", "data", "submissions.json");
-
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 app.post("/api/verstuur", async (req, res) => {
@@ -56,7 +55,7 @@ app.post("/api/verstuur", async (req, res) => {
         to: "shipsetd@gmail.com",
         from: "noreply@aisstream-app.com",
         subject: onderwerp,
-        text: "In bijlage het ETD formulier",
+        text: "Bijgevoegd het ETD-formulier.",
         attachments: [{
           content: Buffer.from(inhoudCSV).toString("base64"),
           filename: "etd.csv",
@@ -65,24 +64,26 @@ app.post("/api/verstuur", async (req, res) => {
         }]
       });
 
-      console.log("✅ SendGrid mail verzonden");
-    const dbx = new Dropbox({ accessToken: process.env.DROPBOX_ACCESS_TOKEN });
-    await dbx.filesUpload({
-      path: `/etd/etd-${Date.now()}.csv`,
-      contents: inhoudCSV,
-      mode: 'add', autorename: true, mute: true
-    });
-    console.log("✅ Upload naar Dropbox gelukt");
+      const dbx = new Dropbox({ accessToken: process.env.DROPBOX_ACCESS_TOKEN });
+      await dbx.filesUpload({
+        path: `/etd/etd-${Date.now()}.csv`,
+        contents: inhoudCSV,
+        mode: "add",
+        autorename: true,
+        mute: true
+      });
+
+      console.log("✅ Verzonden + Dropbox upload succesvol");
       res.send("Verzonden");
     } catch (err) {
-      console.error("❌ SendGrid fout:", err);
-      res.status(500).send("Mailfout");
+      console.error("❌ Fout bij e-mail of Dropbox:", err);
+      res.status(500).send("Verzending mislukt");
     }
   }
 });
 
-app.get("/api/schepen", (req, res) => {
-  res.json(getNearbyShips());
+app.get("/api/ping", (req, res) => {
+  res.send("✅ API actief");
 });
 
 const PORT = process.env.PORT || 3000;
