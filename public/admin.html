@@ -25,8 +25,8 @@
     <tbody></tbody>
   </table>
 
-  <button onclick="exporteer('csv')">📤 Export CSV</button>
-  <button onclick="exporteer('xml')">📤 Export XML</button>
+  
+  
 
   <script>
     async function laad() {
@@ -53,5 +53,25 @@
 
     laad();
   </script>
+
+<button onclick="exporteerCSV()">📤 Exporteer CSV</button>
+
+<script>
+function exporteerCSV() {
+  const rows = Array.from(document.querySelectorAll("table tr"));
+  const csv = rows.map(row => {
+    return Array.from(row.querySelectorAll("th,td"))
+      .map(cell => `"${cell.textContent.trim()}"`).join(",");
+  }).join("\n");
+
+  const blob = new Blob([csv], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "etd-export.csv";
+  a.click();
+}
+</script>
+
 </body>
 </html>
