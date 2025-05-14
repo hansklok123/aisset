@@ -17,7 +17,7 @@
   </style>
 </head>
 <body>
-  <h1>Bewegende schepen (500m zone)</h1>
+  <h1>Bewegende schepen (1 km zone)</h1>
   <div id="map"></div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -30,9 +30,9 @@
       attribution: '&copy; OpenStreetMap-bijdragers'
     }).addTo(map);
 
-    // 500m cirkel
+    // 1 km cirkel
     L.circle([targetLat, targetLon], {
-      radius: 500,
+      radius: 1000,
       color: 'red',
       fill: false
     }).addTo(map);
@@ -71,12 +71,12 @@
           const p1 = track[track.length - 2];
           const p2 = track[track.length - 1];
           const afstand = afstandKm(p2.lat, p2.lon, targetLat, targetLon);
-          if (afstand > 0.5) return;
+          if (afstand > 1) return;
 
           const forecastLat = p2.lat + (p2.lat - p1.lat) * 6;
           const forecastLon = p2.lon + (p2.lon - p1.lon) * 6;
 
-          // Scheepsicoontje (driehoekvorm)
+          // Scheepsicoontje
           const shipIcon = L.divIcon({
             html: `<div style="
               width: 0; height: 0;
@@ -88,13 +88,13 @@
             className: ""
           });
 
-          // Marker verplaatsen met animatie
+          // Marker verplaatsen
           if (!markers[id]) {
             markers[id] = L.marker([p2.lat, p2.lon], { icon: shipIcon }).addTo(map);
           } else {
             const m = markers[id];
             let step = 0;
-            const steps = 60; // 6 sec animatie
+            const steps = 60;
             const from = m.getLatLng();
             const to = L.latLng(forecastLat, forecastLon);
             const interval = setInterval(() => {
@@ -106,7 +106,7 @@
             }, 100);
           }
 
-          // Naam label
+          // Label
           if (labels[id]) map.removeLayer(labels[id]);
           labels[id] = L.marker([p2.lat, p2.lon], {
             icon: L.divIcon({
@@ -121,7 +121,7 @@
           const coords = track.map(p => [p.lat, p.lon]);
           tracks[id] = L.polyline(coords, { color: 'blue' }).addTo(map);
 
-          // Rode stippellijn voorspelling
+          // Rode stippelvoorspelling
           if (forecasts[id]) map.removeLayer(forecasts[id]);
           forecasts[id] = L.polyline([[p2.lat, p2.lon], [forecastLat, forecastLon]], {
             color: 'red',
