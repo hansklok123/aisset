@@ -81,9 +81,23 @@ function startStream() {
   });
 }
 
-// Minder strenge filtering: toon alles met positie (naam optioneel)
+// Debugfunctie: log ook schepen die NIET voldoen
 function getNearbyShips() {
-  return Object.values(schepen).filter(s => s.lat && s.lon);
+  const alles = Object.entries(schepen);
+  console.log(`🧪 Aantal schepen in cache: ${alles.length}`);
+
+  alles.forEach(([mmsi, schip]) => {
+    if (!schip.lat || !schip.lon) {
+      console.log(`ℹ️ ${mmsi} heeft naam ${schip.naam || "-"}, maar mist lat/lon`);
+    }
+  });
+
+  const resultaat = alles
+    .map(([_, schip]) => schip)
+    .filter(s => s.lat && s.lon);
+
+  console.log(`🔎 Filterresultaat: ${resultaat.length} schepen met positie`);
+  return resultaat;
 }
 
 module.exports = { startStream, getNearbyShips };
