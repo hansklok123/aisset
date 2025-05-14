@@ -57,6 +57,7 @@ function startStream() {
       const mmsi = msg.MetaData.MMSI;
       const messageType = msg.MessageType;
       console.log(`📩 ${messageType} ontvangen voor MMSI ${mmsi}`);
+      console.log("📦 Berichtinhoud:", JSON.stringify(msg, null, 2));
 
       if (msg.MetaData.Latitude && msg.MetaData.Longitude) {
         const { Latitude, Longitude } = msg.MetaData;
