@@ -95,7 +95,7 @@
     
     @keyframes achtergrondFade {
       0%   { filter: brightness(1); }
-      100% { filter: brightness(0.5); }
+      100% { filter: brightness(0.8); }
     }
 
     .form-container {
@@ -124,15 +124,6 @@
       font-size: 1.5rem;
     }
     
-    .form-container {
-      background-color: rgba(255, 255, 255, 0.8);
-      box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-      border-radius: 1rem;
-      padding: 1.5rem;
-      backdrop-filter: blur(5px);
-      max-width: 600px;
-      margin: auto;
-    }
 
     .form-header h2 {
       color: #003b5c;
@@ -148,20 +139,10 @@
     }
 
     button {
-      background-color: #003b5c;
+      background-color: #85d678;
       color: white;
     }
     
-    .form-container {
-      padding: 1.5rem;
-      margin: 2rem auto;
-      max-width: 600px;
-      background-color: rgba(255, 255, 255, 0.9);
-      border-radius: 1rem;
-      box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-      backdrop-filter: blur(5px);
-      box-sizing: border-box;
-    }
 
     input, select, textarea {
       width: 100%;
@@ -175,10 +156,6 @@
       margin-top: 1rem;
     }
     
-    .form-container {
-      background-color: rgba(255, 255, 255, 0.02); /* bijna transparant */
-      box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
-    }
     
     body, label, h2 {
       color: #f8f9fa;
@@ -240,14 +217,13 @@
     </style>
 </head>
 <body>
-<h2>ETD Invoeren</h2>
 <div id="bevestiging">✔️ Inzending succesvol verzonden</div>
 <div class="form-container">
 <div class="form-header">
 <img alt="logo" src="https://img.icons8.com/external-flat-icons-inmotus-design/67/000000/external-ship-port-flat-icons-inmotus-design.png"/>
-<h2>ETD Invoeren</h2>
 </div>
 <form id="etdForm">
+    <h2>ETD Invoeren</h2>
 <label>Scheepsnaam:<select id="huidigSchipSelect" name="scheepsnaam"><option value="">Laden...</option></select></label><label>ETD:
       <input id="etd" name="etd" type="datetime-local"/>
 </label>
