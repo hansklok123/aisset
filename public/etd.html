@@ -1,48 +1,12 @@
+
 <!DOCTYPE html>
 <html lang="nl">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ETD Formulier</title>
   <style>
-    :root {
-      --kleur-hoofd: #003b5c;
-      --kleur-accent: #e0f7ff;
-      --kleur-tekst: #002d44;
-    }
-
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      margin: 0;
-      padding: 1rem;
-      background: var(--kleur-accent);
-      color: var(--kleur-tekst);
-      display: flex;
-      justify-content: center;
-    }
-
-    .container {
-      background: white;
-      border-radius: 16px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      padding: 2rem;
-      width: 100%;
-      max-width: 600px;
-      box-sizing: border-box;
-    }
-
-    h2 {
-      color: var(--kleur-hoofd);
-      margin-top: 0;
-      text-align: center;
-    }
-
-    label {
-      display: block;
-      margin-top: 1.5rem;
-      font-weight: 600;
-    }
-
+    body { font-family: sans-serif; max-width: 600px; margin: auto; padding: 2rem; }
+    label { display: block; margin-top: 1rem; }
     input, select, textarea, button {
       width: 100%;
       padding: 0.75rem;
@@ -50,22 +14,14 @@
       border-radius: 8px;
       border: 1px solid #ccc;
       margin-top: 0.5rem;
-      box-sizing: border-box;
     }
-
     button {
-      background: var(--kleur-hoofd);
+      background: #003b5c;
       color: white;
       border: none;
       cursor: pointer;
-      margin-top: 2rem;
-      transition: background 0.3s ease;
+      margin-top: 1.5rem;
     }
-
-    button:hover {
-      background: #005a87;
-    }
-
     #bevestiging {
       display: none;
       padding: 1rem;
@@ -73,50 +29,51 @@
       color: #3c763d;
       border-radius: 8px;
       margin-bottom: 1rem;
-      text-align: center;
-    }
-
-    @media (max-width: 600px) {
-      body {
-        padding: 1rem 0.5rem;
-      }
-
-      .container {
-        padding: 1rem;
-        border-radius: 0;
-        box-shadow: none;
-      }
     }
   </style>
 </head>
-<body>
-  <div class="container">
+
+<body style="background: url('https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/Port_of_Rotterdam_Aerial.jpg/1920px-Port_of_Rotterdam_Aerial.jpg') no-repeat center center fixed; background-size: cover;">
+  <div style="background-color: rgba(255, 255, 255, 0.85); border-radius: 16px; padding: 2rem; max-width: 600px; margin: 2rem auto;">
     <h2>ETD Invoeren</h2>
-    <div id="bevestiging">✔️ Inzending succesvol verzonden</div>
+    <div id="bevestiging" style="display:none; padding:1rem; background:#dff0d8; color:#3c763d; border-radius:8px; margin-bottom:1rem;">
+      ✔️ Inzending succesvol verzonden
+    </div>
 
     <form id="etdForm">
-      <label>Huidig schip (op loodsboot):
+      <label>Huidig schip (op loodsboot):</label>
+      <div style="display: flex; align-items: center; gap: 1rem;">
         <div id="huidigSchipNaam">Detecteren...</div>
-      </label>
+<label for="schipDropdown">Andere schepen in de buurt:</label>
+<select id="schipDropdown" style="margin-top: 0.5rem;"></select>
+        <img id="vlaggetje" src="" alt="🇳🇱" style="width: 24px; height: 16px; display: none;" />
+      </div>
 
-      <label>ETD:
+      <div style="margin-top:1rem;">
+        <label>
+          <input type="checkbox" id="anderSchip" /> Een ander schip kiezen
+        </label>
+        <input type="text" id="handmatigSchip" placeholder="Schipnaam invoeren" style="display:none;" list="schiplijst" />
+        <datalist id="schiplijst"></datalist>
+      </div>
+
+      <div id="etdVeld" style="margin-top: 1rem;">
+        <label>ETD:</label>
         <input type="datetime-local" id="etd" name="etd" />
-      </label>
+      </div>
 
-      <label>Reden indien geen ETD:
-        <select id="reden" name="reden">
-          <option value="">-- Kies reden --</option>
-          <option value="Niet bekend bij de Kapitein">Niet bekend bij de Kapitein</option>
-          <option value="Taal barrière">Taal barrière</option>
-          <option value="Overig">Overig</option>
-        </select>
-      </label>
+      <label style="margin-top: 1rem;">Reden indien geen ETD:</label>
+      <select id="reden" name="reden">
+        <option value="">-- Kies reden --</option>
+        <option value="Niet bekend bij de Kapitein">Niet bekend bij de Kapitein</option>
+        <option value="Taal barrière">Taal barrière</option>
+        <option value="Overig">Overig</option>
+      </select>
 
-      <label>Toelichting (optioneel):
-        <textarea id="toelichting" name="toelichting" rows="4"></textarea>
-      </label>
+      <label id="toelichtingLabel" style="display:none; margin-top: 1rem;">Toelichting (optioneel):</label>
+      <textarea id="toelichting" name="toelichting" rows="4" style="display:none;"></textarea>
 
-      <button type="submit">Verzenden</button>
+      <button type="submit" style="margin-top:1.5rem; padding: 0.75rem 1.5rem; border-radius: 8px; background: #003b5c; color: white; border: none; font-size: 1rem;">Verzenden</button>
     </form>
   </div>
 
@@ -124,8 +81,12 @@
     document.getElementById("etdForm").addEventListener("submit", async function (e) {
       e.preventDefault();
 
+      const naam = document.getElementById("anderSchip").checked
+        ? document.getElementById("handmatigSchip").value
+        : document.getElementById("huidigSchipNaam").textContent.trim();
+
       const data = {
-        scheepsnaam: document.getElementById("huidigSchipNaam").textContent.trim(),
+        scheepsnaam: naam,
         etd: document.getElementById("etd")?.value || "",
         reden: document.getElementById("reden")?.value || "",
         toelichting: document.getElementById("toelichting")?.value || "",
@@ -135,23 +96,40 @@
       const csv = [
         "Scheepsnaam,ETD,RedenGeenETD,Toelichting,Timestamp",
         `${data.scheepsnaam},${data.etd},${data.reden},${data.toelichting},${data.timestamp}`
-      ].join("\n");
-
-      const onderwerp = data.etd ?
-        `ETD Positive, ${data.scheepsnaam}, ${data.timestamp}` :
-        `ETD Negative, ${data.scheepsnaam}, ${data.timestamp}`;
+      ].join("
+");
 
       const res = await fetch("/api/verstuur", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ csv, onderwerp })
+        body: JSON.stringify({ csv, onderwerp: `ETD Inzending, ${data.scheepsnaam}, ${data.timestamp}` })
       });
 
       if (res.ok) {
         document.getElementById("bevestiging").style.display = "block";
+        document.getElementById("etdForm").reset();
+        document.getElementById("vlaggetje").style.display = "none";
       } else {
         alert("❌ Fout bij verzenden");
       }
+    });
+
+    document.getElementById("reden").addEventListener("change", function () {
+      const reden = this.value;
+      document.getElementById("etdVeld").style.display = reden ? "none" : "block";
+      const toel = document.getElementById("toelichting");
+      const label = document.getElementById("toelichtingLabel");
+      if (reden === "Overig") {
+        toel.style.display = "block";
+        label.style.display = "block";
+      } else {
+        toel.style.display = "none";
+        label.style.display = "none";
+      }
+    });
+
+    document.getElementById("anderSchip").addEventListener("change", function () {
+      document.getElementById("handmatigSchip").style.display = this.checked ? "block" : "none";
     });
 
     async function detecteerSchip() {
@@ -164,22 +142,67 @@
 
         const res = await fetch("/api/schepen");
         const schepen = await res.json();
+
         const dichtbij = schepen.map(s => {
           const track = s.track || [];
           const laatst = track[track.length - 1];
           const d = Math.sqrt((lat - laatst.lat) ** 2 + (lon - laatst.lon) ** 2);
-          return { naam: s.naam, afstand: d };
+          return { naam: s.naam, mmsi: s.mmsi, afstand: d };
         }).sort((a, b) => a.afstand - b.afstand);
 
+        const lijst = document.getElementById("schiplijst");
+        lijst.innerHTML = "";
+        dichtbij.forEach(s => {
+          const opt = document.createElement("option");
+          opt.value = s.naam;
+          lijst.appendChild(opt);
+        });
+
         if (dichtbij.length > 0) {
-          document.getElementById("huidigSchipNaam").textContent = dichtbij[0].naam;
+        const huidig = dichtbij[0];
+        document.getElementById("huidigSchipNaam").textContent = huidig.naam;
+
+        const dropdown = document.getElementById("schipDropdown");
+        dropdown.innerHTML = "";
+        dichtbij.forEach(s => {
+          const opt = document.createElement("option");
+          opt.value = s.naam;
+          opt.textContent = s.naam;
+          dropdown.appendChild(opt);
+        });
+
+        dropdown.addEventListener("change", () => {
+          document.getElementById("huidigSchipNaam").textContent = dropdown.value;
+        });
+    
+          const schip = dichtbij[0];
+          document.getElementById("huidigSchipNaam").textContent = schip.naam;
+
+          const vlag = schip.mmsi?.toString().substring(0, 3);
+          const landcode = vlagToISO(vlag);
+          if (landcode) {
+            const vlagurl = `https://flagcdn.com/24x18/${landcode}.png`;
+            const vlagimg = document.getElementById("vlaggetje");
+            vlagimg.src = vlagurl;
+            vlagimg.style.display = "inline-block";
+          }
         }
       } catch (err) {
-        console.warn("Kon locatie of schepen niet ophalen:", err);
+        console.warn("Locatie of schepen niet beschikbaar:", err);
       }
+    }
+
+    function vlagToISO(mmsiprefix) {
+      const m = {
+        "205": "be", "206": "be", "244": "nl", "245": "nl", "246": "nl", "235": "gb",
+        "219": "dk", "218": "dk", "227": "fr", "228": "fr", "213": "de", "211": "de",
+        "310": "us", "311": "us", "316": "ca", "257": "no", "257": "no"
+      };
+      return m[mmsiprefix];
     }
 
     detecteerSchip();
   </script>
 </body>
+
 </html>
