@@ -1,6 +1,6 @@
 const WebSocket = require("ws");
 
-let schepen = {}; // { MMSI: { naam, tijd, track: [ { lat, lon } ] } }
+let schepen = {}; // { MMSI: { naam, tijd, track: [{lat, lon, time}] } }
 
 function afstandKm(lat1, lon1, lat2, lon2) {
   const R = 6371;
@@ -30,9 +30,6 @@ function startStream() {
   ws.on("message", (data) => {
     try {
       const msg = JSON.parse(data);
-      console.log("📦 Volledig bericht ontvangen:");
-      console.log(JSON.stringify(msg, null, 2));
-
       if (msg.MessageType !== "PositionReport" || !msg.MetaData) return;
 
       const mmsi = msg.MetaData.MMSI;
@@ -43,7 +40,7 @@ function startStream() {
           schepen[mmsi] = {
             naam: ShipName || "",
             tijd: time_utc || "",
-            track: [{ lat: latitude, lon: longitude }]
+            track: [{ lat: latitude, lon: longitude, time: time_utc }]
           };
         } else {
           schepen[mmsi].naam = ShipName || schepen[mmsi].naam;
@@ -51,7 +48,7 @@ function startStream() {
           const track = schepen[mmsi].track;
           const laatste = track[track.length - 1];
           if (!laatste || laatste.lat !== latitude || laatste.lon !== longitude) {
-            track.push({ lat: latitude, lon: longitude });
+            track.push({ lat: latitude, lon: longitude, time: time_utc });
             if (track.length > 20) track.shift(); // max 20 punten
           }
         }
