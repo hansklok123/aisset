@@ -5,20 +5,61 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ETD Registratie</title>
   <style>
-    body { font-family: sans-serif; padding: 1rem; max-width: 600px; margin: auto; }
-    label { display: block; margin-top: 1rem; font-weight: bold; }
-    input, select, button, textarea {
-      width: 100%; padding: 0.5rem; font-size: 1rem; margin-top: 0.25rem;
+    body {
+      background-color: #f5f5f5;
+      color: #002b45;
+      font-family: "Segoe UI", sans-serif;
+      padding: 1rem;
+      max-width: 600px;
+      margin: auto;
+    }
+    h2 {
+      color: #003b5c;
+    }
+    label {
+      display: block;
+      margin-top: 1rem;
+      font-weight: bold;
+    }
+    input, select, textarea {
+      width: 100%;
+      padding: 0.75rem;
+      font-size: 1rem;
+      margin-top: 0.25rem;
+      border: 1px solid #aaa;
+      border-radius: 8px;
+      box-sizing: border-box;
+    }
+    button {
+      background-color: #003b5c;
+      color: white;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      padding: 0.75rem 1.5rem;
+      margin-top: 1.5rem;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    button:hover {
+      background-color: #005b8c;
     }
     .hidden { display: none; }
-    #csv-output { margin-top: 1.5rem; font-family: monospace; white-space: pre; background: #eee; padding: 1rem; border-radius: 6px; }
-  </style>
+    #csv-output {
+      margin-top: 1.5rem;
+      font-family: monospace;
+      white-space: pre;
+      background: #eee;
+      padding: 1rem;
+      border-radius: 6px;
+    }
+</style>
 </head>
 <body>
   <h2>📋 Voer ETD in van schip</h2>
 
   <label id="schiplabel">Huidig schip (op loodsboot):</label>
-  <select id="huidigSchipSelect"></select>
+  <div id="huidigSchipNaam">Detecteren...</div>
 
   <label><input type="checkbox" id="handmatigInvoeren" onchange="toggleHandmatig()"> Handmatig invoeren</label>
   <input type="text" id="handmatigeNaam" class="hidden" placeholder="Typ scheepsnaam..." list="namenlijst" />
@@ -56,10 +97,7 @@
       try {
         const res = await fetch("/api/schepen");
         schepen = await res.json();
-
         const datalist = document.getElementById("namenlijst");
-        const select = document.getElementById("huidigSchipSelect");
-        select.innerHTML = "";
 
         if (navigator.geolocation) {
           navigator.geolocation.getCurrentPosition(pos => {
@@ -73,9 +111,7 @@
             }).filter(s => s.afstand < 0.5).sort((a, b) => a.afstand - b.afstand);
 
             if (dichtbij.length > 0) {
-              const opt = document.createElement("option");
-              opt.value = dichtbij[0].naam;
-              select.appendChild(opt);
+              document.getElementById("huidigSchipNaam").textContent = dichtbij[0].naam;
             }
           });
         }
@@ -93,8 +129,7 @@
     function toggleHandmatig() {
       const actief = document.getElementById("handmatigInvoeren").checked;
       document.getElementById("handmatigeNaam").classList.toggle("hidden", !actief);
-      document.getElementById("huidigSchipSelect").classList.toggle("hidden", actief);
-      document.getElementById("schiplabel").classList.toggle("hidden", actief);
+      document.getElementById("huidigSchipNaam").classList.toggle("hidden", actief);
     }
 
     function toggleGeenETD() {
@@ -110,17 +145,15 @@
     });
 
     function maakCSV() {
-      const huidige = document.getElementById("huidigSchipSelect").value;
-      const handmatigActief = document.getElementById("handmatigInvoeren").checked;
-      const handmatigeNaam = document.getElementById("handmatigeNaam").value;
+      const naam = document.getElementById("handmatigInvoeren").checked
+        ? document.getElementById("handmatigeNaam").value
+        : document.getElementById("huidigSchipNaam").textContent;
       const etd = document.getElementById("etd").value;
       const geenETD = document.getElementById("geenETD").checked;
       const reden = document.getElementById("geenETDReden").value;
       const overig = document.getElementById("overigReden").value;
       const timestamp = new Date().toISOString();
-
-      let naam = huidige;
-      if (handmatigActief && handmatigeNaam) naam = handmatigeNaam;
+      const subject = `${etd ? "ETD Positive" : "ETD Negative"}, ${naam}, ${timestamp}`;
 
       let output = "Scheepsnaam,ETD,RedenGeenETD,Toelichting,Timestamp\n";
       if (geenETD) {
@@ -129,7 +162,6 @@
         output += `"${naam}","${etd}","","","${timestamp}"`;
       }
 
-      // CSV lokaal downloaden
       const blob = new Blob([output], { type: "text/csv;charset=utf-8;" });
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
@@ -139,16 +171,14 @@
       link.click();
       document.body.removeChild(link);
 
-      // Toon csv
       document.getElementById("csv-output").classList.remove("hidden");
       document.getElementById("csv-output").textContent = output;
 
-      // Verstuur e-mail via backend
       fetch("/api/verstuur", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ csv: output, onderwerp: `${timestamp} – ${naam}` })
-      }).then(() => console.log("✅ Verzonden naar mailserver"));
+        body: JSON.stringify({ csv: output, onderwerp: subject })
+      }).then(() => console.log("✅ Mail verzonden"));
     }
 
     window.onload = () => {
