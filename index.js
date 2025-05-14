@@ -1,8 +1,8 @@
 const express = require("express");
-const basicAuth = require("express-basic-auth");
 const fs = require("fs");
-const nodemailer = require("nodemailer");
 const path = require("path");
+const basicAuth = require("express-basic-auth");
+const nodemailer = require("nodemailer");
 const { startStream, getNearbyShips } = require("./aisstream");
 
 startStream();
@@ -10,7 +10,7 @@ const app = express();
 app.use(express.json());
 app.use(express.static("public"));
 
-const CSV_PAD = path.join(__dirname, "data", "submissions.json");
+const SUBMIT_PATH = path.join(__dirname, "data", "submissions.json");
 
 app.get("/api/schepen", (req, res) => {
   res.json(getNearbyShips());
@@ -18,13 +18,13 @@ app.get("/api/schepen", (req, res) => {
 
 app.post("/api/verstuur", async (req, res) => {
   const { csv, onderwerp } = req.body;
-  if (!csv || !onderwerp) return res.status(400).send("Incompleet verzoek");
+  if (!csv || !onderwerp) return res.status(400).send("Ongeldige gegevens");
 
-  const timestamp = new Date().toISOString();
+  const tijd = new Date().toISOString();
   const regels = csv.split("\n");
   if (regels.length >= 2) {
-    const [_, waarden] = regels;
-    const delen = waarden.split(",");
+    const [_, inhoud] = regels;
+    const delen = inhoud.split(",");
     const record = {
       Scheepsnaam: delen[0]?.replaceAll('"', ""),
       ETD: delen[1]?.replaceAll('"', ""),
@@ -36,21 +36,19 @@ app.post("/api/verstuur", async (req, res) => {
     };
 
     const schepen = getNearbyShips();
-    const schip = schepen.find(s => s.naam?.trim() === record.Scheepsnaam?.trim());
-    if (schip && schip.track?.length > 0) {
-      const laatste = schip.track[schip.track.length - 1];
+    const match = schepen.find(s => s.naam?.trim() === record.Scheepsnaam?.trim());
+    if (match && match.track?.length > 0) {
+      const laatste = match.track[match.track.length - 1];
       record.Latitude = laatste.lat;
       record.Longitude = laatste.lon;
     }
 
     let data = [];
-    if (fs.existsSync(CSV_PAD)) {
-      data = JSON.parse(fs.readFileSync(CSV_PAD));
-    }
+    if (fs.existsSync(SUBMIT_PATH)) data = JSON.parse(fs.readFileSync(SUBMIT_PATH));
     data.push(record);
-    fs.writeFileSync(CSV_PAD, JSON.stringify(data, null, 2));
+    fs.writeFileSync(SUBMIT_PATH, JSON.stringify(data, null, 2));
 
-    const csvOutput = [
+    const inhoudCSV = [
       "Scheepsnaam,ETD,RedenGeenETD,Toelichting,Timestamp,Latitude,Longitude",
       `"${record.Scheepsnaam}","${record.ETD}","${record.RedenGeenETD}","${record.Toelichting}","${record.Timestamp}","${record.Latitude}","${record.Longitude}"`
     ].join("\n");
@@ -64,29 +62,23 @@ app.post("/api/verstuur", async (req, res) => {
     });
 
     try {
-      await transporter.sendMail({
-        from: `"Loodswezen ETD" <${process.env.GMAIL_USER}>`,
+      const info = await transporter.sendMail({
+        from: \`ETD Formulier <\${process.env.GMAIL_USER}>\`,
         to: "shipsetd@gmail.com",
         subject: onderwerp,
-        text: "Bijgevoegd het ETD-formulier.",
-        attachments: [{
-          filename: "etd-registratie.csv",
-          content: csvOutput
-        }]
+        text: "In bijlage het ETD formulier",
+        attachments: [{ filename: "etd.csv", content: inhoudCSV }]
       });
-
-      console.log("✅ Mail verzonden");
-      res.send("Mail verzonden");
+      console.log("✅ Mail verzonden:", info.response);
+      res.send("Verzonden");
     } catch (err) {
-      console.error("❌ Mailfout:", err);
-      res.status(500).send("Fout bij versturen");
+      console.error("❌ MAIL FOUT:", err);
+      res.status(500).send("Mailfout");
     }
-  } else {
-    res.status(400).send("Onvolledige CSV-inhoud");
   }
 });
 
-// Beveiligde adminomgeving
+// Admin beveiliging
 app.use("/admin", basicAuth({
   users: { "LVW": "MMP14" },
   challenge: true,
@@ -97,35 +89,13 @@ app.get("/admin", (req, res) => {
 });
 
 app.get("/admin/data", (req, res) => {
-  const data = fs.existsSync(CSV_PAD) ? JSON.parse(fs.readFileSync(CSV_PAD)) : [];
-  res.json(data);
-});
-
-app.get("/admin/export", (req, res) => {
-  const data = fs.existsSync(CSV_PAD) ? JSON.parse(fs.readFileSync(CSV_PAD)) : [];
-  const type = req.query.type;
-
-  if (type === "csv") {
-    const csv = [
-      "Scheepsnaam,ETD,RedenGeenETD,Toelichting,Timestamp,Latitude,Longitude",
-      ...data.map(d =>
-        [d.Scheepsnaam, d.ETD, d.RedenGeenETD, d.Toelichting, d.Timestamp, d.Latitude, d.Longitude]
-          .map(v => `"${v}"`).join(","))
-    ].join("\n");
-    res.setHeader("Content-Type", "text/csv");
-    res.send(csv);
-  } else if (type === "xml") {
-    const xml = "<?xml version=\"1.0\"?><ETDRegistraties>" + data.map(d =>
-      `<ETD><Scheepsnaam>${d.Scheepsnaam}</Scheepsnaam><ETD>${d.ETD}</ETD><RedenGeenETD>${d.RedenGeenETD}</RedenGeenETD><Toelichting>${d.Toelichting}</Toelichting><Timestamp>${d.Timestamp}</Timestamp><Latitude>${d.Latitude}</Latitude><Longitude>${d.Longitude}</Longitude></ETD>`
-    ).join("") + "</ETDRegistraties>";
-    res.setHeader("Content-Type", "application/xml");
-    res.send(xml);
+  if (fs.existsSync(SUBMIT_PATH)) {
+    const data = JSON.parse(fs.readFileSync(SUBMIT_PATH));
+    res.json(data);
   } else {
-    res.status(400).send("Onbekend formaat");
+    res.json([]);
   }
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`🌍 Server draait op poort ${PORT}`);
-});
+app.listen(PORT, () => console.log("🌍 Draait op poort", PORT));
