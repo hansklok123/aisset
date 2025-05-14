@@ -5,13 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Schepen in haven van Rotterdam</title>
   <style>
-    body {
-      font-family: sans-serif;
-      padding: 1rem;
-    }
-    h1 {
-      font-size: 1.5rem;
-    }
+    body { font-family: sans-serif; padding: 1rem; }
+    h1 { font-size: 1.5rem; }
     pre {
       background: #f0f0f0;
       padding: 1rem;
@@ -19,13 +14,75 @@
       border-radius: 8px;
       font-size: 0.95rem;
     }
+    input { width: 100%; padding: 0.5rem; margin-bottom: 0.5rem; }
+    button { padding: 0.6rem; width: 100%; margin-bottom: 1rem; }
+    #resultaat { font-weight: bold; margin-bottom: 1rem; }
   </style>
 </head>
 <body>
   <h1>Schepen in de haven van Rotterdam</h1>
-  <pre id="schepen">Laden...</pre>
+
+  <label>Latitude:
+    <input type="number" id="lat" step="0.00001" placeholder="vul in of gebruik GPS" />
+  </label>
+  <label>Longitude:
+    <input type="number" id="lon" step="0.00001" placeholder="vul in of gebruik GPS" />
+  </label>
+  <button onclick="zoekDichtstbij()">🔍 Zoek dichtstbijzijnd schip (max 400m)</button>
+  <p id="resultaat">Wacht op GPS of handmatige invoer...</p>
+
+  <pre id="schepen">Laden scheepsgegevens...</pre>
 
   <script>
+    function afstandKm(lat1, lon1, lat2, lon2) {
+      const R = 6371;
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLon = (lon2 - lon1) * Math.PI / 180;
+      const a = Math.sin(dLat / 2) ** 2 +
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                Math.sin(dLon / 2) ** 2;
+      return 2 * R * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    }
+
+    async function zoekDichtstbij() {
+      const lat = parseFloat(document.getElementById("lat").value);
+      const lon = parseFloat(document.getElementById("lon").value);
+
+      if (isNaN(lat) || isNaN(lon)) {
+        document.getElementById("resultaat").textContent = "❌ Ongeldige coördinaten.";
+        return;
+      }
+
+      try {
+        const res = await fetch("/api/schepen");
+        const data = await res.json();
+
+        let beste = null;
+        let kortste = Infinity;
+
+        data.forEach(schip => {
+          if (Array.isArray(schip.track) && schip.track.length > 0) {
+            const laatste = schip.track[schip.track.length - 1];
+            const d = afstandKm(lat, lon, laatste.lat, laatste.lon);
+            if (d < kortste) {
+              kortste = d;
+              beste = { naam: schip.naam, afstand: d, tijd: schip.tijd, lat: laatste.lat, lon: laatste.lon };
+            }
+          }
+        });
+
+        if (beste && beste.afstand <= 0.4) {
+          document.getElementById("resultaat").textContent =
+            `✅ Dichtstbij: ${beste.naam}, ${beste.tijd}, (${beste.lat.toFixed(5)}, ${beste.lon.toFixed(5)}) [${Math.round(beste.afstand * 1000)}m]`;
+        } else {
+          document.getElementById("resultaat").textContent = "❌ Geen schip binnen 400m gevonden.";
+        }
+      } catch (err) {
+        console.error(err);
+        document.getElementById("resultaat").textContent = "❌ Fout bij ophalen schepen.";
+      }
+    }
+
     async function haalSchepenOp() {
       try {
         const res = await fetch("/api/schepen");
@@ -35,13 +92,11 @@
           const naam = schip.naam || `MMSI: ${schip.mmsi}`;
           const tijd = schip.tijd || "onbekend";
           let lat = "onbekend", lon = "onbekend";
-
           if (Array.isArray(schip.track) && schip.track.length > 0) {
             const laatste = schip.track[schip.track.length - 1];
             lat = laatste.lat?.toFixed(5);
             lon = laatste.lon?.toFixed(5);
           }
-
           return `${naam}, ${tijd}, (${lat}, ${lon})`;
         }).join("\n");
 
@@ -52,8 +107,20 @@
       }
     }
 
-    setInterval(haalSchepenOp, 5000);
-    haalSchepenOp();
+    function vulGPS() {
+      if (!navigator.geolocation) return;
+      navigator.geolocation.getCurrentPosition(pos => {
+        document.getElementById("lat").value = pos.coords.latitude.toFixed(5);
+        document.getElementById("lon").value = pos.coords.longitude.toFixed(5);
+        zoekDichtstbij();
+      });
+    }
+
+    window.onload = () => {
+      vulGPS();
+      haalSchepenOp();
+      setInterval(haalSchepenOp, 5000);
+    };
   </script>
 </body>
 </html>
