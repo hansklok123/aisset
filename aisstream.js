@@ -12,13 +12,12 @@ function afstandKm(lat1, lon1, lat2, lon2) {
   return 2 * R * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
-// Doellocatie: regio Hoek van Holland
 function isBinnenBereik(lat, lon) {
   return afstandKm(lat, lon, 51.9885, 4.0425) <= 20;
 }
 
 function isCommercieelType(type) {
-  return type !== 36; // alleen pleziervaart actief uitsluiten
+  return type !== 36; // Alleen pleziervaart uitsluiten
 }
 
 function startStream() {
@@ -29,7 +28,7 @@ function startStream() {
 
     const subscription = {
       APIKey: process.env.AIS_API_KEY,
-      BoundingBoxes: [[[51.8, 3.9], [52.2, 4.3]]], // Ruimer gebied
+      BoundingBoxes: [[[51.8, 3.9], [52.2, 4.3]]],
       FilterMessageTypes: ["PositionReport", "StaticDataReport"]
     };
 
@@ -67,7 +66,7 @@ function startStream() {
         if (isCommercieelType(msg.MetaData.ShipType)) {
           console.log(`🛳️ Schip: ${mmsi} – ${msg.MetaData.ShipName} (type ${msg.MetaData.ShipType})`);
         } else {
-          delete schepen[mmsi]; // pleziervaart eruit filteren
+          delete schepen[mmsi];
         }
       }
     } catch (err) {
@@ -82,8 +81,9 @@ function startStream() {
   });
 }
 
+// Minder strenge filtering: toon alles met positie (naam optioneel)
 function getNearbyShips() {
-  return Object.values(schepen).filter(s => s.naam && s.lat && s.lon);
+  return Object.values(schepen).filter(s => s.lat && s.lon);
 }
 
 module.exports = { startStream, getNearbyShips };
