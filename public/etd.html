@@ -202,9 +202,9 @@ document.getElementById("etdForm").addEventListener("submit", async function (e)
   });
 
   if (res.ok) {
-    alert("✅ ETD succesvol verzonden");
-    document.getElementById("etdForm").reset();
-  } else {
+  document.getElementById("bevestiging").style.display = "block";
+  document.getElementById("etdForm").reset();
+} else {
     alert("❌ Fout bij verzenden");
   }
 });
