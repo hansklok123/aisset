@@ -34,21 +34,28 @@
       try {
         const res = await fetch("/api/schepen");
         const data = await res.json();
+        console.log("🔄 Ontvangen schepen:", data);
 
         // markers bijwerken
-        data.forEach(schip => {
-          const id = schip.naam;
-          if (!markers[id]) {
-            const marker = L.marker([schip.lat, schip.lon])
-              .addTo(map)
-              .bindPopup(`<strong>${schip.naam}</strong>`);
-            markers[id] = marker;
-          } else {
-            markers[id].setLatLng([schip.lat, schip.lon]);
+        data.forEach((schip, index) => {
+          const id = schip.naam || `Schip-${index}`;
+          const lat = schip.lat;
+          const lon = schip.lon;
+
+          if (lat && lon) {
+            if (!markers[id]) {
+              const marker = L.marker([lat, lon])
+                .addTo(map)
+                .bindPopup(`<strong>${id}</strong>`);
+              markers[id] = marker;
+            } else {
+              markers[id].setLatLng([lat, lon]);
+              markers[id].getPopup().setContent(`<strong>${id}</strong>`);
+            }
           }
         });
       } catch (err) {
-        console.error("Fout bij ophalen schepen:", err);
+        console.error("❌ Fout bij ophalen schepen:", err);
       }
     }
 
