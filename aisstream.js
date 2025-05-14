@@ -25,7 +25,25 @@ function startStream() {
     const subscription = {
       APIKey: process.env.AIS_API_KEY,
       BoundingBoxes: [[[51.8, 3.9], [52.2, 4.3]]],
-      FilterMessageTypes: ["PositionReport"]
+      FilterMessageTypes: [
+        "PositionReport",
+        "StaticDataReport",
+        "BaseStationReport",
+        "SafetyBroadcastMessage",
+        "AddressedSafetyMessage",
+        "AidsToNavigationReport",
+        "ShipStaticData",
+        "StandardClassBPositionReport",
+        "ExtendedClassBPositionReport",
+        "Interrogation",
+        "BinaryBroadcastMessage",
+        "BinaryAcknowledge",
+        "DataLinkManagementMessage",
+        "GroupAssignmentCommand",
+        "ChannelManagement",
+        "LongRangeAisBroadcastMessage",
+        "AssignedModeCommand"
+      ]
     };
 
     ws.send(JSON.stringify(subscription));
@@ -34,17 +52,21 @@ function startStream() {
   ws.on("message", (data) => {
     try {
       const msg = JSON.parse(data);
-      if (msg.MessageType !== "PositionReport" || !msg.MetaData) return;
+      if (!msg.MessageType || !msg.MetaData) return;
 
       const mmsi = msg.MetaData.MMSI;
-      const { Latitude, Longitude } = msg.MetaData;
+      const messageType = msg.MessageType;
+      console.log(`📩 ${messageType} ontvangen voor MMSI ${mmsi}`);
 
-      if (Latitude && Longitude && isBinnenBereik(Latitude, Longitude)) {
-        schepen[mmsi] = { lat: Latitude, lon: Longitude };
-        console.log(`📍 Positie: ${mmsi} (${Latitude.toFixed(4)}, ${Longitude.toFixed(4)})`);
+      if (msg.MetaData.Latitude && msg.MetaData.Longitude) {
+        const { Latitude, Longitude } = msg.MetaData;
+        if (isBinnenBereik(Latitude, Longitude)) {
+          schepen[mmsi] = { lat: Latitude, lon: Longitude };
+          console.log(`📍 Positie: ${mmsi} (${Latitude.toFixed(4)}, ${Longitude.toFixed(4)})`);
+        }
       }
     } catch (err) {
-      console.error("❌ Fout bij verwerken PositionReport:", err);
+      console.error("❌ Fout bij verwerken bericht:", err);
     }
   });
 
