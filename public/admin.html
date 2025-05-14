@@ -1,10 +1,11 @@
 
 <!DOCTYPE html>
+
 <html lang="nl">
-<head>
-  <meta charset="UTF-8" />
-  <title>ETD Overzicht</title>
-  <style>
+<head><meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta charset="utf-8"/>
+<title>ETD Overzicht</title>
+<style>
     body { font-family: sans-serif; max-width: 900px; margin: auto; padding: 1rem; }
     h2 { color: #003b5c; }
     table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
@@ -12,23 +13,59 @@
     th { background-color: #003b5c; color: white; }
     tr:nth-child(even) { background-color: #f2f2f2; }
     button { margin-top: 1rem; padding: 0.5rem 1rem; }
-  </style>
+  
+    body {
+      background: url('https://storage.rotterdammaritimecapital.com/storage/2018/08/01152337/RMCOE_Port-and-Logistics.jpg') no-repeat center center fixed;
+      background-size: cover;
+      color: white;
+      padding: 1rem;
+    }
+
+    h2 {
+      color: white;
+      text-align: center;
+    }
+
+    table {
+      background-color: rgba(255,255,255,0.95);
+      color: #000;
+      font-size: 0.9rem;
+      border-radius: 0.5rem;
+      overflow-x: auto;
+      display: block;
+    }
+
+    th {
+      background-color: #003b5c;
+      color: white;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+
+    button {
+      background-color: #003b5c;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 0.75rem;
+      width: 100%;
+      margin-top: 1rem;
+      font-size: 1rem;
+    }
+    </style>
 </head>
 <body>
-  <h2>ETD Inzendingen 📄</h2>
-  <table id="tabel">
-    <thead>
-      <tr>
-        <th>Scheepsnaam</th><th>ETD</th><th>RedenGeenETD</th><th>Toelichting</th><th>Timestamp</th><th>Latitude</th><th>Longitude</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-
-  
-  
-
-  <script>
+<h2>ETD Inzendingen 📄</h2>
+<table id="tabel">
+<thead>
+<tr>
+<th>Scheepsnaam</th><th>ETD</th><th>RedenGeenETD</th><th>Toelichting</th><th>Timestamp</th><th>Latitude</th><th>Longitude</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+<script>
     async function laad() {
       const res = await fetch("/data/submissions.json");
       const data = await res.json();
@@ -53,9 +90,7 @@
 
     laad();
   </script>
-
 <button onclick="exporteerCSV()">📤 Exporteer CSV</button>
-
 <script>
 function exporteerCSV() {
   const rows = Array.from(document.querySelectorAll("table tr"));
@@ -72,6 +107,5 @@ function exporteerCSV() {
   a.click();
 }
 </script>
-
 </body>
 </html>

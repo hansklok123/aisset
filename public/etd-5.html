@@ -1,0 +1,193 @@
+
+<!DOCTYPE html>
+
+<html lang="nl">
+<head><meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta charset="utf-8"/>
+<title>ETD Formulier</title>
+<style>
+    body { font-family: sans-serif; max-width: 600px; margin: auto; padding: 2rem; }
+    label { display: block; margin-top: 1rem; }
+    input, select, textarea, button {
+      width: 100%;
+      padding: 0.75rem;
+      font-size: 1rem;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      margin-top: 0.5rem;
+    }
+    button {
+      background: #003b5c;
+      color: white;
+      border: none;
+      cursor: pointer;
+      margin-top: 1.5rem;
+    }
+    #bevestiging {
+      display: none;
+      padding: 1rem;
+      background: #dff0d8;
+      color: #3c763d;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+    }
+  
+    body {
+      background: url('https://storage.rotterdammaritimecapital.com/storage/2018/08/01152337/RMCOE_Port-and-Logistics.jpg') no-repeat center center fixed;
+      background-size: cover;
+      color: #fff;
+    }
+
+    form {
+      background-color: rgba(0, 0, 0, 0.7);
+      padding: 1rem;
+      border-radius: 1rem;
+    }
+
+    input, select, textarea, button {
+      background-color: rgba(255, 255, 255, 0.9);
+      color: #000;
+    }
+
+    label {
+      font-weight: bold;
+      color: #fff;
+    }
+
+    #bevestiging {
+      background-color: rgba(144, 238, 144, 0.9);
+      color: #003b5c;
+    }
+    </style>
+</head>
+<body>
+<h2>ETD Invoeren</h2>
+<div id="bevestiging">✔️ Inzending succesvol verzonden</div>
+<form id="etdForm">
+
+<label>ETD:
+      <input id="etd" name="etd" type="datetime-local"/>
+</label>
+<label>Reden indien geen ETD:
+      <select id="reden" name="reden">
+<option value="">-- Kies reden --</option>
+<option value="Niet bekend bij de Kapitein">Niet bekend bij de Kapitein</option>
+<option value="Taal barrière">Taal barrière</option>
+<option value="Overig">Overig</option>
+</select>
+</label>
+<label>Toelichting (optioneel):
+      <textarea id="toelichting" name="toelichting" rows="4"></textarea>
+</label>
+<button type="submit">Verzenden</button>
+</form>
+<script>
+function afstandKm(lat1, lon1, lat2, lon2) {
+  const R = 6371;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = Math.sin(dLat / 2) ** 2 +
+            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+            Math.sin(dLon / 2) ** 2;
+  return 2 * R * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+function landVlag(mmsi) {
+  if (!mmsi) return "";
+  const landcode = mmsi.toString().substring(0, 3);
+  const landcodes = {
+    "205": "🇧🇪", "244": "🇳🇱", "219": "🇩🇰", "220": "🇩🇰", "228": "🇫🇷",
+    "229": "🇲🇹", "232": "🇬🇧", "235": "🇬🇧", "236": "🇬🇮", "238": "🇭🇷",
+    "240": "🇬🇷", "248": "🇨🇾", "250": "🇮🇪", "255": "🇵🇹", "259": "🇳🇴",
+    "265": "🇸🇪", "266": "🇸🇪", "269": "🇨🇭", "271": "🇹🇷", "273": "🇷🇺",
+    "311": "🇺🇸", "316": "🇨🇦", "351": "🇵🇦", "353": "🇧🇸", "355": "🇧🇿",
+    "366": "🇺🇸", "367": "🇺🇸", "370": "🇭🇳", "371": "🇳🇮", "372": "🇵🇦",
+    "374": "🇧🇶", "375": "🇻🇬"
+  };
+  return landcodes[landcode] || "🏳️";
+}
+
+async function laadSchepen() {
+  try {
+    const geo = await new Promise((resolve, reject) =>
+      navigator.geolocation.getCurrentPosition(resolve, reject)
+    );
+    const userLat = geo.coords.latitude;
+    const userLon = geo.coords.longitude;
+
+    const res = await fetch("/api/schepen");
+    const schepen = await res.json();
+
+    const dichtbij = schepen
+      .map(s => {
+        const track = s.track || [];
+        const laatst = track[track.length - 1];
+        if (!laatst || !s.naam || !s.mmsi) return null;
+        const afstand = afstandKm(userLat, userLon, laatst.lat, laatst.lon);
+        return { naam: s.naam, mmsi: s.mmsi, afstand };
+      })
+      .filter(Boolean)
+      .sort((a, b) => a.afstand - b.afstand)
+      .slice(0, 5);
+
+    const select = document.getElementById("huidigSchipSelect");
+    const naamSpan = document.getElementById("huidigSchipNaam");
+    select.innerHTML = "";
+
+    if (dichtbij.length === 0) {
+      naamSpan.textContent = "Geen schip gevonden";
+      select.innerHTML = "<option value=''>Geen andere schepen</option>";
+      return;
+    }
+
+    naamSpan.textContent = dichtbij[0].naam + " " + landVlag(dichtbij[0].mmsi);
+
+    dichtbij.forEach((s, i) => {
+      const opt = document.createElement("option");
+      opt.value = s.naam;
+      opt.textContent = s.naam + " " + landVlag(s.mmsi) + " (" + Math.round(s.afstand * 1000) + "m)";
+      if (i === 0) opt.selected = true;
+      select.appendChild(opt);
+    });
+  } catch (err) {
+    console.error("Fout bij scheepsdetectie:", err);
+    document.getElementById("huidigSchipNaam").textContent = "Fout bij ophalen data";
+  }
+}
+
+document.getElementById("etdForm").addEventListener("submit", async function (e) {
+  e.preventDefault();
+
+  const data = {
+    scheepsnaam: document.getElementById("huidigSchipSelect").value || document.getElementById("huidigSchipNaam").textContent,
+    etd: document.getElementById("etd")?.value || "",
+    reden: document.getElementById("reden")?.value || "",
+    toelichting: document.getElementById("toelichting")?.value || "",
+    timestamp: new Date().toISOString()
+  };
+
+  const csv = [
+    "Scheepsnaam,ETD,RedenGeenETD,Toelichting,Timestamp",
+    `${data.scheepsnaam},${data.etd},${data.reden},${data.toelichting},${data.timestamp}`
+  ].join("\n");
+
+  const onderwerp = data.etd ?
+    `ETD Positive, ${data.scheepsnaam}, ${data.timestamp}` :
+    `ETD Negative, ${data.scheepsnaam}, ${data.timestamp}`;
+
+  const res = await fetch("/api/verstuur", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ csv, onderwerp })
+  });
+
+  if (res.ok) {
+    document.getElementById("bevestiging").style.display = "block";
+  } else {
+    alert("❌ Fout bij verzenden");
+  }
+});
+
+window.onload = laadSchepen;
+</script></body>
+</html>
