@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ETD Registratie</title>
+  <style>
+    body { font-family: sans-serif; padding: 1rem; max-width: 600px; margin: auto; }
+    label { display: block; margin-top: 1rem; font-weight: bold; }
+    input, select, button, textarea {
+      width: 100%; padding: 0.5rem; font-size: 1rem; margin-top: 0.25rem;
+    }
+    .hidden { display: none; }
+    #csv-output { margin-top: 1.5rem; font-family: monospace; white-space: pre; background: #eee; padding: 1rem; border-radius: 6px; }
+  </style>
+</head>
+<body>
+  <h2>📋 Voer ETD in van schip</h2>
+
+  <label>Huidig schip (op loodsboot):</label>
+  <select id="huidigSchipSelect"></select>
+
+  <label>Andere schepen in de buurt:</label>
+  <select id="suggestieSelect">
+    <option value="">-- Selecteer alternatief of kies handmatig --</option>
+  </select>
+
+  <label><input type="checkbox" id="handmatigInvoeren" onchange="toggleHandmatig()"> Handmatig invoeren</label>
+  <input type="text" id="handmatigeNaam" class="hidden" placeholder="Typ scheepsnaam..." list="namenlijst" />
+  <datalist id="namenlijst"></datalist>
+
+  <label for="etd">Voorspelde ETD (optioneel):</label>
+  <input type="datetime-local" id="etd" step="300" />
+
+  <label><input type="checkbox" id="geenETD" onchange="toggleGeenETD()"> ETD niet bekend</label>
+  <select id="geenETDReden" class="hidden">
+    <option value="Niet bekend bij de Kapitein">Niet bekend bij de Kapitein</option>
+    <option value="Taal barrière">Taal barrière</option>
+    <option value="Overig">Overig</option>
+  </select>
+  <textarea id="overigReden" class="hidden" placeholder="Voer toelichting in..."></textarea>
+
+  <button onclick="maakCSV()">📥 Download CSV</button>
+
+  <div id="csv-output" class="hidden"></div>
+
+  <script>
+    let schepen = [];
+
+    async function laadSchepen() {
+      try {
+        const res = await fetch("/api/schepen");
+        schepen = await res.json();
+
+        const select = document.getElementById("huidigSchipSelect");
+        const suggestie = document.getElementById("suggestieSelect");
+        const datalist = document.getElementById("namenlijst");
+
+        schepen.forEach((s, i) => {
+          const naam = s.naam || `MMSI: ${s.mmsi}`;
+          if (i === 0) {
+            const optie = document.createElement("option");
+            optie.value = naam;
+            optie.textContent = naam;
+            select.appendChild(optie);
+          }
+          const opt = document.createElement("option");
+          opt.value = naam;
+          suggestie.appendChild(opt);
+
+          const dopt = document.createElement("option");
+          dopt.value = naam;
+          datalist.appendChild(dopt);
+        });
+      } catch (err) {
+        console.error("Fout bij ophalen schepen:", err);
+      }
+    }
+
+    function toggleHandmatig() {
+      const actief = document.getElementById("handmatigInvoeren").checked;
+      document.getElementById("handmatigeNaam").classList.toggle("hidden", !actief);
+    }
+
+    function toggleGeenETD() {
+      const actief = document.getElementById("geenETD").checked;
+      document.getElementById("etd").disabled = actief;
+      document.getElementById("geenETDReden").classList.toggle("hidden", !actief);
+      document.getElementById("overigReden").classList.toggle("hidden", true);
+    }
+
+    document.getElementById("geenETDReden").addEventListener("change", () => {
+      const reden = document.getElementById("geenETDReden").value;
+      document.getElementById("overigReden").classList.toggle("hidden", reden !== "Overig");
+    });
+
+    function maakCSV() {
+      const huidige = document.getElementById("huidigSchipSelect").value;
+      const suggestie = document.getElementById("suggestieSelect").value;
+      const handmatigActief = document.getElementById("handmatigInvoeren").checked;
+      const handmatigeNaam = document.getElementById("handmatigeNaam").value;
+      const etd = document.getElementById("etd").value;
+      const geenETD = document.getElementById("geenETD").checked;
+      const reden = document.getElementById("geenETDReden").value;
+      const overig = document.getElementById("overigReden").value;
+
+      let naam = huidige;
+      if (suggestie) naam = suggestie;
+      if (handmatigActief && handmatigeNaam) naam = handmatigeNaam;
+
+      let output = "Scheepsnaam,ETD,RedenGeenETD,Toelichting\n";
+      if (geenETD) {
+        output += `"${naam}","","${reden}","${reden === "Overig" ? overig : ""}"`;
+      } else {
+        output += `"${naam}","${etd}","",""`;
+      }
+
+      const blob = new Blob([output], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "etd-registratie.csv";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      document.getElementById("csv-output").classList.remove("hidden");
+      document.getElementById("csv-output").textContent = output;
+    }
+
+    window.onload = () => {
+      laadSchepen();
+      const vandaag = new Date().toISOString().slice(0,16);
+      document.getElementById("etd").value = vandaag;
+    };
+  </script>
+</body>
+</html>
