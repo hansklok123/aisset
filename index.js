@@ -2,6 +2,7 @@
 const express = require("express");
 const app = express();
 const { startStream, getNearbyShips } = require("./aisstream");
+const nodemailer = require("nodemailer");
 
 startStream();
 app.use(express.json());
@@ -11,38 +12,37 @@ app.get("/api/schepen", (req, res) => {
   res.json(getNearbyShips());
 });
 
-// Pas zoekfunctie aan om huidige tijd te gebruiken
-app.post("/api/zoek", (req, res) => {
-  const { lat, lon } = req.body;
-  if (typeof lat !== "number" || typeof lon !== "number") {
-    return res.status(400).json({ naam: null });
-  }
+// E-mail CSV naar vaste ontvanger
+app.post("/api/verstuur", async (req, res) => {
+  const { csv, onderwerp } = req.body;
+  if (!csv || !onderwerp) return res.status(400).send("Incompleet verzoek");
 
-  const tijdInMs = Date.now(); // gebruik huidige tijd
-  const maxAfstandKm = 0.05;
-  const maxTijdVerschil = 15 * 1000;
-
-  const schepen = getNearbyShips();
-  for (const schip of schepen) {
-    const track = schip.track || [];
-    for (const punt of track) {
-      const tijdpunt = new Date(punt.time || schip.tijd || "").getTime();
-      const dLat = (punt.lat - lat) * Math.PI / 180;
-      const dLon = (punt.lon - lon) * Math.PI / 180;
-      const R = 6371;
-      const a = Math.sin(dLat / 2) ** 2 +
-        Math.cos(lat * Math.PI / 180) * Math.cos(punt.lat * Math.PI / 180) *
-        Math.sin(dLon / 2) ** 2;
-      const afstand = 2 * R * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-      const tijdsverschil = Math.abs(tijdInMs - tijdpunt);
-
-      if (afstand <= maxAfstandKm && tijdsverschil <= maxTijdVerschil) {
-        return res.json({ naam: schip.naam || `MMSI: ${schip.mmsi}` });
-      }
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: process.env.GMAIL_USER,
+      pass: process.env.GMAIL_PASS
     }
-  }
+  });
 
-  res.json({ naam: null });
+  try {
+    await transporter.sendMail({
+      from: '"AIS ETD via Gmail" <${process.env.GMAIL_USER}>',
+      to: "tilij47053@hazhab.com",
+      subject: onderwerp,
+      text: "Zie bijlage met ETD-registratie.",
+      attachments: [{
+        filename: "etd-registratie.csv",
+        content: csv
+      }]
+    });
+
+    console.log("✅ Mail verzonden");
+    res.send("Mail verzonden");
+  } catch (err) {
+    console.error("❌ Mailfout:", err);
+    res.status(500).send("Fout bij versturen");
+  }
 });
 
 const PORT = process.env.PORT || 3000;

@@ -17,13 +17,8 @@
 <body>
   <h2>📋 Voer ETD in van schip</h2>
 
-  <label>Huidig schip (op loodsboot):</label>
+  <label id="schiplabel">Huidig schip (op loodsboot):</label>
   <select id="huidigSchipSelect"></select>
-
-  <label>Andere schepen in de buurt:</label>
-  <select id="suggestieSelect">
-    <option value="">-- Selecteer alternatief of kies handmatig --</option>
-  </select>
 
   <label><input type="checkbox" id="handmatigInvoeren" onchange="toggleHandmatig()"> Handmatig invoeren</label>
   <input type="text" id="handmatigeNaam" class="hidden" placeholder="Typ scheepsnaam..." list="namenlijst" />
@@ -40,37 +35,55 @@
   </select>
   <textarea id="overigReden" class="hidden" placeholder="Voer toelichting in..."></textarea>
 
-  <button onclick="maakCSV()">📥 Download CSV</button>
+  <button onclick="maakCSV()">📥 Download + Verstuur</button>
 
   <div id="csv-output" class="hidden"></div>
 
   <script>
     let schepen = [];
 
+    function afstandKm(lat1, lon1, lat2, lon2) {
+      const R = 6371;
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLon = (lon2 - lon1) * Math.PI / 180;
+      const a = Math.sin(dLat / 2) ** 2 +
+        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+        Math.sin(dLon / 2) ** 2;
+      return 2 * R * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    }
+
     async function laadSchepen() {
       try {
         const res = await fetch("/api/schepen");
         schepen = await res.json();
 
-        const select = document.getElementById("huidigSchipSelect");
-        const suggestie = document.getElementById("suggestieSelect");
         const datalist = document.getElementById("namenlijst");
+        const select = document.getElementById("huidigSchipSelect");
+        select.innerHTML = "";
 
-        schepen.forEach((s, i) => {
-          const naam = s.naam || `MMSI: ${s.mmsi}`;
-          if (i === 0) {
-            const optie = document.createElement("option");
-            optie.value = naam;
-            optie.textContent = naam;
-            select.appendChild(optie);
-          }
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(pos => {
+            const lat = pos.coords.latitude;
+            const lon = pos.coords.longitude;
+            const dichtbij = schepen.map(s => {
+              const track = s.track || [];
+              const laatst = track[track.length - 1];
+              const d = afstandKm(lat, lon, laatst.lat, laatst.lon);
+              return { naam: s.naam, afstand: d };
+            }).filter(s => s.afstand < 0.5).sort((a, b) => a.afstand - b.afstand);
+
+            if (dichtbij.length > 0) {
+              const opt = document.createElement("option");
+              opt.value = dichtbij[0].naam;
+              select.appendChild(opt);
+            }
+          });
+        }
+
+        schepen.forEach(s => {
           const opt = document.createElement("option");
-          opt.value = naam;
-          suggestie.appendChild(opt);
-
-          const dopt = document.createElement("option");
-          dopt.value = naam;
-          datalist.appendChild(dopt);
+          opt.value = s.naam;
+          datalist.appendChild(opt);
         });
       } catch (err) {
         console.error("Fout bij ophalen schepen:", err);
@@ -80,6 +93,8 @@
     function toggleHandmatig() {
       const actief = document.getElementById("handmatigInvoeren").checked;
       document.getElementById("handmatigeNaam").classList.toggle("hidden", !actief);
+      document.getElementById("huidigSchipSelect").classList.toggle("hidden", actief);
+      document.getElementById("schiplabel").classList.toggle("hidden", actief);
     }
 
     function toggleGeenETD() {
@@ -96,25 +111,25 @@
 
     function maakCSV() {
       const huidige = document.getElementById("huidigSchipSelect").value;
-      const suggestie = document.getElementById("suggestieSelect").value;
       const handmatigActief = document.getElementById("handmatigInvoeren").checked;
       const handmatigeNaam = document.getElementById("handmatigeNaam").value;
       const etd = document.getElementById("etd").value;
       const geenETD = document.getElementById("geenETD").checked;
       const reden = document.getElementById("geenETDReden").value;
       const overig = document.getElementById("overigReden").value;
+      const timestamp = new Date().toISOString();
 
       let naam = huidige;
-      if (suggestie) naam = suggestie;
       if (handmatigActief && handmatigeNaam) naam = handmatigeNaam;
 
-      let output = "Scheepsnaam,ETD,RedenGeenETD,Toelichting\n";
+      let output = "Scheepsnaam,ETD,RedenGeenETD,Toelichting,Timestamp\n";
       if (geenETD) {
-        output += `"${naam}","","${reden}","${reden === "Overig" ? overig : ""}"`;
+        output += `"${naam}","","${reden}","${reden === "Overig" ? overig : ""}","${timestamp}"`;
       } else {
-        output += `"${naam}","${etd}","",""`;
+        output += `"${naam}","${etd}","","","${timestamp}"`;
       }
 
+      // CSV lokaal downloaden
       const blob = new Blob([output], { type: "text/csv;charset=utf-8;" });
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
@@ -124,13 +139,21 @@
       link.click();
       document.body.removeChild(link);
 
+      // Toon csv
       document.getElementById("csv-output").classList.remove("hidden");
       document.getElementById("csv-output").textContent = output;
+
+      // Verstuur e-mail via backend
+      fetch("/api/verstuur", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ csv: output, onderwerp: `${timestamp} – ${naam}` })
+      }).then(() => console.log("✅ Verzonden naar mailserver"));
     }
 
     window.onload = () => {
       laadSchepen();
-      const vandaag = new Date().toISOString().slice(0,16);
+      const vandaag = new Date().toISOString().slice(0, 16);
       document.getElementById("etd").value = vandaag;
     };
   </script>
