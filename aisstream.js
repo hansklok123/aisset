@@ -12,8 +12,12 @@ function afstandKm(lat1, lon1, lat2, lon2) {
   return 2 * R * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
+// Nieuw referentiepunt: 1 km rond deze coördinaten
+const targetLat = 51.969363314568625;
+const targetLon = 4.123386665628428;
+
 function isBinnenBereik(lat, lon) {
-  return afstandKm(lat, lon, 51.9885, 4.0425) <= 20;
+  return afstandKm(lat, lon, targetLat, targetLon) <= 1;
 }
 
 function startStream() {
@@ -24,7 +28,7 @@ function startStream() {
 
     const subscription = {
       APIKey: process.env.AIS_API_KEY,
-      BoundingBoxes: [[[51.8, 3.9], [52.2, 4.3]]],
+      BoundingBoxes: [[[51.94, 4.08], [52.00, 4.16]]],
       FilterMessageTypes: [
         "PositionReport",
         "StaticDataReport",
@@ -63,7 +67,7 @@ function startStream() {
         const { Latitude, Longitude } = msg.MetaData;
         if (isBinnenBereik(Latitude, Longitude)) {
           schepen[mmsi] = { lat: Latitude, lon: Longitude };
-          console.log(`📍 Positie: ${mmsi} (${Latitude.toFixed(4)}, ${Longitude.toFixed(4)})`);
+          console.log(`📍 BINNEN 1 KM: ${mmsi} (${Latitude.toFixed(5)}, ${Longitude.toFixed(5)})`);
         }
       }
     } catch (err) {
@@ -80,7 +84,7 @@ function startStream() {
 
 function getNearbyShips() {
   const alles = Object.entries(schepen);
-  console.log(`🧪 Aantal schepen met positie: ${alles.length}`);
+  console.log(`🧪 Aantal schepen binnen 1 km: ${alles.length}`);
   return alles.map(([mmsi, schip]) => ({ mmsi, ...schip }));
 }
 
