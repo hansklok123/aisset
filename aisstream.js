@@ -16,10 +16,6 @@ function isBinnenBereik(lat, lon) {
   return afstandKm(lat, lon, 51.9885, 4.0425) <= 20;
 }
 
-function isCommercieelType(type) {
-  return type !== 36; // Alleen pleziervaart uitsluiten
-}
-
 function startStream() {
   const ws = new WebSocket("wss://stream.aisstream.io/v0/stream");
 
@@ -38,7 +34,6 @@ function startStream() {
   ws.on("message", (data) => {
     try {
       const msg = JSON.parse(data);
-
       if (!msg.MessageType || !msg.MetaData) return;
 
       const mmsi = msg.MetaData.MMSI;
@@ -58,16 +53,12 @@ function startStream() {
         }
       }
 
-      if (msg.MessageType === "StaticDataReport" && msg.MetaData.ShipName) {
+      if (msg.MessageType === "StaticDataReport") {
         if (!schepen[mmsi]) schepen[mmsi] = {};
-        schepen[mmsi].naam = msg.MetaData.ShipName;
+        schepen[mmsi].naam = msg.MetaData.ShipName || "";
         schepen[mmsi].type = msg.MetaData.ShipType;
 
-        if (isCommercieelType(msg.MetaData.ShipType)) {
-          console.log(`🛳️ Schip: ${mmsi} – ${msg.MetaData.ShipName} (type ${msg.MetaData.ShipType})`);
-        } else {
-          delete schepen[mmsi];
-        }
+        console.log(`🛳️ Type ${msg.MetaData.ShipType} – ${mmsi} – ${schepen[mmsi].naam}`);
       }
     } catch (err) {
       console.error("❌ Fout bij verwerken bericht:", err);
@@ -81,7 +72,6 @@ function startStream() {
   });
 }
 
-// Debugfunctie: log ook schepen die NIET voldoen
 function getNearbyShips() {
   const alles = Object.entries(schepen);
   console.log(`🧪 Aantal schepen in cache: ${alles.length}`);
