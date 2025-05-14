@@ -1,214 +1,127 @@
+
 <!DOCTYPE html>
 <html lang="nl">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ETD Registratie</title>
+  <title>ETD Formulier</title>
   <style>
-    body {
-      background-color: #f5f5f5;
-      color: #002b45;
-      font-family: sans-serif;
-      padding: 1rem;
-      max-width: 600px;
-      margin: auto;
-    }
-    h2 {
-      color: #003b5c;
-    }
-    label {
-      display: block;
-      margin-top: 1rem;
-      font-weight: bold;
-    }
-    input, select, button, textarea {
+    body { font-family: sans-serif; max-width: 600px; margin: auto; padding: 2rem; }
+    label { display: block; margin-top: 1rem; }
+    input, select, textarea, button {
       width: 100%;
-      padding: 0.5rem;
+      padding: 0.75rem;
       font-size: 1rem;
-      margin-top: 0.25rem;
-      border: 1px solid #aaa;
-      border-radius: 4px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      margin-top: 0.5rem;
     }
     button {
-      background-color: #003b5c;
+      background: #003b5c;
       color: white;
       border: none;
-      margin-top: 1rem;
-    }
-    .hidden { display: none; }
-    #csv-output {
+      cursor: pointer;
       margin-top: 1.5rem;
-      font-family: monospace;
-      white-space: pre;
-      background: #eee;
+    }
+    #bevestiging {
+      display: none;
       padding: 1rem;
-      border-radius: 6px;
+      background: #dff0d8;
+      color: #3c763d;
+      border-radius: 8px;
+      margin-bottom: 1rem;
     }
   </style>
 </head>
 <body>
-  <h2>📋 Voer ETD in van schip</h2>
+  <h2>ETD Invoeren</h2>
+  <div id="bevestiging">✔️ Inzending succesvol verzonden</div>
 
-  <label id="schiplabel">Huidig schip (op loodsboot):</label>
-  <div id="huidigSchipNaam">[Wordt bepaald...]</div>
+  <form id="etdForm">
+    <label>Huidig schip (op loodsboot):
+      <div id="huidigSchipNaam">Detecteren...</div>
+    </label>
 
-  <label><input type="checkbox" id="handmatigInvoeren" onchange="toggleHandmatig()"> Handmatig invoeren</label>
-  <input type="text" id="handmatigeNaam" class="hidden" placeholder="Typ scheepsnaam..." list="namenlijst" />
-  <datalist id="namenlijst"></datalist>
+    <label>ETD:
+      <input type="datetime-local" id="etd" name="etd" />
+    </label>
 
-  <label for="etd">Voorspelde ETD (optioneel):</label>
-  <input type="datetime-local" id="etd" step="300" />
+    <label>Reden indien geen ETD:
+      <select id="reden" name="reden">
+        <option value="">-- Kies reden --</option>
+        <option value="Niet bekend bij de Kapitein">Niet bekend bij de Kapitein</option>
+        <option value="Taal barrière">Taal barrière</option>
+        <option value="Overig">Overig</option>
+      </select>
+    </label>
 
-  <label><input type="checkbox" id="geenETD" onchange="toggleGeenETD()"> ETD niet bekend</label>
-  <select id="geenETDReden" class="hidden">
-    <option value="Niet bekend bij de Kapitein">Niet bekend bij de Kapitein</option>
-    <option value="Taal barrière">Taal barrière</option>
-    <option value="Overig">Overig</option>
-  </select>
-  <textarea id="overigReden" class="hidden" placeholder="Voer toelichting in..."></textarea>
+    <label>Toelichting (optioneel):
+      <textarea id="toelichting" name="toelichting" rows="4"></textarea>
+    </label>
 
-  
-
-  <div id="csv-output" class="hidden"></div>
+    <button type="submit">Verzenden</button>
+  </form>
 
   <script>
-    let schepen = [];
+    document.getElementById("etdForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
 
-    function afstandKm(lat1, lon1, lat2, lon2) {
-      const R = 6371;
-      const dLat = (lat2 - lat1) * Math.PI / 180;
-      const dLon = (lon2 - lon1) * Math.PI / 180;
-      const a = Math.sin(dLat / 2) ** 2 +
-        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-        Math.sin(dLon / 2) ** 2;
-      return 2 * R * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    }
+      const data = {
+        scheepsnaam: document.getElementById("huidigSchipNaam").textContent.trim(),
+        etd: document.getElementById("etd")?.value || "",
+        reden: document.getElementById("reden")?.value || "",
+        toelichting: document.getElementById("toelichting")?.value || "",
+        timestamp: new Date().toISOString()
+      };
 
-    async function laadSchepen() {
-      try {
-        const res = await fetch("/api/schepen");
-        schepen = await res.json();
-        const datalist = document.getElementById("namenlijst");
+      const csv = [
+        "Scheepsnaam,ETD,RedenGeenETD,Toelichting,Timestamp",
+        `${data.scheepsnaam},${data.etd},${data.reden},${data.toelichting},${data.timestamp}`
+      ].join("\n");
 
-        if (navigator.geolocation) {
-          navigator.geolocation.getCurrentPosition(pos => {
-            const lat = pos.coords.latitude;
-            const lon = pos.coords.longitude;
-            const dichtbij = schepen.map(s => { const track = s.track || []; const laatst = track[track.length - 1]; const d = afstandKm(lat, lon, laatst.lat, laatst.lon); return { naam: s.naam, afstand: d }; }).sort((a, b) => a.afstand - b.afstand);
+      const onderwerp = data.etd ?
+        `ETD Positive, ${data.scheepsnaam}, ${data.timestamp}` :
+        `ETD Negative, ${data.scheepsnaam}, ${data.timestamp}`;
 
-            if (dichtbij.length > 0) {
-              document.getElementById("huidigSchipNaam").textContent = dichtbij[0].naam;
-            }
-          });
-        }
-
-        schepen.forEach(s => {
-          const opt = document.createElement("option");
-          opt.value = s.naam;
-          datalist.appendChild(opt);
-        });
-      } catch (err) {
-        console.error("Fout bij ophalen schepen:", err);
-      }
-    }
-
-    function toggleHandmatig() {
-      const actief = document.getElementById("handmatigInvoeren").checked;
-      document.getElementById("handmatigeNaam").classList.toggle("hidden", !actief);
-      document.getElementById("huidigSchipNaam").classList.toggle("hidden", actief);
-    }
-
-    function toggleGeenETD() {
-      const actief = document.getElementById("geenETD").checked;
-      document.getElementById("etd").disabled = actief;
-      document.getElementById("geenETDReden").classList.toggle("hidden", !actief);
-      document.getElementById("overigReden").classList.toggle("hidden", true);
-    }
-
-    document.getElementById("geenETDReden").addEventListener("change", () => {
-      const reden = document.getElementById("geenETDReden").value;
-      document.getElementById("overigReden").classList.toggle("hidden", reden !== "Overig");
-    });
-
-    function maakCSV() {
-      const naam = document.getElementById("handmatigInvoeren").checked
-        ? document.getElementById("handmatigeNaam").value
-        : document.getElementById("huidigSchipNaam").textContent;
-      const etd = document.getElementById("etd").value;
-      const geenETD = document.getElementById("geenETD").checked;
-      const reden = document.getElementById("geenETDReden").value;
-      const overig = document.getElementById("overigReden").value;
-      const timestamp = new Date().toISOString();
-      const subject = `${etd ? "ETD Positive" : "ETD Negative"}, ${naam}, ${timestamp}`;
-
-      let output = "Scheepsnaam,ETD,RedenGeenETD,Toelichting,Timestamp\n";
-      if (geenETD) {
-        output += `"${naam}","","${reden}","${reden === "Overig" ? overig : ""}","${timestamp}"`;
-      } else {
-        output += `"${naam}","${etd}","","","${timestamp}"`;
-      }
-
-      const blob = new Blob([output], { type: "text/csv;charset=utf-8;" });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = "etd-registratie.csv";
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-
-      document.getElementById("csv-output").classList.remove("hidden");
-      document.getElementById("csv-output").textContent = output;
-
-      fetch("/api/verstuur", {
+      const res = await fetch("/api/verstuur", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ csv: output, onderwerp: subject })
-      }).then(() => console.log("✅ Mail verzonden"));
+        body: JSON.stringify({ csv, onderwerp })
+      });
+
+      if (res.ok) {
+        document.getElementById("bevestiging").style.display = "block";
+        document.getElementById("etdForm").reset();
+      } else {
+        alert("❌ Fout bij verzenden");
+      }
+    });
+
+    async function detecteerSchip() {
+      try {
+        const geo = await new Promise((resolve, reject) =>
+          navigator.geolocation.getCurrentPosition(resolve, reject)
+        );
+        const lat = geo.coords.latitude;
+        const lon = geo.coords.longitude;
+
+        const res = await fetch("/api/schepen");
+        const schepen = await res.json();
+        const dichtbij = schepen.map(s => {
+          const track = s.track || [];
+          const laatst = track[track.length - 1];
+          const d = Math.sqrt((lat - laatst.lat) ** 2 + (lon - laatst.lon) ** 2);
+          return { naam: s.naam, afstand: d };
+        }).sort((a, b) => a.afstand - b.afstand);
+
+        if (dichtbij.length > 0) {
+          document.getElementById("huidigSchipNaam").textContent = dichtbij[0].naam;
+        }
+      } catch (err) {
+        console.warn("Kon locatie of schepen niet ophalen:", err);
+      }
     }
 
-    window.onload = () => {
-      laadSchepen();
-      const vandaag = new Date().toISOString().slice(0, 16);
-      document.getElementById("etd").value = vandaag;
-    };
+    detecteerSchip();
   </script>
-
-<script>
-document.getElementById("etdForm").addEventListener("submit", async function (e) {
-  e.preventDefault();
-
-  const data = {
-    scheepsnaam: document.getElementById("huidigSchipNaam").textContent.trim(),
-    etd: document.getElementById("etd")?.value || "",
-    reden: document.getElementById("reden")?.value || "",
-    toelichting: document.getElementById("toelichting")?.value || "",
-    timestamp: new Date().toISOString()
-  };
-
-  const csv = [
-    "Scheepsnaam,ETD,RedenGeenETD,Toelichting,Timestamp",
-    \`\${data.scheepsnaam},\${data.etd},\${data.reden},\${data.toelichting},\${data.timestamp}\`
-  ].join("\n");
-
-  const onderwerp = data.etd ? 
-    \`ETD Positive, \${data.scheepsnaam}, \${data.timestamp}\` :
-    \`ETD Negative, \${data.scheepsnaam}, \${data.timestamp}\`;
-
-  const res = await fetch("/api/verstuur", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ csv, onderwerp })
-  });
-
-  if (res.ok) {
-  document.getElementById("bevestiging").style.display = "block";
-  document.getElementById("etdForm").reset();
-} else {
-    alert("❌ Fout bij verzenden");
-  }
-});
-</script>
-
 </body>
 </html>
