@@ -12,8 +12,12 @@ function afstandKm(lat1, lon1, lat2, lon2) {
   return 2 * R * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
+// Doellocatie: 1 km straal rond deze coördinaten
+const targetLat = 51.98847472643675;
+const targetLon = 4.0424819651889;
+
 function isBinnenBereik(lat, lon) {
-  return afstandKm(lat, lon, 51.95, 4.13) <= 50; // vergroot tot 50 km
+  return afstandKm(lat, lon, targetLat, targetLon) <= 1;
 }
 
 function startStream() {
@@ -24,7 +28,7 @@ function startStream() {
 
     const subscription = {
       APIKey: process.env.AIS_API_KEY,
-      BoundingBoxes: [[[51.0, 3.0], [52.5, 5.5]]],
+      BoundingBoxes: [[[51.9, 3.9], [52.1, 4.2]]],
       FilterMessageTypes: ["PositionReport", "StaticDataReport"]
     };
 
@@ -50,7 +54,7 @@ function startStream() {
           schepen[mmsi].lat = Latitude;
           schepen[mmsi].lon = Longitude;
 
-          console.log(`📍 Positie: ${mmsi} (${Latitude.toFixed(4)}, ${Longitude.toFixed(4)})`);
+          console.log(`📍 DICHTBIJ: ${mmsi} (${Latitude.toFixed(5)}, ${Longitude.toFixed(5)})`);
         }
       }
 
