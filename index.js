@@ -4,6 +4,7 @@ const fs = require("fs");
 const path = require("path");
 const sgMail = require("@sendgrid/mail");
 const { startStream, getNearbyShips } = require("./aisstream");
+const { Dropbox } = require("dropbox");
 
 startStream();
 const app = express();
@@ -65,6 +66,13 @@ app.post("/api/verstuur", async (req, res) => {
       });
 
       console.log("✅ SendGrid mail verzonden");
+    const dbx = new Dropbox({ accessToken: process.env.DROPBOX_ACCESS_TOKEN });
+    await dbx.filesUpload({
+      path: `/etd/etd-${Date.now()}.csv`,
+      contents: inhoudCSV,
+      mode: 'add', autorename: true, mute: true
+    });
+    console.log("✅ Upload naar Dropbox gelukt");
       res.send("Verzonden");
     } catch (err) {
       console.error("❌ SendGrid fout:", err);

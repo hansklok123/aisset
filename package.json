@@ -10,6 +10,7 @@
     "express": "^4.18.2",
     "ws": "^8.0.0",
     "nodemailer": "^6.9.0",
-    "@sendgrid/mail": "^7.7.0"
+    "@sendgrid/mail": "^7.7.0",
+    "dropbox": "^11.0.4"
   }
 }
