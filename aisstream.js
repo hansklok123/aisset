@@ -20,7 +20,9 @@ function startStream() {
 
     const subscription = {
       APIKey: process.env.AIS_API_KEY,
-      BoundingBoxes: [[[51.94, 4.08], [52.00, 4.16]]],
+      BoundingBoxes: [
+        [[51.674, 3.61], [52.05, 4.65]] // volledige havengebied van Rotterdam
+      ],
       FilterMessageTypes: ["PositionReport"]
     };
 
@@ -49,7 +51,7 @@ function startStream() {
           const laatste = track[track.length - 1];
           if (!laatste || laatste.lat !== latitude || laatste.lon !== longitude) {
             track.push({ lat: latitude, lon: longitude, time: time_utc });
-            if (track.length > 20) track.shift(); // max 20 punten
+            if (track.length > 20) track.shift();
           }
         }
       }
