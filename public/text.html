@@ -97,7 +97,7 @@
             lat = laatste.lat?.toFixed(5);
             lon = laatste.lon?.toFixed(5);
           }
-          return `${naam}, ${tijd}, (${lat}, ${lon})`;
+          return `${naam}, ${tijd}, (${lat}, ${lon}), MMSI: ${schip.mmsi}`;
         }).join("\n");
 
         document.getElementById("schepen").textContent = tekst || "Geen schepen gevonden.";
