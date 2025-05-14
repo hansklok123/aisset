@@ -34,8 +34,14 @@
         const tekst = data.map(schip => {
           const naam = schip.naam || `MMSI: ${schip.mmsi}`;
           const tijd = schip.tijd || "onbekend";
-          const lat = schip.lat?.toFixed(5);
-          const lon = schip.lon?.toFixed(5);
+          let lat = "onbekend", lon = "onbekend";
+
+          if (Array.isArray(schip.track) && schip.track.length > 0) {
+            const laatste = schip.track[schip.track.length - 1];
+            lat = laatste.lat?.toFixed(5);
+            lon = laatste.lon?.toFixed(5);
+          }
+
           return `${naam}, ${tijd}, (${lat}, ${lon})`;
         }).join("\n");
 
