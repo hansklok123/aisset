@@ -1,6 +1,6 @@
 const WebSocket = require("ws");
 
-let schepen = {}; // { MMSI: { lat, lon } }
+let schepen = {}; // { MMSI: { lat, lon, naam } }
 
 function afstandKm(lat1, lon1, lat2, lon2) {
   const R = 6371;
@@ -12,12 +12,11 @@ function afstandKm(lat1, lon1, lat2, lon2) {
   return 2 * R * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
-// Nieuw referentiepunt: 1 km rond deze coördinaten
-const targetLat = 51.969363314568625;
-const targetLon = 4.123386665628428;
+const targetLat = 51.966775344428456;
+const targetLon = 4.112534920608608;
 
 function isBinnenBereik(lat, lon) {
-  return afstandKm(lat, lon, targetLat, targetLon) <= 1;
+  return afstandKm(lat, lon, targetLat, targetLon) <= 0.5;
 }
 
 function startStream() {
@@ -29,25 +28,7 @@ function startStream() {
     const subscription = {
       APIKey: process.env.AIS_API_KEY,
       BoundingBoxes: [[[51.94, 4.08], [52.00, 4.16]]],
-      FilterMessageTypes: [
-        "PositionReport",
-        "StaticDataReport",
-        "BaseStationReport",
-        "SafetyBroadcastMessage",
-        "AddressedSafetyMessage",
-        "AidsToNavigationReport",
-        "ShipStaticData",
-        "StandardClassBPositionReport",
-        "ExtendedClassBPositionReport",
-        "Interrogation",
-        "BinaryBroadcastMessage",
-        "BinaryAcknowledge",
-        "DataLinkManagementMessage",
-        "GroupAssignmentCommand",
-        "ChannelManagement",
-        "LongRangeAisBroadcastMessage",
-        "AssignedModeCommand"
-      ]
+      FilterMessageTypes: ["PositionReport"]
     };
 
     ws.send(JSON.stringify(subscription));
@@ -56,19 +37,18 @@ function startStream() {
   ws.on("message", (data) => {
     try {
       const msg = JSON.parse(data);
-      if (!msg.MessageType || !msg.MetaData) return;
+      if (msg.MessageType !== "PositionReport" || !msg.MetaData) return;
 
       const mmsi = msg.MetaData.MMSI;
-      const messageType = msg.MessageType;
-      console.log(`📩 ${messageType} ontvangen voor MMSI ${mmsi}`);
-      console.log("📦 Berichtinhoud:", JSON.stringify(msg, null, 2));
+      const { latitude, longitude, ShipName } = msg.MetaData;
 
-      if (msg.MetaData.Latitude && msg.MetaData.Longitude) {
-        const { Latitude, Longitude } = msg.MetaData;
-        if (isBinnenBereik(Latitude, Longitude)) {
-          schepen[mmsi] = { lat: Latitude, lon: Longitude };
-          console.log(`📍 BINNEN 1 KM: ${mmsi} (${Latitude.toFixed(5)}, ${Longitude.toFixed(5)})`);
-        }
+      if (latitude && longitude && isBinnenBereik(latitude, longitude)) {
+        schepen[mmsi] = {
+          lat: latitude,
+          lon: longitude,
+          naam: ShipName || "",
+        };
+        console.log(`📍 BINNEN 500m: ${mmsi} (${latitude.toFixed(5)}, ${longitude.toFixed(5)}) – ${ShipName || "?"}`);
       }
     } catch (err) {
       console.error("❌ Fout bij verwerken bericht:", err);
@@ -84,7 +64,7 @@ function startStream() {
 
 function getNearbyShips() {
   const alles = Object.entries(schepen);
-  console.log(`🧪 Aantal schepen binnen 1 km: ${alles.length}`);
+  console.log(`🧪 Schepen binnen 500m: ${alles.length}`);
   return alles.map(([mmsi, schip]) => ({ mmsi, ...schip }));
 }
 
