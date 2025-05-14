@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <title>Live Schepen AIS</title>
+</head>
+<body>
+  <h1>Schepen binnen 20 km van Rotterdam</h1>
+  <ul id="scheepslijst"></ul>
+
+  <script>
+    async function fetchSchepen() {
+      try {
+        const res = await fetch("/api/schepen");
+        const data = await res.json();
+        const lijst = document.getElementById("scheepslijst");
+        lijst.innerHTML = "";
+        data.forEach(schip => {
+          const li = document.createElement("li");
+          li.textContent = `${schip.naam} (${schip.lat.toFixed(4)}, ${schip.lon.toFixed(4)})`;
+          lijst.appendChild(li);
+        });
+      } catch (err) {
+        console.error("Fout bij ophalen schepen:", err);
+      }
+    }
+
+    setInterval(fetchSchepen, 5000); // Elke 5 seconden verversen
+    fetchSchepen();
+  </script>
+</body>
+</html>
