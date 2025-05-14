@@ -6,8 +6,10 @@ function afstandKm(lat1, lon1, lat2, lon2) {
   const R = 6371;
   const dLat = (lat2 - lat1) * Math.PI / 180;
   const dLon = (lon2 - lon1) * Math.PI / 180;
-  const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180) * Math.cos(lat2*Math.PI/180) * Math.sin(dLon/2)**2;
-  return 2 * R * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  const a = Math.sin(dLat / 2) ** 2 +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLon / 2) ** 2;
+  return 2 * R * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
 function isBinnenBereik(lat, lon) {
@@ -19,30 +21,44 @@ function startStream() {
 
   ws.on("open", () => {
     console.log("✅ WebSocket verbinding geopend");
-    ws.send(JSON.stringify({ APIKey: process.env.AIS_API_KEY }));
+
+    const subscription = {
+      APIKey: process.env.AIS_API_KEY,
+      BoundingBoxes: [[[51.0, 3.0], [52.5, 5.5]]],
+      FilterMessageTypes: ["PositionReport", "StaticDataReport"]
+    };
+
+    ws.send(JSON.stringify(subscription));
   });
 
   ws.on("message", (data) => {
     try {
       const msg = JSON.parse(data);
-      const mmsi = msg.MMSI;
 
-      if (msg.MessageType === "PositionReport" && msg.Position) {
-        const { Latitude, Longitude } = msg.Position;
+      if (!msg.MessageType || !msg.MetaData) return;
+
+      const mmsi = msg.MetaData.MMSI;
+
+      if (msg.MessageType === "PositionReport" &&
+          msg.MetaData.Latitude &&
+          msg.MetaData.Longitude) {
+
+        const { Latitude, Longitude } = msg.MetaData;
+
         if (isBinnenBereik(Latitude, Longitude)) {
           if (!schepen[mmsi]) schepen[mmsi] = {};
           schepen[mmsi].lat = Latitude;
           schepen[mmsi].lon = Longitude;
 
-          console.log(`📍 Positie: MMSI ${mmsi} (${Latitude.toFixed(4)}, ${Longitude.toFixed(4)})`);
+          console.log(`📍 Positie: ${mmsi} (${Latitude.toFixed(4)}, ${Longitude.toFixed(4)})`);
         }
       }
 
-      if (msg.MessageType === "StaticDataReport" && msg.Name) {
+      if (msg.MessageType === "StaticDataReport" && msg.MetaData.ShipName) {
         if (!schepen[mmsi]) schepen[mmsi] = {};
-        schepen[mmsi].naam = msg.Name;
+        schepen[mmsi].naam = msg.MetaData.ShipName;
 
-        console.log(`🛳️ Naam: MMSI ${mmsi} – ${msg.Name}`);
+        console.log(`🛳️ Naam: ${mmsi} – ${msg.MetaData.ShipName}`);
       }
     } catch (err) {
       console.error("❌ Fout bij verwerken bericht:", err);
