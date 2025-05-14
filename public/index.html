@@ -14,12 +14,26 @@
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
-    const map = L.map('map').setView([51.9885, 4.0425], 12);
+    const map = L.map('map').setView([51.96936, 4.12339], 14);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; OpenStreetMap-bijdragers'
     }).addTo(map);
 
     const markers = {};
+
+    // locatie waar we afstand tot meten (1 km kring)
+    const targetLat = 51.969363314568625;
+    const targetLon = 4.123386665628428;
+
+    function afstandKm(lat1, lon1, lat2, lon2) {
+      const R = 6371;
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLon = (lon2 - lon1) * Math.PI / 180;
+      const a = Math.sin(dLat / 2) ** 2 +
+        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+        Math.sin(dLon / 2) ** 2;
+      return 2 * R * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    }
 
     async function fetchSchepen() {
       try {
@@ -31,16 +45,18 @@
           const id = schip.mmsi;
           const lat = schip.lat;
           const lon = schip.lon;
+          const afstand = afstandKm(lat, lon, targetLat, targetLon);
+          const binnen1km = afstand <= 1;
 
           if (lat && lon) {
             if (!markers[id]) {
               const marker = L.marker([lat, lon])
                 .addTo(map)
-                .bindPopup(`<strong>MMSI: ${id}</strong>`);
+                .bindPopup(`<strong>MMSI: ${id}</strong><br>Binnen 1 km: ${binnen1km ? "✅" : "❌"}`);
               markers[id] = marker;
             } else {
               markers[id].setLatLng([lat, lon]);
-              markers[id].getPopup().setContent(`<strong>MMSI: ${id}</strong>`);
+              markers[id].getPopup().setContent(`<strong>MMSI: ${id}</strong><br>Binnen 1 km: ${binnen1km ? "✅" : "❌"}`);
             }
           }
         });
