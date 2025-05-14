@@ -30,7 +30,7 @@
 
   <script>
     async function laad() {
-      const res = await fetch("/admin/data");
+      const res = await fetch("/data/submissions.json");
       const data = await res.json();
       const tbody = document.querySelector("tbody");
       tbody.innerHTML = "";

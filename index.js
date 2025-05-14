@@ -12,7 +12,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
-const SUBMIT_PATH = path.join(__dirname, "data", "submissions.json");
+const SUBMIT_PATH = path.join(__dirname, "public", "data", "submissions.json");
 
 // AUTH middleware
 
