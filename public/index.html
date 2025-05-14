@@ -2,28 +2,31 @@
 <html lang="nl">
 <head>
   <meta charset="UTF-8" />
-  <title>Live Schepen Kaart</title>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <title>Schepen binnen 500 meter</title>
   <style>
-    html, body { margin: 0; padding: 0; height: 100%; }
-    #map { width: 100%; height: 100%; }
+    body {
+      font-family: sans-serif;
+      margin: 2rem;
+    }
+    h1 {
+      margin-bottom: 1rem;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+    li {
+      padding: 0.5rem 0;
+    }
   </style>
 </head>
 <body>
-  <div id="map"></div>
+  <h1>Schepen binnen 500 meter</h1>
+  <ul id="schepen"></ul>
 
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
-    const map = L.map('map').setView([51.96936, 4.12339], 14);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap-bijdragers'
-    }).addTo(map);
-
-    const markers = {};
-
-    // locatie waar we afstand tot meten (1 km kring)
-    const targetLat = 51.969363314568625;
-    const targetLon = 4.123386665628428;
+    const targetLat = 51.966775344428456;
+    const targetLon = 4.112534920608608;
 
     function afstandKm(lat1, lon1, lat2, lon2) {
       const R = 6371;
@@ -39,29 +42,24 @@
       try {
         const res = await fetch("/api/schepen");
         const data = await res.json();
-        console.log("🔄 Ontvangen schepen:", data);
+
+        const lijst = document.getElementById("schepen");
+        lijst.innerHTML = "";
 
         data.forEach((schip) => {
-          const id = schip.mmsi;
           const lat = schip.lat;
           const lon = schip.lon;
+          const naam = schip.naam || `MMSI: ${schip.mmsi}`;
           const afstand = afstandKm(lat, lon, targetLat, targetLon);
-          const binnen1km = afstand <= 1;
 
-          if (lat && lon) {
-            if (!markers[id]) {
-              const marker = L.marker([lat, lon])
-                .addTo(map)
-                .bindPopup(`<strong>MMSI: ${id}</strong><br>Binnen 1 km: ${binnen1km ? "✅" : "❌"}`);
-              markers[id] = marker;
-            } else {
-              markers[id].setLatLng([lat, lon]);
-              markers[id].getPopup().setContent(`<strong>MMSI: ${id}</strong><br>Binnen 1 km: ${binnen1km ? "✅" : "❌"}`);
-            }
+          if (afstand <= 0.5) {
+            const item = document.createElement("li");
+            item.textContent = `${naam} (${lat.toFixed(5)}, ${lon.toFixed(5)})`;
+            lijst.appendChild(item);
           }
         });
       } catch (err) {
-        console.error("❌ Fout bij ophalen schepen:", err);
+        console.error("Fout bij ophalen schepen:", err);
       }
     }
 
