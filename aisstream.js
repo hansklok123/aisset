@@ -1,6 +1,6 @@
 const WebSocket = require("ws");
 
-let schepen = {}; // { MMSI: { naam, lat, lon, type } }
+let schepen = {}; // { MMSI: { lat, lon } }
 
 function afstandKm(lat1, lon1, lat2, lon2) {
   const R = 6371;
@@ -25,7 +25,7 @@ function startStream() {
     const subscription = {
       APIKey: process.env.AIS_API_KEY,
       BoundingBoxes: [[[51.8, 3.9], [52.2, 4.3]]],
-      FilterMessageTypes: ["PositionReport", "StaticDataReport"]
+      FilterMessageTypes: ["PositionReport"]
     };
 
     ws.send(JSON.stringify(subscription));
@@ -34,34 +34,17 @@ function startStream() {
   ws.on("message", (data) => {
     try {
       const msg = JSON.parse(data);
-      if (!msg.MessageType || !msg.MetaData) return;
+      if (msg.MessageType !== "PositionReport" || !msg.MetaData) return;
 
       const mmsi = msg.MetaData.MMSI;
+      const { Latitude, Longitude } = msg.MetaData;
 
-      if (msg.MessageType === "PositionReport" &&
-          msg.MetaData.Latitude &&
-          msg.MetaData.Longitude) {
-
-        const { Latitude, Longitude } = msg.MetaData;
-
-        if (isBinnenBereik(Latitude, Longitude)) {
-          if (!schepen[mmsi]) schepen[mmsi] = {};
-          schepen[mmsi].lat = Latitude;
-          schepen[mmsi].lon = Longitude;
-
-          console.log(`📍 Positie: ${mmsi} (${Latitude.toFixed(4)}, ${Longitude.toFixed(4)})`);
-        }
-      }
-
-      if (msg.MessageType === "StaticDataReport") {
-        if (!schepen[mmsi]) schepen[mmsi] = {};
-        schepen[mmsi].naam = msg.MetaData.ShipName || "";
-        schepen[mmsi].type = msg.MetaData.ShipType;
-
-        console.log(`🛳️ Type ${msg.MetaData.ShipType} – ${mmsi} – ${schepen[mmsi].naam}`);
+      if (Latitude && Longitude && isBinnenBereik(Latitude, Longitude)) {
+        schepen[mmsi] = { lat: Latitude, lon: Longitude };
+        console.log(`📍 Positie: ${mmsi} (${Latitude.toFixed(4)}, ${Longitude.toFixed(4)})`);
       }
     } catch (err) {
-      console.error("❌ Fout bij verwerken bericht:", err);
+      console.error("❌ Fout bij verwerken PositionReport:", err);
     }
   });
 
@@ -74,20 +57,8 @@ function startStream() {
 
 function getNearbyShips() {
   const alles = Object.entries(schepen);
-  console.log(`🧪 Aantal schepen in cache: ${alles.length}`);
-
-  alles.forEach(([mmsi, schip]) => {
-    if (!schip.lat || !schip.lon) {
-      console.log(`ℹ️ ${mmsi} heeft naam ${schip.naam || "-"}, maar mist lat/lon`);
-    }
-  });
-
-  const resultaat = alles
-    .map(([_, schip]) => schip)
-    .filter(s => s.lat && s.lon);
-
-  console.log(`🔎 Filterresultaat: ${resultaat.length} schepen met positie`);
-  return resultaat;
+  console.log(`🧪 Aantal schepen met positie: ${alles.length}`);
+  return alles.map(([mmsi, schip]) => ({ mmsi, ...schip }));
 }
 
 module.exports = { startStream, getNearbyShips };
