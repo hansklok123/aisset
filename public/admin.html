@@ -118,9 +118,27 @@
     th[onclick]:hover {
       background-color: rgba(0, 59, 92, 0.1);
     }
+    
+    .dashboard-box {
+      background-color: rgba(255, 255, 255, 0.75);
+      backdrop-filter: blur(10px);
+      padding: 2rem;
+      border-radius: 1rem;
+      max-width: 95%;
+      margin: 2rem auto;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+    }
+
+    table {
+      background: white;
+      border-radius: 0.5rem;
+      overflow: hidden;
+      border: 1px solid #ccc;
+    }
     </style>
 </head>
 <body>
+
 <img alt="logo" class="logo" src="https://hansklok123.github.io/aisset/logo.png"/><h2>ETD Inzendingen 📄</h2>
 <script>
     async function laad() {
@@ -203,7 +221,31 @@ function filterOpZoekterm() {
 }
 
 window.onload = laad;
-</script><div class="filter-section" style="text-align: center; margin: 1rem 0;"><div class="filter-section" style="text-align: center; margin: 1rem 0;">
+</script><script>
+async function updateProgress() {
+  const res = await fetch("/data/submissions.json");
+  const data = await res.json();
+  const count = data.length;
+  const max = 200;
+  const percentage = Math.min(100, (count / max) * 100);
+  const bar = document.getElementById("progressbar");
+  const display = document.getElementById("dataCount");
+  bar.style.width = percentage + "%";
+  display.textContent = count + " schepen";
+
+  const groen = Math.min(255, Math.floor((percentage / 100) * 255));
+  const rood = 255 - groen;
+  bar.style.backgroundColor = `rgb(${rood}, ${groen}, 0)`;
+}
+
+updateProgress();
+</script><div class="dashboard-box"><div style="margin: 1rem auto; max-width: 600px;">
+<label style="color: white; font-weight: bold;">Verzamelde datapunten</label>
+
+<div id="dataCount" style="text-align: right; color: white; margin-top: 0.3rem;">0 schepen</div>
+</div><div style="background-color: #ccc; border-radius: 1rem; height: 20px; overflow: hidden;">
+<div id="progressbar" style="height: 100%; width: 0%; background-color: red; transition: width 0.5s;"></div>
+</div><div class="filter-section" style="text-align: center; margin: 1rem 0;"></div><div class="filter-section" style="text-align: center; margin: 1rem 0;">
   🔎 <input id="zoek" oninput="filterOpZoekterm()" placeholder="Filter op scheepsnaam, datum of tijd" style="padding: 0.5rem; width: 60%;" type="text"/>
 </div><table id="tabel">
 <thead>
