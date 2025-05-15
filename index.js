@@ -16,7 +16,7 @@ const authMiddleware = basicAuth({
 
 
 app.use("/text.html", authMiddleware);
-app.use("/index.html", authMiddleware);
+app.use("/map.html", authMiddleware);
 app.use("/admin.html", authMiddleware);
 app.use("/text", authMiddleware);
 app.use("/data/submissions.json", authMiddleware);
