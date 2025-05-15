@@ -246,10 +246,10 @@ function filterOpZoekterm() {
 
 window.onload = laad;
 </script><script>
-async function updateProgress() {
-  const res = await fetch("/data/submissions.json");
-  const data = await res.json();
-  const count = data.length;
+async 
+function updateProgress() {
+  const tbody = document.querySelector("tbody");
+  const count = tbody.querySelectorAll("tr").length;
   const max = 200;
   const percentage = Math.min(100, (count / max) * 100);
   const bar = document.getElementById("progressbar");
@@ -260,6 +260,8 @@ async function updateProgress() {
   const groen = Math.min(255, Math.floor((percentage / 100) * 255));
   const rood = 255 - groen;
   bar.style.backgroundColor = `rgb(${rood}, ${groen}, 0)`;
+}
+, ${groen}, 0)`;
 }
 
 updateProgress();
