@@ -1,155 +1,392 @@
+
 <!DOCTYPE html>
+
 <html lang="nl">
-<head>
-  <meta charset="UTF-8" />
-  <title>Statische schepen met labels + Zoek</title>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <style>
-    body { font-family: sans-serif; margin: 2rem; }
-    #map { height: 600px; margin-top: 1rem; }
-    .label {
-      font-size: 0.85rem;
-      font-weight: bold;
-      color: #003366;
-      background: rgba(255, 255, 255, 0.9);
-      padding: 2px 6px;
-      border-radius: 4px;
-      border: 1px solid #003366;
-      white-space: nowrap;
-    }
-    #zoekform {
-      margin-bottom: 1rem;
-      padding: 1rem;
+<head><meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta charset="utf-8"/>
+<title>ETD Formulier</title>
+<style>
+    body { font-family: sans-serif; max-width: 600px; margin: auto; padding: 2rem; }
+    label { display: block; margin-top: 1rem; }
+    input, select, textarea, button {
+      width: 100%;
+      padding: 0.75rem;
+      font-size: 1rem;
+      border-radius: 8px;
       border: 1px solid #ccc;
-      background: #f9f9f9;
+      margin-top: 0.5rem;
     }
-  </style>
+    button {
+      background: #003b5c;
+      color: white;
+      border: none;
+      cursor: pointer;
+      margin-top: 1.5rem;
+    }
+    #bevestiging {
+      display: none;
+      padding: 1rem;
+      background: #dff0d8;
+      color: #3c763d;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+    }
+  
+    body {
+      background: url('https://storage.rotterdammaritimecapital.com/storage/2018/08/01152337/RMCOE_Port-and-Logistics.jpg') no-repeat center center fixed;
+      background-size: cover;
+      color: #fff;
+    }
+
+    form {
+      background-color: rgba(0, 0, 0, 0.7);
+      padding: 1rem;
+      border-radius: 1rem;
+    }
+
+    input, select, textarea, button {
+      background-color: rgba(255, 255, 255, 0.9);
+      color: #000;
+    }
+
+    label {
+      font-weight: bold;
+      color: #fff;
+    }
+
+    #bevestiging {
+      background-color: rgba(144, 238, 144, 0.9);
+      color: #003b5c;
+    }
+    
+    body {
+      background: url('https://keystoneacademic-res.cloudinary.com/image/upload/f_auto/q_auto/g_auto/w_724/dpr_2.0/element/11/119872_rotterdam-4152380_1920.jpg') no-repeat center center fixed;
+      background-size: cover;
+      animation: achtergrondFade 20s ease-in-out infinite alternate;
+    }
+
+    @keyframes achtergrondFade {
+      0%   { filter: brightness(1); }
+      100% { filter: brightness(0.95); }
+    }
+
+    form {
+      background-color: rgba(0, 0, 0, 0.65);
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.6);
+      padding: 1rem;
+      border-radius: 1rem;
+      backdrop-filter: blur(4px);
+    }
+
+    input, select, textarea, button {
+      background-color: rgba(255, 255, 255, 0.95);
+      color: #000;
+    }
+
+    label {
+      font-weight: bold;
+      color: #fff;
+    }
+
+    #bevestiging {
+      background-color: rgba(144, 238, 144, 0.9);
+      color: #003b5c;
+    }
+    
+
+    .form-container {
+      background-color: rgba(0, 0, 0, 0.65);
+      box-shadow: 0 0 18px rgba(0, 0, 0, 0.8);
+      border-radius: 1rem;
+      padding: 1.5rem;
+      backdrop-filter: blur(6px);
+      max-width: 600px;
+      margin: auto;
+    }
+
+    .form-header {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .form-header img {
+      max-height: 100px;
+      margin-bottom: 0.2rem;
+    }
+
+    .form-header h2 {
+      color: white;
+      margin: 0;
+      font-size: 1.5rem;
+    }
+    
+
+    .form-header h2 {
+      color: #003b5c;
+    }
+
+    label {
+      color: #003b5c;
+    }
+
+    #bevestiging {
+      background-color: rgba(200, 255, 200, 0.9);
+      color: #003b5c;
+    }
+
+    button {
+      background-color: #85d678;
+      color: white;
+    }
+    
+
+    input, select, textarea {
+      width: 100%;
+      box-sizing: border-box;
+      margin-top: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    button {
+      width: 100%;
+      margin-top: 1rem;
+    }
+    
+    
+    body, label, h2 {
+      color: #f8f9fa;
+    }
+
+    input, textarea, select {
+      background-color: rgba(255, 255, 255, 0.95);
+      color: #000;
+      border: 1px solid #ccc;
+    }
+
+    select option {
+      color: #000;
+      background-color: #fff;
+    }
+    
+    .form-container {
+      background-color: rgba(255, 255, 255, 0.7); /* 70% opaque wit */
+      box-shadow: none; /* verwijder donkere rand */
+      backdrop-filter: blur(10px);
+    }
+    
+    .form-container {
+      background: none !important;
+      box-shadow: none !important;
+      backdrop-filter: none !important;
+    }
+
+    input, select, textarea {
+      background-color: rgba(255, 255, 255, 0.95);
+      color: #000;
+    }
+    
+    body {
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: url('https://keystoneacademic-res.cloudinary.com/image/upload/f_auto/q_auto/g_auto/w_724/dpr_2.0/element/11/119872_rotterdam-4152380_1920.jpg') no-repeat center center fixed;
+      background-size: cover;
+      z-index: -1;
+      animation: achtergrondFade 20s ease-in-out infinite alternate;
+    }
+
+    .form-container {
+      background: none !important;
+      box-shadow: none !important;
+      backdrop-filter: none !important;
+    }
+    </style>
 </head>
 <body>
-  <h1>Statische schepen binnen 1 km (met labels)</h1>
+<div id="bevestiging">✔️ Inzending succesvol verzonden</div>
+<div class="form-container">
+<div class="form-header">
+<img alt="logo" src="https://hansklok123.github.io/aisset/logo.png"/>
+</div>
+<form id="etdForm">
+<h2>ETD Invoeren</h2>
+<label>Scheepsnaam:<select id="huidigSchipSelect" name="scheepsnaam"><option value="">Laden...</option></select></label><label>ETD:
+      <input id="etd" name="etd" type="datetime-local"/>
+</label>
+<label>Reden indien geen ETD:
+      <select id="reden" name="reden">
+<option value="">-- Kies reden --</option>
+<option value="Niet bekend bij de Kapitein">Niet bekend bij de Kapitein</option>
+<option value="Taal barrière">Taal barrière</option>
+<option value="Overig">Overig</option>
+</select>
+</label>
+<label>Toelichting (optioneel):
+      <textarea disabled="true" id="toelichting" name="toelichting" rows="4"></textarea>
+</label>
+<button type="submit">Verzenden</button>
+</form></div>
+<script>
+function afstandKm(lat1, lon1, lat2, lon2) {
+  const R = 6371;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = Math.sin(dLat / 2) ** 2 +
+            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+            Math.sin(dLon / 2) ** 2;
+  return 2 * R * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
 
-  <div id="zoekform">
-    <label>Tijd (UTC): <input type="text" id="tijd" placeholder="2025-05-14T10:25:00Z" /></label><br>
-    <label>Latitude: <input type="number" step="0.00001" id="lat" /></label><br>
-    <label>Longitude: <input type="number" step="0.00001" id="lon" /></label><br>
-    <button onclick="zoekSchip()">Zoek schip</button>
-    <p id="zoekresultaat"></p>
-  </div>
+function landVlag(mmsi) {
+  if (!mmsi) return "";
+  const landcode = mmsi.toString().substring(0, 3);
+  const landcodes = {
+    "205": "🇧🇪", "244": "🇳🇱", "219": "🇩🇰", "220": "🇩🇰", "228": "🇫🇷",
+    "229": "🇲🇹", "232": "🇬🇧", "235": "🇬🇧", "236": "🇬🇮", "238": "🇭🇷",
+    "240": "🇬🇷", "248": "🇨🇾", "250": "🇮🇪", "255": "🇵🇹", "259": "🇳🇴",
+    "265": "🇸🇪", "266": "🇸🇪", "269": "🇨🇭", "271": "🇹🇷", "273": "🇷🇺",
+    "311": "🇺🇸", "316": "🇨🇦", "351": "🇵🇦", "353": "🇧🇸", "355": "🇧🇿",
+    "366": "🇺🇸", "367": "🇺🇸", "370": "🇭🇳", "371": "🇳🇮", "372": "🇵🇦",
+    "374": "🇧🇶", "375": "🇻🇬"
+  };
+  return landcodes[landcode] || "🏳️";
+}
 
-  <p><a href="/zoek.html">📱 Zoek schip bij je locatie (mobiel)</a></p>
-<div id="map"></div>
+async function laadSchepen() {
+  try {
+    const geo = await new Promise((resolve, reject) =>
+      navigator.geolocation.getCurrentPosition(resolve, reject)
+    );
+    const userLat = geo.coords.latitude;
+    const userLon = geo.coords.longitude;
 
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script>
-    const targetLat = 51.966775344428456;
-    const targetLon = 4.112534920608608;
+    const res = await fetch("/api/schepen");
+    const schepen = await res.json();
 
-    const map = L.map('map').setView([targetLat, targetLon], 15);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap-bijdragers'
-    }).addTo(map);
+    const dichtbij = schepen
+      .map(s => {
+        const track = s.track || [];
+        const laatst = track[track.length - 1];
+        if (!laatst || !s.naam || !s.mmsi) return null;
+        const afstand = afstandKm(userLat, userLon, laatst.lat, laatst.lon);
+        return { naam: s.naam, mmsi: s.mmsi, afstand };
+      })
+      .filter(Boolean)
+      .sort((a, b) => a.afstand - b.afstand)
+      .slice(0, 5);
 
-    L.circle([targetLat, targetLon], {
-      radius: 1000,
-      color: 'red',
-      fill: false
-    }).addTo(map);
+    const select = document.getElementById("huidigSchipSelect");
+    select.innerHTML = "";
 
-    const markers = {}, tracks = {}, forecasts = {}, labels = {};
-
-    function afstandKm(lat1, lon1, lat2, lon2) {
-      const R = 6371;
-      const dLat = (lat2 - lat1) * Math.PI / 180;
-      const dLon = (lon2 - lon1) * Math.PI / 180;
-      const a = Math.sin(dLat / 2) ** 2 +
-        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-        Math.sin(dLon / 2) ** 2;
-      return 2 * R * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    if (dichtbij.length === 0) {
+      select.innerHTML = "<option value=''>Geen schepen in buurt</option>";
+      return;
     }
 
-    async function fetchSchepen() {
-      try {
-        const res = await fetch("/api/schepen");
-        const data = await res.json();
-        data.forEach((schip) => {
-          const id = schip.mmsi;
-          const naam = schip.naam || `MMSI: ${id}`;
-          const tijd = schip.tijd || "onbekend";
-          const track = schip.track || [];
-          if (track.length < 2) return;
-          const p1 = track[track.length - 2];
-          const p2 = track[track.length - 1];
-          const forecastLat = p2.lat + (p2.lat - p1.lat) * 6;
-          const forecastLon = p2.lon + (p2.lon - p1.lon) * 6;
-          const afstand = afstandKm(p2.lat, p2.lon, targetLat, targetLon);
-          if (afstand > 1) return;
+    dichtbij.forEach((s, i) => {
+      const opt = document.createElement("option");
+      opt.value = s.naam;
+      opt.textContent = s.naam + " " + landVlag(s.mmsi) + " (" + Math.round(s.afstand * 1000) + "m)";
+      if (i === 0) opt.selected = true;
+      select.appendChild(opt);
+    });
+  } catch (err) {
+    console.error("Fout bij scheepsdetectie:", err);
+    const select = document.getElementById("huidigSchipSelect");
+    select.innerHTML = "<option value=''>Fout bij ophalen</option>";
+  }
+}
 
-          const shipIcon = L.divIcon({
-            html: `<div style="
-              width: 0; height: 0;
-              border-left: 6px solid transparent;
-              border-right: 6px solid transparent;
-              border-bottom: 12px solid navy;
-              transform: rotate(0deg);"></div>`,
-            iconSize: [12, 12], className: ""
-          });
+document.getElementById("etdForm").addEventListener("submit", async function (e) {
+  e.preventDefault();
 
-          if (!markers[id]) {
-            markers[id] = L.marker([p2.lat, p2.lon], { icon: shipIcon }).addTo(map);
-          } else {
-            markers[id].setLatLng([p2.lat, p2.lon]);
-          }
+  const data = {
+    scheepsnaam: document.getElementById("huidigSchipSelect").value,
+    etd: document.getElementById("etd")?.value || "",
+    reden: document.getElementById("reden")?.value || "",
+    toelichting: document.getElementById("toelichting")?.value || "",
+    timestamp: new Date().toISOString()
+  };
 
-          if (labels[id]) map.removeLayer(labels[id]);
-          labels[id] = L.marker([p2.lat, p2.lon], {
-            icon: L.divIcon({
-              className: 'label',
-              html: `<div>${naam}</div>`,
-              iconAnchor: [0, 0]
-            })
-          }).addTo(map);
+  const csv = [
+    "Scheepsnaam,ETD,RedenGeenETD,Toelichting,Timestamp",
+    `${data.scheepsnaam},${data.etd},${data.reden},${data.toelichting},${data.timestamp}`
+  ].join("\n");
 
-          if (tracks[id]) map.removeLayer(tracks[id]);
-          const coords = track.map(p => [p.lat, p.lon]);
-          tracks[id] = L.polyline(coords, { color: 'blue' }).addTo(map);
+  const onderwerp = data.etd ?
+    `ETD Positive, ${data.scheepsnaam}, ${data.timestamp}` :
+    `ETD Negative, ${data.scheepsnaam}, ${data.timestamp}`;
 
-          if (forecasts[id]) map.removeLayer(forecasts[id]);
-          forecasts[id] = L.polyline([[p2.lat, p2.lon], [forecastLat, forecastLon]], {
-            color: 'red', dashArray: '5, 10', opacity: 0.5
-          }).addTo(map);
-        });
-      } catch (err) {
-        console.error("Fout bij ophalen schepen:", err);
-      }
+  const res = await fetch("/api/verstuur", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ csv, onderwerp })
+  });
+
+  if (res.ok) {
+    document.getElementById("bevestiging").style.display = "block";
+vuurConfettiSerie();
+  } else {
+    alert("❌ Fout bij verzenden");
+  }
+});
+
+window.onload = laadSchepen;
+</script><script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script><script>
+function vuurConfettiSerie() {
+  var duration = 2 * 1000;
+  var animationEnd = Date.now() + duration;
+  var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 1000 };
+
+  function randomInRange(min, max) {
+    return Math.random() * (max - min) + min;
+  }
+
+  var interval = setInterval(function() {
+    var timeLeft = animationEnd - Date.now();
+
+    if (timeLeft <= 0) {
+      return clearInterval(interval);
     }
 
-    async function zoekSchip() {
-      const tijd = document.getElementById("tijd").value;
-      const lat = parseFloat(document.getElementById("lat").value);
-      const lon = parseFloat(document.getElementById("lon").value);
-
-      if (!tijd || isNaN(lat) || isNaN(lon)) {
-        document.getElementById("zoekresultaat").textContent = "❌ Vul alle velden correct in.";
-        return;
+    var particleCount = 50 * (timeLeft / duration);
+    confetti(Object.assign({}, defaults, {
+      particleCount,
+      origin: {
+        x: randomInRange(0.1, 0.9),
+        y: Math.random() - 0.2
       }
+    }));
+  }, 200);
+}
+</script><script>
+// Toon/verberg toelichting afhankelijk van reden
+document.getElementById("reden").addEventListener("change", function () {
+  const toelichting = document.getElementById("toelichting");
+  if (this.value) {
+    toelichting.removeAttribute("disabled");
+  } else {
+    toelichting.setAttribute("disabled", "true");
+    toelichting.value = "";
+  }
+});
 
-      try {
-        const res = await fetch("/api/zoek", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ tijd, lat, lon })
-        });
-        const data = await res.json();
-        document.getElementById("zoekresultaat").textContent =
-          data.naam ? `✅ Schip: ${data.naam}` : "❌ Geen schip gevonden binnen 50m.";
-      } catch (err) {
-        console.error("Zoekfout:", err);
-        document.getElementById("zoekresultaat").textContent = "❌ Fout bij opvragen schip.";
-      }
-    }
+// 1 minuut throttle
+let laatstVerzonden = null;
 
-    setInterval(fetchSchepen, 6000);
-    fetchSchepen();
-  </script>
-</body>
+document.getElementById("etdForm").addEventListener("submit", async function (e) {
+  const nu = Date.now();
+  if (laatstVerzonden && nu - laatstVerzonden < 60000) {
+    e.preventDefault();
+    alert("Je hebt zojuist verzonden. Wacht 1 minuut voordat je opnieuw verzendt.");
+    return;
+  }
+  laatstVerzonden = nu;
+});
+</script></body>
 </html>
