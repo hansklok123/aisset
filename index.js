@@ -14,8 +14,10 @@ const authMiddleware = basicAuth({
   realm: 'Beveiligd gebied'
 });
 
-// Beveiligde routes
-app.use("/admin", authMiddleware);
+
+app.use("/text.html", authMiddleware);
+app.use("/index.html", authMiddleware);
+app.use("/admin.html", authMiddleware);
 app.use("/text", authMiddleware);
 app.use("/data/submissions.json", authMiddleware);
 app.use("/admin/export", authMiddleware);
