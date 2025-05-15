@@ -15,7 +15,6 @@ const authMiddleware = basicAuth({
 });
 
 
-const laatsteInzending = {};
 app.use("/text.html", authMiddleware);
 app.use("/map.html", authMiddleware);
 app.use("/admin.html", authMiddleware);
@@ -36,19 +35,6 @@ app.post("/api/verstuur", async (req, res) => {
   if (regels.length >= 2) {
     const [_, inhoud] = regels;
     const delen = inhoud.split(",");
-    const timestamp = Date.now();
-    if (!record.Scheepsnaam) {
-      console.warn("⚠️ Geen scheepsnaam gevonden, inzending genegeerd.");
-      return res.status(400).send("Scheepsnaam ontbreekt");
-    }
-    if (
-      laatsteInzending[record.Scheepsnaam] &&
-      Math.abs(timestamp - laatsteInzending[record.Scheepsnaam]) < 3000
-    ) {
-      console.log(`⛔ Dubbele inzending geblokkeerd voor ${record.Scheepsnaam}`);
-      return res.status(200).send("Dubbele inzending genegeerd");
-    }
-    laatsteInzending[record.Scheepsnaam] = timestamp;
     const record = {
       Scheepsnaam: delen[0]?.replaceAll('"', ""),
       ETD: delen[1]?.replaceAll('"', ""),
