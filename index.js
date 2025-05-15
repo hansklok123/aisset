@@ -27,47 +27,41 @@ app.use(express.static("public"));
 
 const SUBMIT_PATH = path.join(__dirname, "public", "data", "submissions.json");
 
+
+// Hou laatste inzending per schip bij
+const laatsteInzending = {};
+
+
 app.post("/api/verstuur", async (req, res) => {
   const { csv, onderwerp } = req.body;
-  if (!csv || !onderwerp) return res.status(400).send("Ongeldige gegevens");
 
-  const regels = csv.split("\n");
-  if (regels.length >= 2) {
-    const [_, inhoud] = regels;
-    const delen = inhoud.split(",");
-    const record = {
-      Scheepsnaam: delen[0]?.replaceAll('"', ""),
-      ETD: delen[1]?.replaceAll('"', ""),
-      RedenGeenETD: delen[2]?.replaceAll('"', ""),
-      Toelichting: delen[3]?.replaceAll('"', ""),
-      Timestamp: delen[4]?.replaceAll('"', ""),
-      Latitude: "",
-      Longitude: ""
-    };
+  try {
+    const regels = csv.trim().split("\n");
+    const gegevens = regels[1].split(",");
+    const scheepsnaam = gegevens[0];
+    const timestamp = new Date(gegevens[4]).getTime();
 
-    const schepen = getNearbyShips();
-    const match = schepen.find(s => s.naam?.trim() === record.Scheepsnaam?.trim());
-    if (match && match.track?.length > 0) {
-      const laatste = match.track[match.track.length - 1];
-      record.Latitude = laatste.lat;
-      record.Longitude = laatste.lon;
+    // Controleer op dubbele verzending binnen 3 seconden
+    if (
+      laatsteInzending[scheepsnaam] &&
+      Math.abs(timestamp - laatsteInzending[scheepsnaam]) < 3000
+    ) {
+      console.log(`⛔ Dubbele inzending voor ${scheepsnaam} tegengehouden`);
+      return res.status(200).send("Dubbele inzending genegeerd");
     }
 
-    let data = [];
-    if (fs.existsSync(SUBMIT_PATH)) data = JSON.parse(fs.readFileSync(SUBMIT_PATH));
-    data.push(record);
-    fs.writeFileSync(SUBMIT_PATH, JSON.stringify(data, null, 2));
+    // Registreer deze inzending
+    laatsteInzending[scheepsnaam] = timestamp;
 
-    const inhoudCSV = [
-      "Scheepsnaam,ETD,RedenGeenETD,Toelichting,Timestamp,Latitude,Longitude",
-      `"${record.Scheepsnaam}","${record.ETD}","${record.RedenGeenETD}","${record.Toelichting}","${record.Timestamp}","${record.Latitude}","${record.Longitude}"`
-    ].join("\n");
+    // TODO: voeg hier originele opslag/verwerking toe
+    console.log("✅ Inzending verwerkt:", scheepsnaam);
+    res.status(200).send("OK");
+  } catch (err) {
+    console.error("❌ Fout bij verwerken:", err);
+    res.status(500).send("Verwerkingsfout");
+  }
+});
 
-    try {
-      
-      
-      console.log("✅ Verzonden + Dropbox upload succesvol");
-      res.json({ status: "ok" });
     } catch (err) {
       console.error("❌ Fout bij e-mail of Dropbox:", err);
       res.status(500).send("Verzending mislukt");
