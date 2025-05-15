@@ -231,7 +231,104 @@
 </label>
 <button type="submit">Verzenden</button>
 </form></div>
-<script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script><script>
+function vuurConfettiSerie() {
+  var duration = 2 * 1000;
+  var animationEnd = Date.now() + duration;
+  var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 1000 };
+
+  function randomInRange(min, max) {
+    return Math.random() * (max - min) + min;
+  }
+
+  var interval = setInterval(function() {
+    var timeLeft = animationEnd - Date.now();
+
+    if (timeLeft <= 0) {
+      return clearInterval(interval);
+    }
+
+    var particleCount = 50 * (timeLeft / duration);
+    confetti(Object.assign({}, defaults, {
+      particleCount,
+      origin: {
+        x: randomInRange(0.1, 0.9),
+        y: Math.random() - 0.2
+      }
+    }));
+  }, 200);
+}
+</script><script>
+let laatstVerzonden = 0;
+
+document.getElementById("reden").addEventListener("change", function () {
+  const toelichting = document.getElementById("toelichting");
+  if (this.value) {
+    toelichting.removeAttribute("disabled");
+  } else {
+    toelichting.setAttribute("disabled", "true");
+    toelichting.value = "";
+  }
+});
+
+document.getElementById("etdForm").addEventListener("submit", async function (e) {
+  e.preventDefault();
+
+  const nu = Date.now();
+  const tijdSindsLaatste = nu - laatstVerzonden;
+
+  const etdField = document.getElementById("etd");
+  const redenField = document.getElementById("reden");
+  const etd = etdField.value.trim();
+  const reden = redenField.value.trim();
+
+  // reset veldkleuren
+  etdField.style.border = "";
+  redenField.style.border = "";
+
+  if (!etd && !reden) {
+    etdField.style.border = "2px solid red";
+    redenField.style.border = "2px solid red";
+    return;
+  }
+
+  if (tijdSindsLaatste < 60000) {
+    alert("Het formulier is al verzonden. Wacht even voordat je opnieuw verzendt.");
+    return;
+  }
+
+  const data = {
+    scheepsnaam: document.getElementById("huidigSchipSelect").value,
+    etd,
+    reden,
+    toelichting: document.getElementById("toelichting").value.trim(),
+    timestamp: new Date().toISOString()
+  };
+
+  const csv = [
+    "Scheepsnaam,ETD,RedenGeenETD,Toelichting,Timestamp",
+    `${data.scheepsnaam},${data.etd},${data.reden},${data.toelichting},${data.timestamp}`
+  ].join("\n");
+
+  const onderwerp = data.etd ?
+    `ETD Positive, ${data.scheepsnaam}, ${data.timestamp}` :
+    `ETD Negative, ${data.scheepsnaam}, ${data.timestamp}`;
+
+  const res = await fetch("/api/verstuur", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ csv, onderwerp })
+  });
+
+  if (res.ok) {
+    laatstVerzonden = Date.now();
+    document.getElementById("bevestiging").style.display = "block";
+    vuurConfettiSerie();
+  } else {
+    alert("❌ Fout bij verzenden");
+  }
+});
+</script><script>
 function afstandKm(lat1, lon1, lat2, lon2) {
   const R = 6371;
   const dLat = (lat2 - lat1) * Math.PI / 180;
@@ -278,7 +375,7 @@ async function laadSchepen() {
       })
       .filter(Boolean)
       .sort((a, b) => a.afstand - b.afstand)
-      .slice(0, 15);
+      .slice(0, 5);
 
     const select = document.getElementById("huidigSchipSelect");
     select.innerHTML = "";
@@ -304,15 +401,6 @@ async function laadSchepen() {
 
 document.getElementById("etdForm").addEventListener("submit", async function (e) {
   e.preventDefault();
-  const etd = document.getElementById("etd").value.trim();
-  const reden = document.getElementById("reden").value.trim();
-
-  if (!etd && !reden) {
-    e.preventDefault();
-    alert("Vul ten minste een ETD of een reden in voordat je kunt verzenden.");
-    return;
-  }
-
 
   const data = {
     scheepsnaam: document.getElementById("huidigSchipSelect").value,
@@ -346,56 +434,5 @@ vuurConfettiSerie();
 });
 
 window.onload = laadSchepen;
-</script><script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script><script>
-function vuurConfettiSerie() {
-  var duration = 2 * 1000;
-  var animationEnd = Date.now() + duration;
-  var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 1000 };
-
-  function randomInRange(min, max) {
-    return Math.random() * (max - min) + min;
-  }
-
-  var interval = setInterval(function() {
-    var timeLeft = animationEnd - Date.now();
-
-    if (timeLeft <= 0) {
-      return clearInterval(interval);
-    }
-
-    var particleCount = 50 * (timeLeft / duration);
-    confetti(Object.assign({}, defaults, {
-      particleCount,
-      origin: {
-        x: randomInRange(0.1, 0.9),
-        y: Math.random() - 0.2
-      }
-    }));
-  }, 200);
-}
-</script><script>
-// Toon/verberg toelichting afhankelijk van reden
-document.getElementById("reden").addEventListener("change", function () {
-  const toelichting = document.getElementById("toelichting");
-  if (this.value) {
-    toelichting.removeAttribute("disabled");
-  } else {
-    toelichting.setAttribute("disabled", "true");
-    toelichting.value = "";
-  }
-});
-
-// 1 minuut throttle
-let laatstVerzonden = null;
-
-document.getElementById("etdForm").addEventListener("submit", async function (e) {
-  const nu = Date.now();
-  if (laatstVerzonden && nu - laatstVerzonden < 60000) {
-    e.preventDefault();
-    alert("Je hebt zojuist verzonden. Wacht 1 minuut voordat je opnieuw verzendt.");
-    return;
-  }
-  laatstVerzonden = nu;
-});
 </script></body>
 </html>
