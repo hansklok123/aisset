@@ -318,8 +318,7 @@ document.getElementById("etdForm").addEventListener("submit", async function (e)
     return;
   }
 
-  laatstVerzonden = nu;
-
+  
   e.preventDefault();
   const etd = document.getElementById("etd").value.trim();
   const reden = document.getElementById("reden").value.trim();
@@ -355,6 +354,7 @@ document.getElementById("etdForm").addEventListener("submit", async function (e)
   });
 
   if (res.ok) {
+    laatstVerzonden = Date.now();
     document.getElementById("bevestiging").style.display = "block";
 vuurConfettiSerie();
   } else {
