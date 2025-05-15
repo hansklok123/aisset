@@ -192,118 +192,41 @@ async function laad() {
   toonData(data);
 }
 
-
-
-
 function toonData(data) {
   const tbody = document.querySelector("tbody");
   tbody.innerHTML = "";
-
-  // Filter alleen records met niet-lege scheepsnaam
-  const metNaam = data.filter(r => r.Scheepsnaam && r.Scheepsnaam.trim() !== "");
-
-  // Sorteer op scheepsnaam en timestamp
-  metNaam.sort((a, b) => {
-    const naamVergelijk = a.Scheepsnaam.localeCompare(b.Scheepsnaam);
-    if (naamVergelijk !== 0) return naamVergelijk;
-    return new Date(a.Timestamp) - new Date(b.Timestamp);
-  });
-
-  // Verwijder dubbele scheepsnamen met minder dan 2 seconden verschil
-  const uniek = [];
-  for (let i = 0; i < metNaam.length; i++) {
-    const huidig = metNaam[i];
-    const vorig = uniek[uniek.length - 1];
-    if (!vorig ||
-        huidig.Scheepsnaam !== vorig.Scheepsnaam ||
-        Math.abs(new Date(huidig.Timestamp) - new Date(vorig.Timestamp)) > 2000) {
-      uniek.push(huidig);
-    }
-  }
-
-  // Plaats rijen in de tabel
-  uniek.forEach(r => {
-    const rij = document.createElement("tr");
-    rij.innerHTML = `<td>${r.Scheepsnaam}</td><td>${r.ETD}</td><td>${r.RedenGeenETD}</td><td>${r.Toelichting}</td><td>${r.Timestamp}</td><td>${r.Latitude}</td><td>${r.Longitude}</td>`;
-    tbody.appendChild(rij);
-  });
-
-  updateProgress(); // correcte update na tonen
-}
-
-  }
-
-  // Voeg toe aan tabel
-  uniek.forEach(r => {
-    const rij = document.createElement("tr");
-    rij.innerHTML = `<td>${r.Scheepsnaam}</td><td>${r.ETD}</td><td>${r.RedenGeenETD}</td><td>${r.Toelichting}</td><td>${r.Timestamp}</td><td>${r.Latitude}</td><td>${r.Longitude}</td>`;
-    tbody.appendChild(rij);
-  });
-
-  updateProgress(); // ook direct na laden
-}
-
-  }
-
-  uniek.forEach(r => {
+  data.forEach(r => {
     const rij = document.createElement("tr");
     rij.innerHTML = `<td>${r.Scheepsnaam}</td><td>${r.ETD}</td><td>${r.RedenGeenETD}</td><td>${r.Toelichting}</td><td>${r.Timestamp}</td><td>${r.Latitude}</td><td>${r.Longitude}</td>`;
     tbody.appendChild(rij);
   });
 }
 
-
-
-
-function sorteerOp(veldNaam) {
-  const veldIndex = {
-    "Scheepsnaam": 0,
-    "ETD": 1,
-    "RedenGeenETD": 2,
-    "Toelichting": 3,
-    "Timestamp": 4,
-    "Latitude": 5,
-    "Longitude": 6
-  }[veldNaam];
-
-  const tbody = document.querySelector("tbody");
-  const rijen = Array.from(tbody.querySelectorAll("tr"));
-
-  rijen.sort((a, b) => {
-    const aText = a.children[veldIndex]?.textContent.trim().toLowerCase() || "";
-    const bText = b.children[veldIndex]?.textContent.trim().toLowerCase() || "";
-    return aText.localeCompare(bText);
+function sorteerOp(veld) {
+  const gesorteerd = [...origineleData].sort((a, b) => {
+    if (!a[veld]) return 1;
+    if (!b[veld]) return -1;
+    return a[veld].localeCompare(b[veld]);
   });
-
-  tbody.innerHTML = "";
-  rijen.forEach(rij => tbody.appendChild(rij));
-  updateProgress(); // na sorteren ook progressiebalk updaten
+  toonData(gesorteerd);
 }
-
-
-
 
 function filterOpZoekterm() {
   const zoekterm = document.getElementById("zoek").value.toLowerCase();
-  const rijen = document.querySelectorAll("tbody tr");
-
-  rijen.forEach(rij => {
-    const tekst = rij.textContent.toLowerCase();
-    rij.style.display = tekst.includes(zoekterm) ? "" : "none";
-  });
-
-  updateProgress();
+  const gefilterd = origineleData.filter(r =>
+    r.Scheepsnaam?.toLowerCase().includes(zoekterm) ||
+    r.ETD?.toLowerCase().includes(zoekterm) ||
+    r.Timestamp?.toLowerCase().includes(zoekterm)
+  );
+  toonData(gefilterd);
 }
-
 
 window.onload = laad;
 </script><script>
-async 
-
-
-function updateProgress() {
-  const zichtbareRijen = Array.from(document.querySelectorAll("tbody tr")).filter(rij => rij.style.display !== "none");
-  const count = zichtbareRijen.length;
+async function updateProgress() {
+  const res = await fetch("/data/submissions.json");
+  const data = await res.json();
+  const count = data.length;
   const max = 200;
   const percentage = Math.min(100, (count / max) * 100);
   const bar = document.getElementById("progressbar");
@@ -314,12 +237,6 @@ function updateProgress() {
   const groen = Math.min(255, Math.floor((percentage / 100) * 255));
   const rood = 255 - groen;
   bar.style.backgroundColor = `rgb(${rood}, ${groen}, 0)`;
-}
-, ${groen}, 0)`;
-}
-, ${groen}, 0)`;
-}
-, ${groen}, 0)`;
 }
 
 updateProgress();
@@ -338,6 +255,5 @@ updateProgress();
 </tr>
 </thead>
 <tbody></tbody>
-</table>
-<button onclick="exporteerCSV()">📄 Exporteer naar CSV</button></div></body>
+</table></div></body>
 </html>
