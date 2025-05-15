@@ -225,24 +225,36 @@ function toonData(data) {
 }
 
 
+
 function sorteerOp(veld) {
-  const gesorteerd = [...origineleData].sort((a, b) => {
-    if (!a[veld]) return 1;
-    if (!b[veld]) return -1;
-    return a[veld].localeCompare(b[veld]);
+  const tbody = document.querySelector("tbody");
+  const rijen = Array.from(tbody.querySelectorAll("tr"));
+
+  rijen.sort((a, b) => {
+    const aText = a.querySelector(`td:nth-child(${veld})`)?.textContent.trim().toLowerCase() || "";
+    const bText = b.querySelector(`td:nth-child(${veld})`)?.textContent.trim().toLowerCase() || "";
+    return aText.localeCompare(bText);
   });
-  toonData(gesorteerd);
+
+  tbody.innerHTML = "";
+  rijen.forEach(rij => tbody.appendChild(rij));
+  updateProgress();
 }
+
+
 
 function filterOpZoekterm() {
   const zoekterm = document.getElementById("zoek").value.toLowerCase();
-  const gefilterd = origineleData.filter(r =>
-    r.Scheepsnaam?.toLowerCase().includes(zoekterm) ||
-    r.ETD?.toLowerCase().includes(zoekterm) ||
-    r.Timestamp?.toLowerCase().includes(zoekterm)
-  );
-  toonData(gefilterd);
+  const rijen = document.querySelectorAll("tbody tr");
+
+  rijen.forEach(rij => {
+    const tekst = rij.textContent.toLowerCase();
+    rij.style.display = tekst.includes(zoekterm) ? "" : "none";
+  });
+
+  updateProgress();
 }
+
 
 window.onload = laad;
 </script><script>
