@@ -194,28 +194,43 @@ async function laad() {
 
 
 
+
 function toonData(data) {
   const tbody = document.querySelector("tbody");
   tbody.innerHTML = "";
 
-  // Filter op niet-lege scheepsnamen
-  const gefilterd = data.filter(r => r.Scheepsnaam && r.Scheepsnaam.trim() !== "");
+  // Filter alleen records met niet-lege scheepsnaam
+  const metNaam = data.filter(r => r.Scheepsnaam && r.Scheepsnaam.trim() !== "");
 
-  // Sorteer op tijd (timestamp)
-  gefilterd.sort((a, b) => new Date(a.Timestamp) - new Date(b.Timestamp));
+  // Sorteer op scheepsnaam en timestamp
+  metNaam.sort((a, b) => {
+    const naamVergelijk = a.Scheepsnaam.localeCompare(b.Scheepsnaam);
+    if (naamVergelijk !== 0) return naamVergelijk;
+    return new Date(a.Timestamp) - new Date(b.Timestamp);
+  });
 
-  // Verwijder dubbele scheepsnamen met minder dan 2 seconden tijdsverschil
+  // Verwijder dubbele scheepsnamen met minder dan 2 seconden verschil
   const uniek = [];
-  for (let i = 0; i < gefilterd.length; i++) {
-    const huidig = gefilterd[i];
+  for (let i = 0; i < metNaam.length; i++) {
+    const huidig = metNaam[i];
     const vorig = uniek[uniek.length - 1];
-    if (
-      !vorig ||
-      huidig.Scheepsnaam !== vorig.Scheepsnaam ||
-      Math.abs(new Date(huidig.Timestamp) - new Date(vorig.Timestamp)) > 2000
-    ) {
+    if (!vorig ||
+        huidig.Scheepsnaam !== vorig.Scheepsnaam ||
+        Math.abs(new Date(huidig.Timestamp) - new Date(vorig.Timestamp)) > 2000) {
       uniek.push(huidig);
     }
+  }
+
+  // Plaats rijen in de tabel
+  uniek.forEach(r => {
+    const rij = document.createElement("tr");
+    rij.innerHTML = `<td>${r.Scheepsnaam}</td><td>${r.ETD}</td><td>${r.RedenGeenETD}</td><td>${r.Toelichting}</td><td>${r.Timestamp}</td><td>${r.Latitude}</td><td>${r.Longitude}</td>`;
+    tbody.appendChild(rij);
+  });
+
+  updateProgress(); // correcte update na tonen
+}
+
   }
 
   // Voeg toe aan tabel
@@ -285,6 +300,7 @@ window.onload = laad;
 </script><script>
 async 
 
+
 function updateProgress() {
   const zichtbareRijen = Array.from(document.querySelectorAll("tbody tr")).filter(rij => rij.style.display !== "none");
   const count = zichtbareRijen.length;
@@ -298,6 +314,8 @@ function updateProgress() {
   const groen = Math.min(255, Math.floor((percentage / 100) * 255));
   const rood = 255 - groen;
   bar.style.backgroundColor = `rgb(${rood}, ${groen}, 0)`;
+}
+, ${groen}, 0)`;
 }
 , ${groen}, 0)`;
 }
