@@ -282,21 +282,26 @@ document.getElementById("etdForm").addEventListener("submit", async function (e)
   const etd = etdField.value.trim();
   const reden = redenField.value.trim();
 
-  // reset veldkleuren
+  // reset borders
   etdField.style.border = "";
   redenField.style.border = "";
 
-  if (!etd && !reden) {
+  // Check of formulier geldig is (ETD of reden vereist)
+  const formulierGeldig = etd || reden;
+
+  if (!formulierGeldig) {
     etdField.style.border = "2px solid red";
     redenField.style.border = "2px solid red";
-    return;
+    return; // formulier is niet volledig, stop zonder throttle instellen
   }
 
+  // Check throttle alleen bij geldig formulier
   if (tijdSindsLaatste < 60000) {
     alert("Het formulier is al verzonden. Wacht even voordat je opnieuw verzendt.");
     return;
   }
 
+  // Verzamel en verzend gegevens
   const data = {
     scheepsnaam: document.getElementById("huidigSchipSelect").value,
     etd,
@@ -321,118 +326,12 @@ document.getElementById("etdForm").addEventListener("submit", async function (e)
   });
 
   if (res.ok) {
-    laatstVerzonden = Date.now();
+    laatstVerzonden = Date.now();  // throttle pas hier instellen
     document.getElementById("bevestiging").style.display = "block";
     vuurConfettiSerie();
   } else {
     alert("❌ Fout bij verzenden");
   }
 });
-</script><script>
-function afstandKm(lat1, lon1, lat2, lon2) {
-  const R = 6371;
-  const dLat = (lat2 - lat1) * Math.PI / 180;
-  const dLon = (lon2 - lon1) * Math.PI / 180;
-  const a = Math.sin(dLat / 2) ** 2 +
-            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-            Math.sin(dLon / 2) ** 2;
-  return 2 * R * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-}
-
-function landVlag(mmsi) {
-  if (!mmsi) return "";
-  const landcode = mmsi.toString().substring(0, 3);
-  const landcodes = {
-    "205": "🇧🇪", "244": "🇳🇱", "219": "🇩🇰", "220": "🇩🇰", "228": "🇫🇷",
-    "229": "🇲🇹", "232": "🇬🇧", "235": "🇬🇧", "236": "🇬🇮", "238": "🇭🇷",
-    "240": "🇬🇷", "248": "🇨🇾", "250": "🇮🇪", "255": "🇵🇹", "259": "🇳🇴",
-    "265": "🇸🇪", "266": "🇸🇪", "269": "🇨🇭", "271": "🇹🇷", "273": "🇷🇺",
-    "311": "🇺🇸", "316": "🇨🇦", "351": "🇵🇦", "353": "🇧🇸", "355": "🇧🇿",
-    "366": "🇺🇸", "367": "🇺🇸", "370": "🇭🇳", "371": "🇳🇮", "372": "🇵🇦",
-    "374": "🇧🇶", "375": "🇻🇬"
-  };
-  return landcodes[landcode] || "🏳️";
-}
-
-async function laadSchepen() {
-  try {
-    const geo = await new Promise((resolve, reject) =>
-      navigator.geolocation.getCurrentPosition(resolve, reject)
-    );
-    const userLat = geo.coords.latitude;
-    const userLon = geo.coords.longitude;
-
-    const res = await fetch("/api/schepen");
-    const schepen = await res.json();
-
-    const dichtbij = schepen
-      .map(s => {
-        const track = s.track || [];
-        const laatst = track[track.length - 1];
-        if (!laatst || !s.naam || !s.mmsi) return null;
-        const afstand = afstandKm(userLat, userLon, laatst.lat, laatst.lon);
-        return { naam: s.naam, mmsi: s.mmsi, afstand };
-      })
-      .filter(Boolean)
-      .sort((a, b) => a.afstand - b.afstand)
-      .slice(0, 5);
-
-    const select = document.getElementById("huidigSchipSelect");
-    select.innerHTML = "";
-
-    if (dichtbij.length === 0) {
-      select.innerHTML = "<option value=''>Geen schepen in buurt</option>";
-      return;
-    }
-
-    dichtbij.forEach((s, i) => {
-      const opt = document.createElement("option");
-      opt.value = s.naam;
-      opt.textContent = s.naam + " " + landVlag(s.mmsi) + " (" + Math.round(s.afstand * 1000) + "m)";
-      if (i === 0) opt.selected = true;
-      select.appendChild(opt);
-    });
-  } catch (err) {
-    console.error("Fout bij scheepsdetectie:", err);
-    const select = document.getElementById("huidigSchipSelect");
-    select.innerHTML = "<option value=''>Fout bij ophalen</option>";
-  }
-}
-
-document.getElementById("etdForm").addEventListener("submit", async function (e) {
-  e.preventDefault();
-
-  const data = {
-    scheepsnaam: document.getElementById("huidigSchipSelect").value,
-    etd: document.getElementById("etd")?.value || "",
-    reden: document.getElementById("reden")?.value || "",
-    toelichting: document.getElementById("toelichting")?.value || "",
-    timestamp: new Date().toISOString()
-  };
-
-  const csv = [
-    "Scheepsnaam,ETD,RedenGeenETD,Toelichting,Timestamp",
-    `${data.scheepsnaam},${data.etd},${data.reden},${data.toelichting},${data.timestamp}`
-  ].join("\n");
-
-  const onderwerp = data.etd ?
-    `ETD Positive, ${data.scheepsnaam}, ${data.timestamp}` :
-    `ETD Negative, ${data.scheepsnaam}, ${data.timestamp}`;
-
-  const res = await fetch("/api/verstuur", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ csv, onderwerp })
-  });
-
-  if (res.ok) {
-    document.getElementById("bevestiging").style.display = "block";
-vuurConfettiSerie();
-  } else {
-    alert("❌ Fout bij verzenden");
-  }
-});
-
-window.onload = laadSchepen;
 </script></body>
 </html>
