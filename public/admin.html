@@ -53,18 +53,46 @@
       margin-top: 1rem;
       font-size: 1rem;
     }
+    
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: url('https://keystoneacademic-res.cloudinary.com/image/upload/f_auto/q_auto/g_auto/w_724/dpr_2.0/element/11/119872_rotterdam-4152380_1920.jpg') no-repeat center center fixed;
+      background-size: cover;
+      z-index: -1;
+      animation: achtergrondFade 30s ease-in-out infinite alternate;
+    }
+
+    @keyframes achtergrondFade {
+      0%   { filter: brightness(1); }
+      100% { filter: brightness(0.93); }
+    }
+
+    .content-box {
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: 1rem;
+      padding: 1rem;
+      margin-top: 2rem;
+      box-shadow: 0 0 20px rgba(0,0,0,0.3);
+    }
+
+    .logo {
+      display: block;
+      margin: 1rem auto 0 auto;
+      width: 100px;
+      height: 100px;
+    }
+
+    h2 {
+      margin-top: 0.5rem;
+    }
     </style>
 </head>
 <body>
-<h2>ETD Inzendingen 📄</h2>
-<table id="tabel">
-<thead>
-<tr>
-<th>Scheepsnaam</th><th>ETD</th><th>RedenGeenETD</th><th>Toelichting</th><th>Timestamp</th><th>Latitude</th><th>Longitude</th>
-</tr>
-</thead>
-<tbody></tbody>
-</table>
+<img alt="logo" class="logo" src="https://hansklok123.github.io/aisset/logo.png"/><h2>ETD Inzendingen 📄</h2>
+
+
 <script>
     async function laad() {
       const res = await fetch("/data/submissions.json");
@@ -90,7 +118,7 @@
 
     laad();
   </script>
-<button onclick="exporteerCSV()">📤 Exporteer CSV</button>
+
 <script>
 function exporteerCSV() {
   const rows = Array.from(document.querySelectorAll("table tr"));
@@ -107,5 +135,57 @@ function exporteerCSV() {
   a.click();
 }
 </script>
-</body>
+<script>
+let origineleData = [];
+
+async function laad() {
+  const res = await fetch("/data/submissions.json");
+  const data = await res.json();
+  origineleData = data;
+  toonData(data);
+}
+
+function toonData(data) {
+  const tbody = document.querySelector("tbody");
+  tbody.innerHTML = "";
+  data.forEach(r => {
+    const rij = document.createElement("tr");
+    rij.innerHTML = `<td>${r.Scheepsnaam}</td><td>${r.ETD}</td><td>${r.RedenGeenETD}</td><td>${r.Toelichting}</td><td>${r.Timestamp}</td><td>${r.Latitude}</td><td>${r.Longitude}</td>`;
+    tbody.appendChild(rij);
+  });
+}
+
+function sorteerOp(veld) {
+  const gesorteerd = [...origineleData].sort((a, b) => {
+    if (!a[veld]) return 1;
+    if (!b[veld]) return -1;
+    return a[veld].localeCompare(b[veld]);
+  });
+  toonData(gesorteerd);
+}
+
+function filterOpZoekterm() {
+  const zoekterm = document.getElementById("zoek").value.toLowerCase();
+  const gefilterd = origineleData.filter(r =>
+    r.Scheepsnaam?.toLowerCase().includes(zoekterm) ||
+    r.ETD?.toLowerCase().includes(zoekterm) ||
+    r.Timestamp?.toLowerCase().includes(zoekterm)
+  );
+  toonData(gefilterd);
+}
+
+window.onload = laad;
+</script><div class="content-box"><div style="margin: 1rem 0;">
+  🔎 <input id="zoek" oninput="filterOpZoekterm()" placeholder="Filter op scheepsnaam, datum of tijd" style="padding: 0.5rem; width: 60%;" type="text"/>
+<button onclick="sorteerOp('Scheepsnaam')">Sorteer op Scheepsnaam</button>
+<button onclick="sorteerOp('ETD')">Sorteer op ETD</button>
+<button onclick="sorteerOp('Timestamp')">Sorteer op Tijd</button>
+</div><table id="tabel">
+<thead>
+<tr>
+<th>Scheepsnaam</th><th>ETD</th><th>RedenGeenETD</th><th>Toelichting</th><th>Timestamp</th><th>Latitude</th><th>Longitude</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table><button onclick="exporteerCSV()">📤 Exporteer CSV</button></div></body>
 </html>
