@@ -278,7 +278,7 @@ async function laadSchepen() {
       })
       .filter(Boolean)
       .sort((a, b) => a.afstand - b.afstand)
-      .slice(0, 5);
+      .slice(0, 15);
 
     const select = document.getElementById("huidigSchipSelect");
     select.innerHTML = "";
@@ -304,6 +304,15 @@ async function laadSchepen() {
 
 document.getElementById("etdForm").addEventListener("submit", async function (e) {
   e.preventDefault();
+  const etd = document.getElementById("etd").value.trim();
+  const reden = document.getElementById("reden").value.trim();
+
+  if (!etd && !reden) {
+    e.preventDefault();
+    alert("Vul ten minste een ETD of een reden in voordat je kunt verzenden.");
+    return;
+  }
+
 
   const data = {
     scheepsnaam: document.getElementById("huidigSchipSelect").value,
