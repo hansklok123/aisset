@@ -193,14 +193,15 @@ async function laad() {
 }
 
 
+
 function toonData(data) {
   const tbody = document.querySelector("tbody");
   tbody.innerHTML = "";
 
-  // Filter lege scheepsnamen
+  // Filter op niet-lege scheepsnamen
   const gefilterd = data.filter(r => r.Scheepsnaam && r.Scheepsnaam.trim() !== "");
 
-  // Sorteer op tijd om duplicaten correct te vergelijken
+  // Sorteer op tijd (timestamp)
   gefilterd.sort((a, b) => new Date(a.Timestamp) - new Date(b.Timestamp));
 
   // Verwijder dubbele scheepsnamen met minder dan 2 seconden tijdsverschil
@@ -215,6 +216,18 @@ function toonData(data) {
     ) {
       uniek.push(huidig);
     }
+  }
+
+  // Voeg toe aan tabel
+  uniek.forEach(r => {
+    const rij = document.createElement("tr");
+    rij.innerHTML = `<td>${r.Scheepsnaam}</td><td>${r.ETD}</td><td>${r.RedenGeenETD}</td><td>${r.Toelichting}</td><td>${r.Timestamp}</td><td>${r.Latitude}</td><td>${r.Longitude}</td>`;
+    tbody.appendChild(rij);
+  });
+
+  updateProgress(); // ook direct na laden
+}
+
   }
 
   uniek.forEach(r => {
