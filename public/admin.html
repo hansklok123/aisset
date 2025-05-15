@@ -192,15 +192,38 @@ async function laad() {
   toonData(data);
 }
 
+
 function toonData(data) {
   const tbody = document.querySelector("tbody");
   tbody.innerHTML = "";
-  data.forEach(r => {
+
+  // Filter lege scheepsnamen
+  const gefilterd = data.filter(r => r.Scheepsnaam && r.Scheepsnaam.trim() !== "");
+
+  // Sorteer op tijd om duplicaten correct te vergelijken
+  gefilterd.sort((a, b) => new Date(a.Timestamp) - new Date(b.Timestamp));
+
+  // Verwijder dubbele scheepsnamen met minder dan 2 seconden tijdsverschil
+  const uniek = [];
+  for (let i = 0; i < gefilterd.length; i++) {
+    const huidig = gefilterd[i];
+    const vorig = uniek[uniek.length - 1];
+    if (
+      !vorig ||
+      huidig.Scheepsnaam !== vorig.Scheepsnaam ||
+      Math.abs(new Date(huidig.Timestamp) - new Date(vorig.Timestamp)) > 2000
+    ) {
+      uniek.push(huidig);
+    }
+  }
+
+  uniek.forEach(r => {
     const rij = document.createElement("tr");
     rij.innerHTML = `<td>${r.Scheepsnaam}</td><td>${r.ETD}</td><td>${r.RedenGeenETD}</td><td>${r.Toelichting}</td><td>${r.Timestamp}</td><td>${r.Latitude}</td><td>${r.Longitude}</td>`;
     tbody.appendChild(rij);
   });
 }
+
 
 function sorteerOp(veld) {
   const gesorteerd = [...origineleData].sort((a, b) => {
