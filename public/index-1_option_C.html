@@ -366,10 +366,6 @@ document.getElementById("etdForm").addEventListener("submit", async function (e)
 
   e.preventDefault();
 
-<script>
-document.getElementById("etdForm").addEventListener("submit", async function (e) {
-  e.preventDefault();
-
   const nu = Date.now();
   const tijdSindsLaatste = nu - laatstVerzonden;
 
@@ -395,33 +391,19 @@ document.getElementById("etdForm").addEventListener("submit", async function (e)
     return;
   }
 
-  // Pak beide scheepsnaamvelden!
-  const scheepsnaam = document.getElementById("huidigSchipSelect").value || "";
-  const scheepsnaamHandmatig = document.getElementById("handmatigSchip").value || "";
-
-  // Eis dat minstens één van beide is ingevuld!
-  if (!scheepsnaam && !scheepsnaamHandmatig) {
-    document.getElementById("huidigSchipSelect").style.border = "2px solid red";
-    document.getElementById("handmatigSchip").style.border = "2px solid red";
-    alert("Vul een scheepsnaam in (selecteer óf typ handmatig).");
-    return;
-  }
-
   const data = {
-    scheepsnaam,
-    scheepsnaamHandmatig,
+    scheepsnaam: document.getElementById("huidigSchipSelect").value,
     etd,
     reden,
     toelichting: document.getElementById("toelichting").value.trim(),
     timestamp: new Date().toISOString()
   };
 
-  const csv = `Scheepsnaam,ScheepsnaamHandmatig,ETD,RedenGeenETD,Toelichting,Timestamp
-"${data.scheepsnaam}","${data.scheepsnaamHandmatig}","${data.etd}","${data.reden}","${data.toelichting}","${data.timestamp}"`;
+  const csv = `Scheepsnaam,ETD,RedenGeenETD,Toelichting,Timestamp\n${data.scheepsnaam},${data.etd},${data.reden},${data.toelichting},${data.timestamp}`;
 
-  const onderwerp = data.etd
-    ? `ETD Positive, ${data.scheepsnaam || data.scheepsnaamHandmatig}, ${data.timestamp}`
-    : `ETD Negative, ${data.scheepsnaam || data.scheepsnaamHandmatig}, ${data.timestamp}`;
+  const onderwerp = data.etd ?
+    `ETD Positive, ${data.scheepsnaam}, ${data.timestamp}` :
+    `ETD Negative, ${data.scheepsnaam}, ${data.timestamp}`;
 
   const res = await fetch("/api/verstuur", {
     method: "POST",
@@ -437,7 +419,6 @@ document.getElementById("etdForm").addEventListener("submit", async function (e)
     alert("❌ Fout bij verzenden");
   }
 });
-
 
 function vuurConfettiSerie() {
   var duration = 2 * 1000;
