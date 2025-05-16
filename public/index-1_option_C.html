@@ -393,13 +393,14 @@ document.getElementById("etdForm").addEventListener("submit", async function (e)
 
   const data = {
     scheepsnaam: document.getElementById("huidigSchipSelect").value,
+    scheepsnaamHandmatig: document.getElementById("handmatigSchip").value,
     etd,
     reden,
     toelichting: document.getElementById("toelichting").value.trim(),
     timestamp: new Date().toISOString()
   };
 
-  const csv = `Scheepsnaam,ETD,RedenGeenETD,Toelichting,Timestamp\n${data.scheepsnaam},${data.etd},${data.reden},${data.toelichting},${data.timestamp}`;
+  const csv = `Scheepsnaam, scheepsnaamHandmatig,ETD,RedenGeenETD,Toelichting,Timestamp\n${data.scheepsnaam},${data.scheepsnaamHandmatig},${data.etd},${data.reden},${data.toelichting},${data.timestamp}`;
 
   const onderwerp = data.etd ?
     `ETD Positive, ${data.scheepsnaam}, ${data.timestamp}` :
