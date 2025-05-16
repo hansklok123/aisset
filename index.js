@@ -54,7 +54,7 @@ const record = {
   record.Longitude = laatste.lon ? parseFloat(laatste.lon).toFixed(5) : "";
 }
 
-    }
+    
 
     let data = [];
     if (fs.existsSync(SUBMIT_PATH)) data = JSON.parse(fs.readFileSync(SUBMIT_PATH));
