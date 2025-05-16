@@ -35,15 +35,18 @@ app.post("/api/verstuur", async (req, res) => {
   if (regels.length >= 2) {
     const [_, inhoud] = regels;
     const delen = inhoud.split(",");
-    const record = {
-      Scheepsnaam: delen[0]?.replaceAll('"', ""),
-      ETD: delen[1]?.replaceAll('"', ""),
-      RedenGeenETD: delen[2]?.replaceAll('"', ""),
-      Toelichting: delen[3]?.replaceAll('"', ""),
-      Timestamp: delen[4]?.replaceAll('"', ""),
-      Latitude: "",
-      Longitude: ""
-    };
+    
+const record = {
+  Scheepsnaam: delen[0]?.replaceAll('"', ""),
+  ScheepsnaamHandmatig: delen[1]?.replaceAll('"', ""),  // NIEUW
+  ETD: delen[2]?.replaceAll('"', ""),
+  RedenGeenETD: delen[3]?.replaceAll('"', ""),
+  Toelichting: delen[4]?.replaceAll('"', ""),
+  Timestamp: delen[5]?.replaceAll('"', ""),
+  Latitude: delen[6]?.replaceAll('"', ""),
+  Longitude: delen[7]?.replaceAll('"', "")
+};
+;
 
     const schepen = getNearbyShips();
     const match = schepen.find(s => s.naam?.trim() === record.Scheepsnaam?.trim());
