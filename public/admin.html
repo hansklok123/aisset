@@ -255,5 +255,22 @@ updateProgress();
 </tr>
 </thead>
 <tbody></tbody>
-</table></div></body>
+</table>
+
+<!-- SheetJS bibliotheek toevoegen -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<div style="width:100%;text-align:right;margin-top:2em;">
+    <button id="exportExcelBtn" style="padding: 0.5em 1.5em; border-radius: 8px; background: #217346; color: #fff; border: none; cursor: pointer;">Exporteer naar Excel</button>
+</div>
+<script>
+document.getElementById('exportExcelBtn').onclick = function() {
+    var table = document.querySelector('table');
+    var wb = XLSX.utils.table_to_book(table, {sheet:"ETD export"});
+    XLSX.writeFile(wb, 'etd-export.xlsx');
+};
+</script>
+
+
+
+</div></body>
 </html>

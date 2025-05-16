@@ -269,49 +269,42 @@
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
 
-
 <script>
-// Alleen één veld tegelijk invulbaar houden
-const selectField = document.getElementById("huidigSchipSelect");
-const manualField = document.getElementById("handmatigSchip");
+document.getElementById("etdForm").addEventListener("submit", function(e) {
+    const selectField = document.getElementById("huidigSchipSelect");
+    const manualField = document.getElementById("handmatigSchip");
+    const toelichtingField = document.getElementById("toelichting");
 
-// Disable/enable handmatig veld op basis van selectie
-selectField.addEventListener("change", function() {
-    if (selectField.value) {
-        manualField.value = "";
-        manualField.disabled = true;
-    } else {
-        manualField.disabled = false;
+    // Zet Toelichting altijd actief
+    if (toelichtingField) toelichtingField.disabled = false;
+
+    // Controleer: maar 1 scheepsnaam-veld mag gevuld zijn
+    if (selectField.value && manualField.value) {
+        e.preventDefault();
+        alert("Vul óf Scheepsnaam (select) óf handmatig in, niet beide.");
+        return;
     }
-});
-
-// Disable/enable select op basis van handmatige invoer
-manualField.addEventListener("input", function() {
-    if (manualField.value) {
-        selectField.value = "";
-        selectField.disabled = true;
-    } else {
+    if (!selectField.value && !manualField.value) {
+        e.preventDefault();
+        alert("Vul een scheepsnaam in via selectie óf handmatig.");
+        return;
+    }
+    // Als select is gevuld, disable handmatig veld
+    if (selectField.value) {
+        manualField.disabled = true;
         selectField.disabled = false;
     }
+    // Als handmatig is gevuld, disable select
+    if (manualField.value) {
+        selectField.disabled = true;
+        manualField.disabled = false;
+    }
+    // Na 1 seconde alles weer aanzetten
+    setTimeout(() => {
+        manualField.disabled = false;
+        selectField.disabled = false;
+    }, 1000);
 });
-
-// Enkelvoudig submit-handler met volledige bescherming tegen dubbele submit
-document.getElementById("etdForm").addEventListener("submit", function(e) {
-  e.preventDefault(); // Altijd voorkomen!
-  // Alleen één veld mag actief zijn
-  if (selectField.value) {
-    manualField.disabled = true;
-    selectField.disabled = false;
-  } else if (manualField.value) {
-    selectField.disabled = true;
-    manualField.disabled = false;
-  } else {
-    alert("Vul een scheepsnaam in via selectie of handmatig invoer.");
-    return;
-  }
-  // Verzend formulier maar één keer!
-  this.submit();
-}, {once: true}); // Alleen 1x!
 </script>
 
 </body>
