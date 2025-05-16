@@ -668,19 +668,49 @@ document.getElementById("etdForm").addEventListener("submit", function(e) {
 
 
 <script>
-document.getElementById("etdForm").addEventListener("submit", function(e) {
-  const selectField = document.getElementById("huidigSchipSelect");
-  const manualField = document.getElementById("handmatigSchip");
+// IDs van velden
+const selectField = document.getElementById("huidigSchipSelect");
+const manualField = document.getElementById("handmatigSchip");
+const gpsButton = document.getElementById("gpsButton");
 
-  if (selectField.value) {
-    manualField.disabled = true;
-  } else if (manualField.value) {
-    selectField.disabled = true;
-  } else {
-    e.preventDefault();
-    alert("Vul een scheepsnaam in via selectie of handmatig invoer.");
-  }
+// Helper om select en gps (de)activeren en transparantie zetten
+function setSelectAndGPS(disabled) {
+    selectField.disabled = disabled;
+    gpsButton.disabled = disabled;
+    selectField.style.opacity = disabled ? "0.5" : "1";
+    gpsButton.style.opacity = disabled ? "0.5" : "1";
+}
+
+// Direct na laden: handmatige veld altijd actief
+window.addEventListener("DOMContentLoaded", function() {
+    if (manualField) manualField.disabled = false;
+    setSelectAndGPS(false);
+
+    // 5-seconden check of laden klaar is
+    setTimeout(function() {
+        // Controleer of eerste optie nog steeds 'Laden...' is
+        if (selectField && selectField.options.length && selectField.options[0].textContent.includes('Laden')) {
+            setSelectAndGPS(true);
+        }
+    }, 5000);
 });
+
+// Wanneer je in het handmatige veld typt
+manualField && manualField.addEventListener("input", function() {
+    if (manualField.value.trim() !== "") {
+        setSelectAndGPS(true);
+        selectField.value = "";
+    } else {
+        // Alleen weer activeren als er wél schepen geladen zijn (dus niet als nog 'Laden...')
+        if (selectField && (!selectField.options.length || !selectField.options[0].textContent.includes('Laden'))) {
+            setSelectAndGPS(false);
+        }
+    }
+});
+
+// Zorg dat handmatige veld zijn datalist-link houdt
+if (manualField) manualField.disabled = false;
+
 </script>
 
 </body>
