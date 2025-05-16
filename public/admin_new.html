@@ -149,7 +149,7 @@
       tbody.innerHTML = "";
       data.forEach(r => {
         const rij = document.createElement("tr");
-        rij.innerHTML = `<td>${r.Scheepsnaam}</td><td>${r.ETD}</td><td>${r.RedenGeenETD}</td><td>${r.Toelichting}</td><td>${r.Timestamp}</td><td>${r.Latitude}</td><td>${r.Longitude}</td>`;
+        rij.innerHTML = `<td>${r.Scheepsnaam}, ${r.ScheepsnaamHandmatig}</td><td>${r.ETD}</td><td>${r.RedenGeenETD}</td><td>${r.Toelichting}</td><td>${r.Timestamp}</td><td>${r.Latitude}</td><td>${r.Longitude}</td>`;
         tbody.appendChild(rij);
       });
     }
