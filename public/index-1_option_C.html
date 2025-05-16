@@ -251,7 +251,7 @@
 <form id="etdForm">
 <h2>ETD Invoeren</h2>
 <label>Scheepsnaam:<select id="huidigSchipSelect" name="scheepsnaam"><option value="">Laden...</option></select></label><button id="gpsButton" onclick="forceerGPSLaad()" type="button">📍 Haal locatie op</button><div class="foutmelding" id="gpsFoutmelding"></div><label>Of typ handmatig de scheepsnaam:</label><input id="handmatigSchip" list="schiplijst" name="handmatig_scheepsnaam" placeholder="Begin met typen..." type="text"/>
-<input type="hidden" id="hiddenHandmatigScheepsnaam" name="ScheepsnaamHandmatig"><datalist id="schiplijst"></datalist><label>ETD:
+<input id="hiddenHandmatigScheepsnaam" name="ScheepsnaamHandmatig"><datalist id="schiplijst"></datalist><label>ETD:
       <input id="etd" name="etd" type="datetime-local"/>
 </label>
 <label>Reden indien geen ETD:
