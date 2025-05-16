@@ -269,16 +269,61 @@
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
 
-<script>
-document.getElementById("etdForm").addEventListener("submit", function(e) {
-    const selectField = document.getElementById("huidigSchipSelect");
-    const manualField = document.getElementById("handmatigSchip");
-    const toelichtingField = document.getElementById("toelichting");
 
-    // Zet Toelichting altijd actief
+
+
+<script>
+// Velden ophalen
+const selectField = document.getElementById("huidigSchipSelect");
+const manualField = document.getElementById("handmatigSchip");
+const gpsButton = document.getElementById("gpsButton");
+const toelichtingField = document.getElementById("toelichting");
+
+// Handmatige veld en toelichting altijd actief bij laden
+window.addEventListener("DOMContentLoaded", function() {
+    if (manualField) manualField.disabled = false;
+    if (toelichtingField) toelichtingField.disabled = false;
+    setSelectAndGPS(false);
+
+    // 5-seconden check: als 'Laden...' nog in het selectveld, select+gps uitzetten
+    setTimeout(function() {
+        if (selectField && selectField.options.length && selectField.options[0].textContent.includes('Laden')) {
+            setSelectAndGPS(true);
+        }
+    }, 5000);
+});
+
+// Helper voor select/gps aan/uit & transparant
+function setSelectAndGPS(disabled) {
+    if (selectField) {
+        selectField.disabled = disabled;
+        selectField.style.opacity = disabled ? "0.5" : "1";
+    }
+    if (gpsButton) {
+        gpsButton.disabled = disabled;
+        gpsButton.style.opacity = disabled ? "0.5" : "1";
+    }
+}
+
+// Als je in het handmatige veld typt: select+gps uit, transparant
+manualField && manualField.addEventListener("input", function() {
+    if (manualField.value.trim() !== "") {
+        setSelectAndGPS(true);
+        if (selectField) selectField.value = "";
+    } else {
+        // Alleen weer activeren als niet meer "Laden..." in select
+        if (selectField && (!selectField.options.length || !selectField.options[0].textContent.includes('Laden'))) {
+            setSelectAndGPS(false);
+        }
+    }
+});
+
+// SUBMIT: alleen juiste velden meesturen, toelichting altijd actief
+document.getElementById("etdForm").addEventListener("submit", function(e) {
+    // Zorg dat toelichting altijd actief is
     if (toelichtingField) toelichtingField.disabled = false;
 
-    // Controleer: maar 1 scheepsnaam-veld mag gevuld zijn
+    // Alleen één scheepsnaamveld mag gevuld zijn
     if (selectField.value && manualField.value) {
         e.preventDefault();
         alert("Vul óf Scheepsnaam (select) óf handmatig in, niet beide.");
@@ -299,10 +344,11 @@ document.getElementById("etdForm").addEventListener("submit", function(e) {
         selectField.disabled = true;
         manualField.disabled = false;
     }
-    // Na 1 seconde alles weer aanzetten
+    // Na 1 seconde alles weer activeren
     setTimeout(() => {
         manualField.disabled = false;
         selectField.disabled = false;
+        if (toelichtingField) toelichtingField.disabled = false;
     }, 1000);
 });
 </script>
