@@ -458,6 +458,7 @@ document.getElementById("etdForm").addEventListener("submit", async function (e)
   if (res.ok) {
     laatstVerzonden = Date.now();
     document.getElementById("bevestiging").style.display = "block";
+  window.scrollTo({ top: 0, behavior: 'smooth' });
     vuurConfettiSerie();
   } else {
     alert("❌ Fout bij verzenden");
