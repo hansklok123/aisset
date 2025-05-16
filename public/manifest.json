@@ -1,0 +1,15 @@
+{
+  "name": "ETD Formulier",
+  "short_name": "ETD",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#003b5c",
+  "theme_color": "#003b5c"
+}
