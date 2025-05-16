@@ -459,6 +459,10 @@ document.getElementById("etdForm").addEventListener("submit", async function (e)
     laatstVerzonden = Date.now();
     document.getElementById("bevestiging").style.display = "block";
   window.scrollTo({ top: 0, behavior: 'smooth' });
+  setTimeout(() => {
+    location.reload();
+  }, 30000); // herlaad na 30 seconden
+
     vuurConfettiSerie();
   } else {
     alert("❌ Fout bij verzenden");
