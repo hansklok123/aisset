@@ -250,8 +250,8 @@
 </div>
 <form id="etdForm">
 <h2>ETD Invoeren</h2>
-<label>Scheepsnaam:<select id="huidigSchipSelect" name="scheepsnaam"><option value="">Laden...</option></select></label><button id="gpsButton" onclick="forceerGPSLaad()" type="button">📍 Haal locatie op</button><div class="foutmelding" id="gpsFoutmelding"></div><label>Of typ handmatig de scheepsnaam:</label><input id="scheepsnaamhandmatig" list="schiplijst" name="scheepsnaamhandmatig" placeholder="Begin met typen..." type="text"/>
-<input id="scheepsnaamhandmatig" name="scheepsnaamhandmatig"><datalist id="schiplijst"></datalist><label>ETD:
+<label>Scheepsnaam:<select id="huidigSchipSelect" name="scheepsnaam"><option value="">Laden...</option></select></label><button id="gpsButton" onclick="forceerGPSLaad()" type="button">📍 Haal locatie op</button><div class="foutmelding" id="gpsFoutmelding"></div><label>Of typ handmatig de scheepsnaam:</label><input disabled="true" id="handmatigSchip" list="schiplijst" name="handmatig_scheepsnaam" placeholder="Begin met typen..." type="text"/>
+<input type="hidden" id="hiddenHandmatigScheepsnaam" name="ScheepsnaamHandmatig"><datalist id="schiplijst"></datalist><label>ETD:
       <input id="etd" name="etd" type="datetime-local"/>
 </label>
 <label>Reden indien geen ETD:
@@ -366,10 +366,6 @@ document.getElementById("etdForm").addEventListener("submit", async function (e)
 
   e.preventDefault();
 
-  <script>
-document.getElementById("etdForm").addEventListener("submit", async function (e) {
-  e.preventDefault();
-
   const nu = Date.now();
   const tijdSindsLaatste = nu - laatstVerzonden;
 
@@ -395,33 +391,19 @@ document.getElementById("etdForm").addEventListener("submit", async function (e)
     return;
   }
 
-  // Pak beide scheepsnaamvelden!
-  const scheepsnaam = document.getElementById("huidigSchipSelect").value || "";
-  const scheepsnaamHandmatig = document.getElementById("handmatigSchip").value || "";
-
-  // Eis dat minstens één van beide is ingevuld!
-  if (!scheepsnaam && !scheepsnaamHandmatig) {
-    document.getElementById("huidigSchipSelect").style.border = "2px solid red";
-    document.getElementById("handmatigSchip").style.border = "2px solid red";
-    alert("Vul een scheepsnaam in (selecteer óf typ handmatig).");
-    return;
-  }
-
   const data = {
-    scheepsnaam,
-    scheepsnaamHandmatig,
+    scheepsnaam: document.getElementById("huidigSchipSelect").value,
     etd,
     reden,
     toelichting: document.getElementById("toelichting").value.trim(),
     timestamp: new Date().toISOString()
   };
 
-  const csv = `Scheepsnaam,ScheepsnaamHandmatig,ETD,RedenGeenETD,Toelichting,Timestamp
-"${data.scheepsnaam}","${data.scheepsnaamHandmatig}","${data.etd}","${data.reden}","${data.toelichting}","${data.timestamp}"`;
+  const csv = `Scheepsnaam,ETD,RedenGeenETD,Toelichting,Timestamp\n${data.scheepsnaam},${data.etd},${data.reden},${data.toelichting},${data.timestamp}`;
 
-  const onderwerp = data.etd
-    ? `ETD Positive, ${data.scheepsnaam || data.scheepsnaamHandmatig}, ${data.timestamp}`
-    : `ETD Negative, ${data.scheepsnaam || data.scheepsnaamHandmatig}, ${data.timestamp}`;
+  const onderwerp = data.etd ?
+    `ETD Positive, ${data.scheepsnaam}, ${data.timestamp}` :
+    `ETD Negative, ${data.scheepsnaam}, ${data.timestamp}`;
 
   const res = await fetch("/api/verstuur", {
     method: "POST",
@@ -438,7 +420,6 @@ document.getElementById("etdForm").addEventListener("submit", async function (e)
   }
 });
 
-    
 function vuurConfettiSerie() {
   var duration = 2 * 1000;
   var animationEnd = Date.now() + duration;
