@@ -251,7 +251,7 @@
 <form id="etdForm">
 <h2>ETD Invoeren</h2>
 <label>Scheepsnaam:<select id="huidigSchipSelect" name="scheepsnaam"><option value="">Laden...</option></select></label><button id="gpsButton" onclick="forceerGPSLaad()" type="button">📍 Haal locatie op</button><div class="foutmelding" id="gpsFoutmelding"></div><label>Of typ handmatig de scheepsnaam:</label><input id="scheepsnaamhandmatig" list="schiplijst" name="scheepsnaamhandmatig" placeholder="Begin met typen..." type="text"/>
-<input id="scheepsnaamHandmatig" name="scheepsnaamhandmatig"><datalist id="schiplijst"></datalist><label>ETD:
+<input id="scheepsnaamhandmatig" name="scheepsnaamhandmatig"><datalist id="schiplijst"></datalist><label>ETD:
       <input id="etd" name="etd" type="datetime-local"/>
 </label>
 <label>Reden indien geen ETD:
@@ -399,7 +399,7 @@ document.getElementById("etdForm").addEventListener("submit", async function (e)
     timestamp: new Date().toISOString()
   };
 
-  const csv = `Scheepsnaam, ScheepsnaamHandmatig,ETD,RedenGeenETD,Toelichting,Timestamp\n${data.scheepsnaam},${data.handmatig_scheepsnaam},${data.etd},${data.reden},${data.toelichting},${data.timestamp}`;
+  const csv = `Scheepsnaam, ScheepsnaamHandmatig,ETD,RedenGeenETD,Toelichting,Timestamp\n${data.scheepsnaam},${data.scheepsnaamhandmatig},${data.etd},${data.reden},${data.toelichting},${data.timestamp}`;
 
   const onderwerp = data.etd ?
     `ETD Positive, ${data.scheepsnaam}, ${data.timestamp}` :
