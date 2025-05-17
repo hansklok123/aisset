@@ -215,7 +215,7 @@ function filterOpZoekterm() {
   const zoekterm = document.getElementById("zoek").value.toLowerCase();
   const gefilterd = origineleData.filter(r =>
     r.Scheepsnaam?.toLowerCase().includes(zoekterm) ||
-    r.Reden?.toLowerCase().includes(zoekterm) ||
+    r.Type?.toLowerCase().includes(zoekterm) ||
     r.ScheepsnaamHandmatig?.toLowerCase().includes(zoekterm) ||
     r.ETD?.toLowerCase().includes(zoekterm) ||
     r.Timestamp?.toLowerCase().includes(zoekterm)
