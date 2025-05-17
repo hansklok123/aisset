@@ -747,15 +747,17 @@ if (manualField) manualField.disabled = false;
       switchDot.style.left = '22px';
       berichtTypeValue.value = 'Binnenkomend';
       binnenkomendLabel.style.fontWeight = 'bold';
+    binnenkomendLabel.style.color = '#85d678';
       verhalendLabel.style.fontWeight = 'normal';
       binnenkomendLabel.style.opacity = '1';
-      verhalendLabel.style.opacity = '.7';
+      verhalendLabel.style.opacity = '.5';
     } else {
       switchDot.style.left = '2px';
       berichtTypeValue.value = 'Verhalend';
       verhalendLabel.style.fontWeight = 'bold';
+    verhalendLabel.style.color = '#85d678'; 
       binnenkomendLabel.style.fontWeight = 'normal';
-      binnenkomendLabel.style.opacity = '.7';
+      binnenkomendLabel.style.opacity = '.5';
       verhalendLabel.style.opacity = '1';
     }
   }
