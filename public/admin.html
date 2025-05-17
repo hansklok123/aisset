@@ -149,7 +149,7 @@
       tbody.innerHTML = "";
       data.forEach(r => {
         const rij = document.createElement("tr");
-        rij.innerHTML = `<td>${r.Scheepsnaam}${r.ScheepsnaamHandmatig}</td><td>${r.ETD}</td><td>${r.RedenGeenETD}</td><td>${r.Toelichting}</td><td>${r.Timestamp}</td><td>${r.Latitude}</td><td>${r.Longitude}</td>`;
+        rij.innerHTML = `<td>${r.Scheepsnaam}${r.ScheepsnaamHandmatig}</td><td>${r.ETD}</td><td>${r.RedenGeenETD}</td><td>${r.Toelichting}</td><td>${r.Type}</td><td>${r.Timestamp}</td><td>${r.Latitude}</td><td>${r.Longitude}</td>`;
         tbody.appendChild(rij);
       });
     }
@@ -197,7 +197,7 @@ function toonData(data) {
   tbody.innerHTML = "";
   data.forEach(r => {
     const rij = document.createElement("tr");
-    rij.innerHTML = `<td>${r.Scheepsnaam}${r.ScheepsnaamHandmatig}</td><td>${r.ETD}</td><td>${r.RedenGeenETD}</td><td>${r.Toelichting}</td><td>${r.Timestamp}</td><td>${r.Latitude}</td><td>${r.Longitude}</td>`;
+    rij.innerHTML = `<td>${r.Scheepsnaam}${r.ScheepsnaamHandmatig}</td><td>${r.ETD}</td><td>${r.RedenGeenETD}</td><td>${r.Toelichting}</td><td>${r.Type}</td><td>${r.Timestamp}</td><td>${r.Latitude}</td><td>${r.Longitude}</td>`;
     tbody.appendChild(rij);
   });
 }
@@ -252,7 +252,7 @@ updateProgress();
 </div><table id="tabel">
 <thead>
 <tr>
-<th onclick="sorteerOp('Scheepsnaam')" style="cursor: pointer;">Scheepsnaam ▲▼</th><th onclick="sorteerOp('ETD')" style="cursor: pointer;">ETD ▲▼</th><th onclick="sorteerOp('ETD')" style="cursor: pointer;">NO ETD ▲▼</th><th>Toelichting</th><th onclick="sorteerOp('Timestamp')" style="cursor: pointer;">Tijd ▲▼</th><th style="max-width: 80px;">Latitude</th><th style="max-width: 80px;">Longitude</th>
+<th onclick="sorteerOp('Scheepsnaam')" style="cursor: pointer;">Scheepsnaam ▲▼</th><th onclick="sorteerOp('ETD')" style="cursor: pointer;">ETD ▲▼</th><th onclick="sorteerOp('ETD')" style="cursor: pointer;">NO ETD ▲▼</th><th>Toelichting</th><th onclick="sorteerOp('Type')" style="cursor: pointer;">Status ▲▼</th><th onclick="sorteerOp('Timestamp')" style="cursor: pointer;">Tijd ▲▼</th><th style="max-width: 80px;">Latitude</th><th style="max-width: 80px;">Longitude</th>
 </tr>
 </thead>
 <tbody></tbody>
