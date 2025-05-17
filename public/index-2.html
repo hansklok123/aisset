@@ -241,26 +241,7 @@
       opacity: 1;
     }
     
-#infoButton {
-  position: absolute;
-  top: 18px;
-  right: 22px;
-  background: none;
-  border: none;
-  padding: 0;
-  margin: 0;
-  z-index: 20;
-  box-shadow: 0 2px 16px 0 #003b5c44;
-  cursor: pointer;
-}
-#infoButton img {
-  width: 42px;
-  height: 42px;
-  display: block;
-  opacity: 0.97;
-  border-radius: 14px;
-  pointer-events: none;
-}
+
 .toggle-switch-row {
   display: flex;
   align-items: center;
@@ -294,6 +275,25 @@ input[type="checkbox"]#typeSwitch {
   display: none;
 }
 
+.infobutton-page {
+  position: fixed;
+  top: 180px;
+  right: 220px;
+  width: 50px;
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  z-index: 2022;
+  cursor: pointer;
+}
+    .infobutton-page:active .info-circle,
+.infobutton-page:focus .info-circle {
+  background: #2563eb;
+  color: #fff;
+  outline: none;
+}
+
 </style>
 
 <link rel="manifest" href="/manifest.json" />
@@ -301,12 +301,12 @@ input[type="checkbox"]#typeSwitch {
 
 </head>
 <body>
+    <button id="infoButton" type="button" title="Meer informatie" class="infobutton-page">
+  <span class="info-circle">i</span>
+</button>
+    
 <div id="bevestiging">✔️ Inzending succesvol verzonden</div>
 <div class="form-container">
-
-<button id="infoButton" type="button" title="Meer informatie">
-  <img src="ChatGPT Image 17 mei 2025 10_53_31.png" alt="Info">
-</button>
 
 <div class="form-header">
 <img alt="logo" src="https://hansklok123.github.io/aisset/logo.png"/>
@@ -327,7 +327,7 @@ input[type="checkbox"]#typeSwitch {
 </label>
 <label>Toelichting (optioneel):
       <textarea id="toelichting" name="toelichting" rows="4"></textarea>
-<label for="typeSwitch" style="color:#003b5c;font-weight:bold;margin-top:1.1rem;">Type reis gevraagd:</label>
+<label for="typeSwitch">Type reis gevraagd:</label>
 <div class="toggle-switch-row">
   <span id="verhalendLabel">Verhalend</span>
   <input type="checkbox" id="typeSwitch" name="berichtType" style="display:none;">
