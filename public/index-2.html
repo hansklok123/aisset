@@ -287,6 +287,24 @@ input[type="checkbox"]#typeSwitch {
   z-index: 2022;
   cursor: pointer;
 }
+
+.info-circle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  background: #ededf0;
+  color: #003b5c;
+  font-size: 1.7rem;
+  font-family: Arial, sans-serif;
+  border-radius: 50%;
+  font-weight: bold;
+  box-shadow: 0 2px 16px 0 #003b5c44;
+  user-select: none;
+  border: 2px solid #bfc3cc;
+  transition: background 0.13s, color 0.13s;
+}
     .infobutton-page:active .info-circle,
 .infobutton-page:focus .info-circle {
   background: #2563eb;
@@ -748,7 +766,8 @@ if (manualField) manualField.disabled = false;
       switchDot.style.left = '22px';
       berichtTypeValue.value = 'Binnenkomend';
       binnenkomendLabel.style.fontWeight = 'bold';
-    binnenkomendLabel.style.color = '#85d678';
+      binnenkomendLabel.style.color = '#85d678';
+      verhalendLabel.style.color = '#f8f9fa';
       verhalendLabel.style.fontWeight = 'normal';
       binnenkomendLabel.style.opacity = '1';
       verhalendLabel.style.opacity = '.5';
@@ -756,7 +775,8 @@ if (manualField) manualField.disabled = false;
       switchDot.style.left = '2px';
       berichtTypeValue.value = 'Verhalend';
       verhalendLabel.style.fontWeight = 'bold';
-    verhalendLabel.style.color = '#85d678'; 
+      verhalendLabel.style.color = '#85d678'; 
+      binnenkomendLabel.style.color = '#f8f9fa';
       binnenkomendLabel.style.fontWeight = 'normal';
       binnenkomendLabel.style.opacity = '.5';
       verhalendLabel.style.opacity = '1';
