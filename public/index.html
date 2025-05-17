@@ -631,5 +631,14 @@ if (manualField) manualField.disabled = false;
   }
 </script>
 
+
+<script>
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") {
+      location.reload();
+    }
+  });
+</script>
+
 </body>
 </html>
