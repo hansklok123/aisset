@@ -30,25 +30,6 @@ function startStream() {
   });
 
   ws.on("message", (data) => {
-    if (msg.MessageType === "ShipStaticData") {
-      const mmsi = msg.MetaData?.MMSI;
-      const staticData = msg.Message?.ShipStaticData;
-      if (!mmsi || !staticData) return;
-
-      if (!schepen[mmsi]) {
-        schepen[mmsi] = {
-          naam: staticData.Name || "",
-          type: staticData.Type || "",
-          tijd: msg.MetaData.time_utc || "",
-          track: []
-        };
-      } else {
-        schepen[mmsi].naam = staticData.Name || schepen[mmsi].naam;
-        schepen[mmsi].type = staticData.Type || schepen[mmsi].type;
-        schepen[mmsi].tijd = msg.MetaData.time_utc || schepen[mmsi].tijd;
-      }
-    }
-
     try {
       const msg = JSON.parse(data);
       if (msg.MessageType !== "PositionReport" || !msg.MetaData) return;
