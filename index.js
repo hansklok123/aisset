@@ -65,7 +65,7 @@ const record = {
 
     const inhoudCSV = [
       "Scheepsnaam,ETD,RedenGeenETD,Toelichting,Type,Timestamp,Latitude,Longitude",
-      `"${record.Scheepsnaam}","${record.ETD}","${record.RedenGeenETD}","${record.Toelichting}", "${record.type}","${record.Timestamp}","${record.Latitude}","${record.Longitude}"`
+      `"${record.Scheepsnaam}","${record.ETD}","${record.RedenGeenETD}","${record.Toelichting}", "${record.type}","${record.type}","${record.Timestamp}","${record.Latitude}","${record.Longitude}"`
     ].join("\n");
 
     try {
