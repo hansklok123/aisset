@@ -42,10 +42,10 @@ const record = {
   RedenGeenETD: delen[3]?.replaceAll('"', ""),
   Toelichting: delen[4]?.replaceAll('"', ""),
   Type: delen[5]?.replaceAll('"', ""),
+  TypeAIS: delen[8]?.replaceAll('"', ""),
   Timestamp: delen[6]?.replaceAll('"', ""),
-  TypeAIS: delen[7]?.replaceAll('"', ""),
-  Latitude: delen[8]?.replaceAll('"', ""),
-  Longitude: delen[9]?.replaceAll('"', "")
+  Latitude: delen[7]?.replaceAll('"', ""),
+  Longitude: delen[8]?.replaceAll('"', "")
 };
 
     const schepen = getNearbyShips();
@@ -64,8 +64,8 @@ const record = {
     fs.writeFileSync(SUBMIT_PATH, JSON.stringify(data, null, 2));
 
     const inhoudCSV = [
-      "Scheepsnaam,ETD,RedenGeenETD,Toelichting,Type,ShipType,Timestamp,Latitude,Longitude",
-      `"${record.Scheepsnaam}","${record.ETD}","${record.RedenGeenETD}","${record.Toelichting}", "${record.type}","${record.ShipType}","${record.Timestamp}","${record.Latitude}","${record.Longitude}"`
+      "Scheepsnaam,ETD,RedenGeenETD,Toelichting,Type,Timestamp,Latitude,Longitude",
+      `"${record.Scheepsnaam}","${record.ETD}","${record.RedenGeenETD}","${record.Toelichting}", "${record.type}","${record.Timestamp}","${record.Latitude}","${record.Longitude}"`
     ].join("\n");
 
     try {

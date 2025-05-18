@@ -30,24 +30,41 @@ function startStream() {
   });
 
   ws.on("message", (data) => {
+    if (msg.MessageType === "ShipStaticData") {
+      const mmsi = msg.MetaData?.MMSI;
+      const staticData = msg.Message?.ShipStaticData;
+      if (!mmsi || !staticData) return;
+
+      if (!schepen[mmsi]) {
+        schepen[mmsi] = {
+          naam: staticData.Name || "",
+          type: staticData.Type || "",
+          tijd: msg.MetaData.time_utc || "",
+          track: []
+        };
+      } else {
+        schepen[mmsi].naam = staticData.Name || schepen[mmsi].naam;
+        schepen[mmsi].type = staticData.Type || schepen[mmsi].type;
+        schepen[mmsi].tijd = msg.MetaData.time_utc || schepen[mmsi].tijd;
+      }
+    }
+
     try {
       const msg = JSON.parse(data);
       if (msg.MessageType !== "PositionReport" || !msg.MetaData) return;
 
       const mmsi = msg.MetaData.MMSI;
-      const { latitude, longitude, ShipName, ShipType, time_utc } = msg.MetaData;
+      const { latitude, longitude, ShipName, time_utc } = msg.MetaData;
 
       if (latitude && longitude) {
         if (!schepen[mmsi]) {
           schepen[mmsi] = {
             naam: ShipName || "",
             tijd: time_utc || "",
-            type: ShipType || "",
             track: [{ lat: latitude, lon: longitude, time: time_utc }]
           };
         } else {
           schepen[mmsi].naam = ShipName || schepen[mmsi].naam;
-          schepen[mmsi].type = ShipType || schepen[mmsi].type;
           schepen[mmsi].tijd = time_utc || schepen[mmsi].tijd;
           const track = schepen[mmsi].track;
           const laatste = track[track.length - 1];
