@@ -767,15 +767,6 @@ if (manualField) manualField.disabled = false;
   const binnenkomendLabel = document.getElementById('binnenkomendLabel');
   function updateToggleUI() {
     if(typeSwitch.checked) {
-      switchDot.style.left = '22px';
-      berichtTypeValue.value = 'Binnenkomend';
-      binnenkomendLabel.style.fontWeight = 'bold';
-      binnenkomendLabel.style.color = '#85d678';
-      verhalendLabel.style.color = '#f8f9fa';
-      verhalendLabel.style.fontWeight = 'normal';
-      binnenkomendLabel.style.opacity = '1';
-      verhalendLabel.style.opacity = '.5';
-    } else {
       switchDot.style.left = '2px';
       berichtTypeValue.value = 'Verhalend';
       verhalendLabel.style.fontWeight = 'bold';
@@ -784,6 +775,15 @@ if (manualField) manualField.disabled = false;
       binnenkomendLabel.style.fontWeight = 'normal';
       binnenkomendLabel.style.opacity = '.5';
       verhalendLabel.style.opacity = '1';
+    } else {
+      switchDot.style.left = '22px';
+      berichtTypeValue.value = 'Binnenkomend';
+      binnenkomendLabel.style.fontWeight = 'bold';
+      binnenkomendLabel.style.color = '#85d678';
+      verhalendLabel.style.color = '#f8f9fa';
+      verhalendLabel.style.fontWeight = 'normal';
+      binnenkomendLabel.style.opacity = '1';
+      verhalendLabel.style.opacity = '.5';
     }
   }
   typeSwitch.onchange = updateToggleUI;
