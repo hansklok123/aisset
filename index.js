@@ -43,6 +43,7 @@ const record = {
   Toelichting: delen[4]?.replaceAll('"', ""),
   Type: delen[5]?.replaceAll('"', ""),
   Timestamp: delen[6]?.replaceAll('"', ""),
+  TypeAIS: delen[8]?.replaceAll('"', ""),
   Latitude: delen[7]?.replaceAll('"', ""),
   Longitude: delen[8]?.replaceAll('"', "")
 };

@@ -35,17 +35,19 @@ function startStream() {
       if (msg.MessageType !== "PositionReport" || !msg.MetaData) return;
 
       const mmsi = msg.MetaData.MMSI;
-      const { latitude, longitude, ShipName, time_utc } = msg.MetaData;
+      const { latitude, longitude, ShipName, ShipType, time_utc } = msg.MetaData;
 
       if (latitude && longitude) {
         if (!schepen[mmsi]) {
           schepen[mmsi] = {
             naam: ShipName || "",
             tijd: time_utc || "",
+            type: ShipType || "",
             track: [{ lat: latitude, lon: longitude, time: time_utc }]
           };
         } else {
           schepen[mmsi].naam = ShipName || schepen[mmsi].naam;
+          schepen[mmsi].type = ShipType || schepen[mmsi].type;
           schepen[mmsi].tijd = time_utc || schepen[mmsi].tijd;
           const track = schepen[mmsi].track;
           const laatste = track[track.length - 1];
