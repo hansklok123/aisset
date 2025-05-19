@@ -42,7 +42,6 @@ app.post("/api/verstuur", async (req, res) => {
       ETD: delen[2]?.replaceAll('"', ""),
       RedenGeenETD: delen[3]?.replaceAll('"', ""),
       Toelichting: delen[4]?.replaceAll('"', ""),
-      Type: delen[5]?.replaceAll('"', ""),
       Timestamp: delen[6]?.replaceAll('"', ""),
       Latitude: delen[7]?.replaceAll('"', ""),
       Longitude: delen[8]?.replaceAll('"', "")
@@ -54,7 +53,8 @@ app.post("/api/verstuur", async (req, res) => {
       const laatste = match.track[match.track.length - 1];
       record.Latitude = laatste.lat ? parseFloat(laatste.lat).toFixed(5) : "";
       record.Longitude = laatste.lon ? parseFloat(laatste.lon).toFixed(5) : "";
-      record.Type = match.type || "";
+      record.Type_naam = match.type_naam || "";
+      record.Lengte = match.lengte || "";
     }
 
     let data = [];
@@ -63,12 +63,12 @@ app.post("/api/verstuur", async (req, res) => {
     fs.writeFileSync(SUBMISSIONS_PATH, JSON.stringify(data, null, 2));
 
     const inhoudCSV = [
-      "Scheepsnaam,ScheepsnaamHandmatig,ETD,RedenGeenETD,Toelichting,Type,Timestamp,Latitude,Longitude",
-      `"${record.Scheepsnaam}","${record.ScheepsnaamHandmatig}","${record.ETD}","${record.RedenGeenETD}","${record.Toelichting}","${record.Type}","${record.Timestamp}","${record.Latitude}","${record.Longitude}"`
+      "Scheepsnaam,ScheepsnaamHandmatig,ETD,RedenGeenETD,Toelichting,Type_naam,Lengte,Timestamp,Latitude,Longitude",
+      `"${record.Scheepsnaam}","${record.ScheepsnaamHandmatig}","${record.ETD}","${record.RedenGeenETD}","${record.Toelichting}","${record.Type_naam}","${record.Lengte}","${record.Timestamp}","${record.Latitude}","${record.Longitude}"`
     ].join("\n");
 
     try {
-      // (hier eventueel mailen, dropbox etc.)
+      // (optioneel: versturen naar e-mail/Dropbox etc.)
       console.log("✅ Verzonden + Dropbox upload succesvol");
       res.json({ status: "ok" });
     } catch (err) {
@@ -77,6 +77,7 @@ app.post("/api/verstuur", async (req, res) => {
     }
   }
 });
+
 
 
 app.get("/api/ping", (req, res) => {
