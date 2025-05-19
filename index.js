@@ -50,9 +50,10 @@ const record = {
     const schepen = getNearbyShips();
     const match = schepen.find(s => s.naam?.trim() === record.Scheepsnaam?.trim());
     if (match && match.track?.length > 0) {
-      const laatste = match.track[match.track.length - 1];
+      const laatste = match.track[match.track.length - 1];   
   record.Latitude = laatste.lat ? parseFloat(laatste.lat).toFixed(5) : "";
   record.Longitude = laatste.lon ? parseFloat(laatste.lon).toFixed(5) : "";
+  record.Type = match.type || "";
 }
 
     
