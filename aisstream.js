@@ -20,20 +20,22 @@ if (fs.existsSync(DATA_PATH)) {
 
 // Sla schepenlijst op in bestand na elke wijziging
 function saveSchepen() {
-  const MAX_AGE_MS = 48 * 60 * 60 * 1000; // 48 uur
-  const cutoff = Date.now() - MAX_AGE_MS;
-  for (const mmsi in schepen) {
-    const tijd = new Date(schepen[mmsi].tijd).getTime();
-    if (tijd < cutoff) {
-      delete schepen[mmsi];
+  try {
+    const MAX_AGE_MS = 48 * 60 * 60 * 1000; // 48 uur
+    const cutoff = Date.now() - MAX_AGE_MS;
+    for (const mmsi in schepen) {
+      const tijd = new Date(schepen[mmsi].tijd).getTime();
+      if (tijd < cutoff) {
+        delete schepen[mmsi];
+      }
     }
-  }
-  fs.writeFileSync(DATA_PATH, JSON.stringify(schepen, null, 2));
-  console.log(`💾 schepen.json bijgewerkt (${Object.keys(schepen).length} schepen) op ${new Date().toLocaleString()}`);
+    fs.writeFileSync(DATA_PATH, JSON.stringify(schepen, null, 2));
+    console.log(`💾 schepen.json bijgewerkt (${Object.keys(schepen).length} schepen) op ${new Date().toLocaleString()}`);
   } catch (err) {
     console.error("❌ Fout bij opslaan van schepen.json:", err);
   }
 }
+
 
 
 function afstandKm(lat1, lon1, lat2, lon2) {
