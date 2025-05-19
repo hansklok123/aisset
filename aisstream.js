@@ -78,7 +78,7 @@ const SHIP_TYPE_NAMES = {
   96: "Overig",
   97: "Overig",
   98: "Overig",
-  99: "Onbekend"
+  99: "NA"
 };
 
 // Laad schepenlijst uit bestand bij serverstart (indien aanwezig)
@@ -174,7 +174,7 @@ function startStream() {
           tijd: time_utc || "",
           type: shipType || "",
           type_naam: typeNaam,
-          lengte: length,
+          lengte: length ? `${length} m` : null,
           track: []
         };
       } else {
