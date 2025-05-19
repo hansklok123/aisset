@@ -99,7 +99,7 @@ function startStream() {
           const laatste = track[track.length - 1];
           if (!laatste || laatste.lat !== latitude || laatste.lon !== longitude) {
             track.push({ lat: latitude, lon: longitude, time: time_utc });
-            if (track.length > 20) track.shift();
+            while (track.length > 2) track.shift();
           }
           saveSchepen();
         }
