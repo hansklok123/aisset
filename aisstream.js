@@ -36,8 +36,6 @@ function saveSchepen() {
   }
 }
 
-
-
 function afstandKm(lat1, lon1, lat2, lon2) {
   const R = 6371;
   const dLat = (lat2 - lat1) * Math.PI / 180;
@@ -68,48 +66,47 @@ function startStream() {
   ws.on("message", (data) => {
     try {
       const msg = JSON.parse(data);
-      
+
       typeCounts[msg.MessageType] = (typeCounts[msg.MessageType] || 0) + 1;
       console.log("Bericht ontvangen van type:", msg.MessageType, "| Totaal ontvangen:", typeCounts);
 
       if (msg.MessageType === "ShipStaticData") {
-      console.log("Voorbeeld van ShipStaticData:", JSON.stringify(msg, null, 2));
-}
+        console.log("Voorbeeld van ShipStaticData:", JSON.stringify(msg, null, 2));
+      }
 
       if (!["PositionReport", "ShipStaticData"].includes(msg.MessageType) || !msg.MetaData) return;
 
-const mmsi = msg.MetaData.MMSI;
-const { latitude, longitude, ShipName, Type, ShipType, VesselType, time_utc } = msg.MetaData;
-const shipType = Type || ShipType || VesselType || "";
+      const mmsi = msg.MetaData.MMSI;
+      const { latitude, longitude, ShipName, Type, ShipType, VesselType, time_utc } = msg.MetaData;
+      const shipType = Type || ShipType || VesselType || "";
 
-// Zoek schip of maak nieuw
-if (!schepen[mmsi]) {
-  schepen[mmsi] = {
-    naam: ShipName || "",
-    tijd: time_utc || "",
-    type: shipType || "",
-    track: []
-  };
-} else {
-  schepen[mmsi].naam = ShipName || schepen[mmsi].naam;
-  schepen[mmsi].tijd = time_utc || schepen[mmsi].tijd;
-  // Alleen bij nieuwe tijd, anders houd je oude tijd aan
-}
-schepen[mmsi].type = shipType || schepen[mmsi].type;
+      // Zoek schip of maak nieuw
+      if (!schepen[mmsi]) {
+        schepen[mmsi] = {
+          naam: ShipName || "",
+          tijd: time_utc || "",
+          type: shipType || "",
+          track: []
+        };
+      } else {
+        schepen[mmsi].naam = ShipName || schepen[mmsi].naam;
+        schepen[mmsi].tijd = time_utc || schepen[mmsi].tijd;
+      }
+      // Type ALTIJD updaten, ook zonder positie
+      schepen[mmsi].type = shipType || schepen[mmsi].type;
 
-// Alleen positie toevoegen als er positie is!
-if (latitude && longitude) {
-  const track = schepen[mmsi].track;
-  const laatste = track[track.length - 1];
-  if (!laatste || laatste.lat !== latitude || laatste.lon !== longitude) {
-    track.push({ lat: latitude, lon: longitude, time: time_utc });
-    while (track.length > 2) track.shift();
-  }
-}
-
-          saveSchepen();
+      // Alleen positie toevoegen als die aanwezig is
+      if (latitude && longitude) {
+        const track = schepen[mmsi].track;
+        const laatste = track[track.length - 1];
+        if (!laatste || laatste.lat !== latitude || laatste.lon !== longitude) {
+          track.push({ lat: latitude, lon: longitude, time: time_utc });
+          while (track.length > 2) track.shift();
         }
       }
+
+      saveSchepen();
+
     } catch (err) {
       console.error("❌ Fout bij verwerken bericht:", err);
     }
