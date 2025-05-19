@@ -15,11 +15,10 @@ const authMiddleware = basicAuth({
 });
 
 
-app.use("/text.html", authMiddleware);
-app.use("/map.html", authMiddleware);
+
 app.use("/admin.html", authMiddleware);
-app.use("/text", authMiddleware);
 app.use("/data/submissions.json", authMiddleware);
+app.use("/data/schepen.json", authMiddleware);
 app.use("/admin/export", authMiddleware);
 
 app.use(express.json());
