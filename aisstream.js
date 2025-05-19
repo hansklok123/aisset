@@ -20,10 +20,12 @@ if (fs.existsSync(DATA_PATH)) {
 function saveSchepen() {
   try {
     fs.writeFileSync(DATA_PATH, JSON.stringify(schepen, null, 2));
+    console.log(`💾 schepen.json bijgewerkt op ${new Date().toLocaleString()}`);
   } catch (err) {
     console.error("❌ Fout bij opslaan van schepen.json:", err);
   }
 }
+
 
 function afstandKm(lat1, lon1, lat2, lon2) {
   const R = 6371;
