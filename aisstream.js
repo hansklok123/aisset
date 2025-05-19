@@ -2,7 +2,7 @@ const WebSocket = require("ws");
 const fs = require("fs");
 const path = require("path");
 
-const DATA_PATH = path.join(__dirname, "data", "schepen.json");
+const DATA_PATH = path.join(__dirname, "public", "data", "schepen.json");
 
 let schepen = {}; // { MMSI: { naam, tijd, type, track: [{lat, lon, time}] } }
 
