@@ -26,6 +26,7 @@ app.use(express.json());
 app.use(express.static("public"));
 
 const SUBMIT_PATH = path.join(__dirname, "public", "data", "submissions.json");
+const SUBMIT_PATH = path.join(__dirname, "public", "data", "schepen.json");
 
 app.post("/api/verstuur", async (req, res) => {
   const { csv, onderwerp } = req.body;
