@@ -78,7 +78,13 @@ function startStream() {
 
       const mmsi = msg.MetaData.MMSI;
       const { latitude, longitude, ShipName, Type, ShipType, VesselType, time_utc } = msg.MetaData;
-      const shipType = Type || ShipType || VesselType || "";
+      let shipType = "";
+      if (msg.MessageType === "ShipStaticData" && msg.Message && msg.Message.ShipStaticData) {
+      shipType = msg.Message.ShipStaticData.Type || "";
+      } else {
+      shipType = Type || ShipType || VesselType || "";
+        }
+      
 
       // Zoek schip of maak nieuw
       if (!schepen[mmsi]) {
