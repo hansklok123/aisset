@@ -23,7 +23,7 @@ function startStream() {
       BoundingBoxes: [
         [[51.674, 3.61], [52.05, 4.65]] // volledige havengebied van Rotterdam
       ],
-      FilterMessageTypes: ["PositionReport"]
+      FilterMessageTypes: ["PositionReport", "ShipStaticData"]
     };
 
     ws.send(JSON.stringify(subscription));
@@ -32,7 +32,7 @@ function startStream() {
   ws.on("message", (data) => {
     try {
       const msg = JSON.parse(data);
-      if (msg.MessageType !== "PositionReport" || !msg.MetaData) return;
+      if (!["PositionReport", "ShipStaticData"].includes(msg.MessageType) || !msg.MetaData) return;
 
       const mmsi = msg.MetaData.MMSI;
       const { latitude, longitude, ShipName, time_utc } = msg.MetaData;
@@ -42,11 +42,13 @@ function startStream() {
           schepen[mmsi] = {
             naam: ShipName || "",
             tijd: time_utc || "",
+            type: Type || "",
             track: [{ lat: latitude, lon: longitude, time: time_utc }]
           };
         } else {
           schepen[mmsi].naam = ShipName || schepen[mmsi].naam;
           schepen[mmsi].tijd = time_utc || schepen[mmsi].tijd;
+          schepen[mmsi].type = Type || schepen[mmsi].type;
           const track = schepen[mmsi].track;
           const laatste = track[track.length - 1];
           if (!laatste || laatste.lat !== latitude || laatste.lon !== longitude) {
