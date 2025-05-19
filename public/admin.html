@@ -165,4 +165,80 @@ function sorteerOp(veld) {
 function filterOpZoekterm() {
   const zoekterm = document.getElementById("zoek").value.toLowerCase();
   const gefilterd = origineleData.filter(r =>
-    r.Scheepsnaam?.toLowerCase().includes(zoek
+    r.Scheepsnaam?.toLowerCase().includes(zoekterm) ||
+    r.Type_naam?.toLowerCase().includes(zoekterm) ||
+    r.Lengte?.toLowerCase().includes(zoekterm) ||
+    r.ScheepsnaamHandmatig?.toLowerCase().includes(zoekterm) ||
+    r.ETD?.toLowerCase().includes(zoekterm) ||
+    r.Timestamp?.toLowerCase().includes(zoekterm) ||
+    r.Status?.toLowerCase().includes(zoekterm)
+  );
+  toonData(gefilterd);
+}
+
+window.onload = laad;
+</script>
+<script>
+async function updateProgress() {
+  const res = await fetch("/data/submissions.json");
+  const data = await res.json();
+  const count = data.length;
+  const max = 200;
+  const percentage = Math.min(100, (count / max) * 100);
+  const bar = document.getElementById("progressbar");
+  const display = document.getElementById("dataCount");
+  bar.style.width = percentage + "%";
+  display.textContent = count + " schepen";
+
+  const groen = Math.min(255, Math.floor((percentage / 100) * 255));
+  const rood = 255 - groen;
+  bar.style.backgroundColor = `rgb(${rood}, ${groen}, 0)`;
+}
+updateProgress();
+</script>
+<div class="dashboard-box">
+  <div style="margin: 1rem auto; max-width: 900px;">
+    <label style="color: white; font-weight: bold;">Verzamelde datapunten</label>
+    <div id="dataCount" style="text-align: right; color: white; margin-top: 0.3rem;">0 schepen</div>
+  </div>
+  <div style="background-color: #ccc; border-radius: 1rem; height: 20px; overflow: hidden;">
+    <div id="progressbar" style="height: 100%; width: 0%; background-color: red; transition: width 0.5s;"></div>
+  </div>
+  <div class="filter-section" style="text-align: center; margin: 1rem 0;"></div>
+  <div class="filter-section" style="text-align: center; margin: 1rem 0;">
+    🔎 <input id="zoek" oninput="filterOpZoekterm()" placeholder="Filter op scheepsnaam, type of lengte, status, datum of tijd" style="padding: 0.5rem; width: 60%;" type="text"/>
+  </div>
+  <div class="table-scroll">
+    <table id="tabel">
+      <thead>
+        <tr>
+          <th onclick="sorteerOp('Scheepsnaam')" style="cursor: pointer;">Scheepsnaam ▲▼</th>
+          <th onclick="sorteerOp('Type_naam')" style="cursor: pointer;">Type ▲▼</th>
+          <th onclick="sorteerOp('Lengte')" style="cursor: pointer;">Lengte ▲▼</th>
+          <th onclick="sorteerOp('ETD')" style="cursor: pointer;">ETD ▲▼</th>
+          <th onclick="sorteerOp('RedenGeenETD')" style="cursor: pointer;">NO ETD ▲▼</th>
+          <th>Toelichting</th>
+          <th onclick="sorteerOp('Timestamp')" style="cursor: pointer;">Tijd ▲▼</th>
+          <th onclick="sorteerOp('Status')" style="cursor: pointer;">Status ▲▼</th>
+          <th style="max-width: 80px;">Latitude</th>
+          <th style="max-width: 80px;">Longitude</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+  <!-- SheetJS bibliotheek toevoegen -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <div style="width:100%;text-align:right;margin-top:2em;">
+    <button id="exportExcelBtn" style="padding: 0.5em 1.5em; border-radius: 8px; background: #217346; color: #fff; border: none; cursor: pointer;">Exporteer naar Excel</button>
+  </div>
+  <script>
+    document.getElementById('exportExcelBtn').onclick = function() {
+      var table = document.querySelector('table');
+      var wb = XLSX.utils.table_to_book(table, {sheet:"ETD export"});
+      XLSX.writeFile(wb, 'etd-export.xlsx');
+    };
+  </script>
+</div>
+</body>
+</html>
