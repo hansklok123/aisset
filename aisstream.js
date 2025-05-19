@@ -78,29 +78,35 @@ function startStream() {
 
       if (!["PositionReport", "ShipStaticData"].includes(msg.MessageType) || !msg.MetaData) return;
 
-      const mmsi = msg.MetaData.MMSI;
-      const { latitude, longitude, ShipName, Type, ShipType, VesselType, time_utc } = msg.MetaData;
-      const Type = ShipType || VesselType || "";
+const mmsi = msg.MetaData.MMSI;
+const { latitude, longitude, ShipName, Type, ShipType, VesselType, time_utc } = msg.MetaData;
+const shipType = Type || ShipType || VesselType || "";
 
-      if (latitude && longitude) {
-        if (!schepen[mmsi]) {
-          schepen[mmsi] = {
-            naam: ShipName || "",
-            tijd: time_utc || "",
-            type: Type || "",
-            track: [{ lat: latitude, lon: longitude, time: time_utc }]
-          };
-          saveSchepen();
-        } else {
-          schepen[mmsi].naam = ShipName || schepen[mmsi].naam;
-          schepen[mmsi].tijd = time_utc || schepen[mmsi].tijd;
-          schepen[mmsi].type = Type || schepen[mmsi].type;
-          const track = schepen[mmsi].track;
-          const laatste = track[track.length - 1];
-          if (!laatste || laatste.lat !== latitude || laatste.lon !== longitude) {
-            track.push({ lat: latitude, lon: longitude, time: time_utc });
-            while (track.length > 2) track.shift();
-          }
+// Zoek schip of maak nieuw
+if (!schepen[mmsi]) {
+  schepen[mmsi] = {
+    naam: ShipName || "",
+    tijd: time_utc || "",
+    type: shipType || "",
+    track: []
+  };
+} else {
+  schepen[mmsi].naam = ShipName || schepen[mmsi].naam;
+  schepen[mmsi].tijd = time_utc || schepen[mmsi].tijd;
+  // Alleen bij nieuwe tijd, anders houd je oude tijd aan
+}
+schepen[mmsi].type = shipType || schepen[mmsi].type;
+
+// Alleen positie toevoegen als er positie is!
+if (latitude && longitude) {
+  const track = schepen[mmsi].track;
+  const laatste = track[track.length - 1];
+  if (!laatste || laatste.lat !== latitude || laatste.lon !== longitude) {
+    track.push({ lat: latitude, lon: longitude, time: time_utc });
+    while (track.length > 2) track.shift();
+  }
+}
+
           saveSchepen();
         }
       }
