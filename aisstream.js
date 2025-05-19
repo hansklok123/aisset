@@ -1,6 +1,6 @@
 const WebSocket = require("ws");
 
-let schepen = {}; // { MMSI: { naam, tijd, track: [{lat, lon, time}] } }
+let schepen = {}; // { MMSI: { naam, tijd, type, track: [{lat, lon, time}] } }
 
 function afstandKm(lat1, lon1, lat2, lon2) {
   const R = 6371;
@@ -35,7 +35,7 @@ function startStream() {
       if (!["PositionReport", "ShipStaticData"].includes(msg.MessageType) || !msg.MetaData) return;
 
       const mmsi = msg.MetaData.MMSI;
-      const { latitude, longitude, ShipName, time_utc } = msg.MetaData;
+      const { latitude, longitude, ShipName, Type, time_utc } = msg.MetaData;
 
       if (latitude && longitude) {
         if (!schepen[mmsi]) {
