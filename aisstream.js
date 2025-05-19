@@ -5,7 +5,6 @@ const path = require("path");
 const DATA_PATH = path.join(__dirname, "public", "data", "schepen.json");
 
 let schepen = {}; // { MMSI: { naam, tijd, type, type_naam, lengte, track: [{lat, lon, time}] } }
-let typeCounts = {};
 
 // Volledige AIS type mapping
 const SHIP_TYPE_NAMES = {
@@ -85,7 +84,6 @@ const SHIP_TYPE_NAMES = {
 if (fs.existsSync(DATA_PATH)) {
   try {
     schepen = JSON.parse(fs.readFileSync(DATA_PATH, "utf8"));
-    console.log(`🚢 ${Object.keys(schepen).length} schepen geladen uit bestand.`);
   } catch (err) {
     console.error("❌ Fout bij laden van schepen.json:", err);
   }
@@ -103,7 +101,6 @@ function saveSchepen() {
       }
     }
     fs.writeFileSync(DATA_PATH, JSON.stringify(schepen, null, 2));
-    console.log(`💾 schepen.json bijgewerkt (${Object.keys(schepen).length} schepen) op ${new Date().toLocaleString()}`);
   } catch (err) {
     console.error("❌ Fout bij opslaan van schepen.json:", err);
   }
@@ -123,8 +120,6 @@ function startStream() {
   const ws = new WebSocket("wss://stream.aisstream.io/v0/stream");
 
   ws.on("open", () => {
-    console.log("✅ WebSocket verbinding geopend");
-
     const subscription = {
       APIKey: process.env.AIS_API_KEY,
       BoundingBoxes: [
@@ -132,20 +127,12 @@ function startStream() {
       ],
       FilterMessageTypes: ["PositionReport", "ShipStaticData"]
     };
-
     ws.send(JSON.stringify(subscription));
   });
 
   ws.on("message", (data) => {
     try {
       const msg = JSON.parse(data);
-
-      typeCounts[msg.MessageType] = (typeCounts[msg.MessageType] || 0) + 1;
-      console.log("Bericht ontvangen van type:", msg.MessageType, "| Totaal ontvangen:", typeCounts);
-
-      if (msg.MessageType === "ShipStaticData") {
-        console.log("Voorbeeld van ShipStaticData:", JSON.stringify(msg, null, 2));
-      }
 
       if (!["PositionReport", "ShipStaticData"].includes(msg.MessageType) || !msg.MetaData) return;
 
@@ -180,7 +167,7 @@ function startStream() {
       } else {
         schepen[mmsi].naam = ShipName || schepen[mmsi].naam;
         schepen[mmsi].tijd = time_utc || schepen[mmsi].tijd;
-        if (length) schepen[mmsi].lengte = length; // alleen bijwerken als bekend
+        if (length) schepen[mmsi].lengte = length ? `${length} m` : schepen[mmsi].lengte;
       }
       schepen[mmsi].type = shipType || schepen[mmsi].type;
       schepen[mmsi].type_naam = typeNaam;
@@ -204,7 +191,7 @@ function startStream() {
 
   ws.on("error", (err) => console.error("❌ WebSocket fout:", err));
   ws.on("close", () => {
-    console.log("⚠️ WebSocket gesloten, opnieuw verbinden over 5 sec...");
+    console.error("⚠️ WebSocket gesloten, opnieuw verbinden over 5 sec...");
     setTimeout(startStream, 5000);
   });
 }
