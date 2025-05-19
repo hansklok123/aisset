@@ -41,6 +41,7 @@ app.post("/api/verstuur", async (req, res) => {
       ETD: delen[2]?.replaceAll('"', ""),
       RedenGeenETD: delen[3]?.replaceAll('"', ""),
       Toelichting: delen[4]?.replaceAll('"', ""),
+      Status: delen[5]?.replaceAll('"', ""),
       Timestamp: delen[6]?.replaceAll('"', ""),
       Latitude: delen[7]?.replaceAll('"', ""),
       Longitude: delen[8]?.replaceAll('"', "")
@@ -62,8 +63,8 @@ app.post("/api/verstuur", async (req, res) => {
     fs.writeFileSync(SUBMISSIONS_PATH, JSON.stringify(data, null, 2));
 
     const inhoudCSV = [
-      "Scheepsnaam,ScheepsnaamHandmatig,ETD,RedenGeenETD,Toelichting,Type_naam,Lengte,Timestamp,Latitude,Longitude",
-      `"${record.Scheepsnaam}","${record.ScheepsnaamHandmatig}","${record.ETD}","${record.RedenGeenETD}","${record.Toelichting}","${record.Type_naam}","${record.Lengte}","${record.Timestamp}","${record.Latitude}","${record.Longitude}"`
+      "Scheepsnaam,ScheepsnaamHandmatig,ETD,RedenGeenETD,Toelichting,Status,Type_naam,Lengte,Timestamp,Latitude,Longitude",
+      `"${record.Scheepsnaam}","${record.ScheepsnaamHandmatig}","${record.ETD}","${record.RedenGeenETD}","${record.Toelichting}","${record.Status}","${record.Type_naam}","${record.Lengte}","${record.Timestamp}","${record.Latitude}","${record.Longitude}"`
     ].join("\n");
 
     try {
