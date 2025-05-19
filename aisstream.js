@@ -80,7 +80,7 @@ function startStream() {
 
       const mmsi = msg.MetaData.MMSI;
       const { latitude, longitude, ShipName, Type, ShipType, VesselType, time_utc } = msg.MetaData;
-      const Type = Type || ShipType || VesselType || "";
+      const Type = ShipType || VesselType || "";
 
       if (latitude && longitude) {
         if (!schepen[mmsi]) {
