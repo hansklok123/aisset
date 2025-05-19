@@ -6,6 +6,8 @@ const DATA_PATH = path.join(__dirname, "public", "data", "schepen.json");
 
 let schepen = {}; // { MMSI: { naam, tijd, type, track: [{lat, lon, time}] } }
 
+let typeCounts = {};
+
 // Laad schepenlijst uit bestand bij serverstart (indien aanwezig)
 if (fs.existsSync(DATA_PATH)) {
   try {
@@ -18,9 +20,16 @@ if (fs.existsSync(DATA_PATH)) {
 
 // Sla schepenlijst op in bestand na elke wijziging
 function saveSchepen() {
-  try {
-    fs.writeFileSync(DATA_PATH, JSON.stringify(schepen, null, 2));
-    console.log(`💾 schepen.json bijgewerkt op ${new Date().toLocaleString()}`);
+  const MAX_AGE_MS = 48 * 60 * 60 * 1000; // 48 uur
+  const cutoff = Date.now() - MAX_AGE_MS;
+  for (const mmsi in schepen) {
+    const tijd = new Date(schepen[mmsi].tijd).getTime();
+    if (tijd < cutoff) {
+      delete schepen[mmsi];
+    }
+  }
+  fs.writeFileSync(DATA_PATH, JSON.stringify(schepen, null, 2));
+  console.log(`💾 schepen.json bijgewerkt (${Object.keys(schepen).length} schepen) op ${new Date().toLocaleString()}`);
   } catch (err) {
     console.error("❌ Fout bij opslaan van schepen.json:", err);
   }
@@ -57,6 +66,14 @@ function startStream() {
   ws.on("message", (data) => {
     try {
       const msg = JSON.parse(data);
+      
+      typeCounts[msg.MessageType] = (typeCounts[msg.MessageType] || 0) + 1;
+      console.log("Bericht ontvangen van type:", msg.MessageType, "| Totaal ontvangen:", typeCounts);
+
+      if (msg.MessageType === "ShipStaticData") {
+      console.log("Voorbeeld van ShipStaticData:", JSON.stringify(msg, null, 2));
+}
+
       if (!["PositionReport", "ShipStaticData"].includes(msg.MessageType) || !msg.MetaData) return;
 
       const mmsi = msg.MetaData.MMSI;
