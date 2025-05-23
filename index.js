@@ -2,11 +2,10 @@ require('dotenv').config();
 const basicAuth = require('express-basic-auth');
 const express = require("express");
 const path = require("path");
+const fs = require("fs");
 const { startStream, getNearbyShips } = require("./aisstream");
 const { google } = require('googleapis');
 
-const fs = require("fs");
-const path = require("path");
 
 const dataDir = path.join(__dirname, "public", "data");
 if (!fs.existsSync(dataDir)) {
