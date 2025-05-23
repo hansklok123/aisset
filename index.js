@@ -5,6 +5,14 @@ const path = require("path");
 const { startStream, getNearbyShips } = require("./aisstream");
 const { google } = require('googleapis');
 
+const fs = require("fs");
+const path = require("path");
+
+const dataDir = path.join(__dirname, "public", "data");
+if (!fs.existsSync(dataDir)) {
+  fs.mkdirSync(dataDir, { recursive: true });
+}
+
 startStream();
 const app = express();
 const authMiddleware = basicAuth({
