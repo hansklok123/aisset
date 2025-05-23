@@ -22,7 +22,7 @@ const auth = new google.auth.GoogleAuth({
 const SPREADSHEET_ID = '1RX5vPm3AzYjlpdXgsbuVkupb4UbJSct2wgpVArhMaRQ';
 const SHEET_NAME = 'submissions';
 
-// Functie om alle submissions uit Google Sheets te halen
+// Functie om alle submissions uit Google Sheets te halen (met extra logging)
 async function getSubmissionsFromSheet() {
   const client = await auth.getClient();
   const sheets = google.sheets({ version: 'v4', auth: client });
@@ -32,18 +32,28 @@ async function getSubmissionsFromSheet() {
     range: `${SHEET_NAME}!A1:I`, // Pas 'I' aan naar de laatste kolom die je gebruikt
   });
 
-  // Eerste rij is je header, daarna de data
   const rows = res.data.values;
-  if (!rows || rows.length < 2) return [];
+  console.log("========== Google Sheets ruwe rows ==========");
+  console.log(JSON.stringify(rows, null, 2)); // Log alle rows uit de Sheet
+
+  if (!rows || rows.length < 2) {
+    console.log("Geen data gevonden in de Sheet of alleen headers!");
+    return [];
+  }
   const headers = rows[0];
-  return rows.slice(1).map(row => {
+  console.log("Headers gevonden:", headers); // Log de headers
+
+  const records = rows.slice(1).map(row => {
     let obj = {};
     headers.forEach((key, i) => obj[key] = row[i] || "");
     return obj;
   });
+
+  console.log("Records die naar admin.html gestuurd worden:", JSON.stringify(records, null, 2));
+  return records;
 }
 
-// Functie om een submission naar Google Sheets te schrijven
+// Functie om een submission naar Google Sheets te schrijven (ongewijzigd)
 async function appendToGoogleSheet(record) {
   const client = await auth.getClient();
   const sheets = google.sheets({ version: 'v4', auth: client });
@@ -80,6 +90,7 @@ app.use(express.static("public"));
 app.get("/data/submissions.json", authMiddleware, async (req, res) => {
   try {
     const data = await getSubmissionsFromSheet();
+    console.log("/data/submissions.json stuurt deze data naar frontend:", JSON.stringify(data, null, 2));
     res.json(data);
   } catch (err) {
     console.error("Sheets uitlezen mislukt:", err);
