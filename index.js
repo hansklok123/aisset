@@ -6,7 +6,7 @@ const fs = require("fs");
 const { startStream, getNearbyShips } = require("./aisstream");
 const { google } = require('googleapis');
 
-
+// Zorg dat de data-directory bestaat
 const dataDir = path.join(__dirname, "public", "data");
 if (!fs.existsSync(dataDir)) {
   fs.mkdirSync(dataDir, { recursive: true });
@@ -36,7 +36,7 @@ async function getSubmissionsFromSheet() {
 
   const res = await sheets.spreadsheets.values.get({
     spreadsheetId: SPREADSHEET_ID,
-    range: `${SHEET_NAME}!A1:I`, // Pas 'I' aan naar de laatste kolom die je gebruikt
+    range: `${SHEET_NAME}!A1:K`, // Nu 11 kolommen
   });
 
   const rows = res.data.values;
@@ -60,7 +60,7 @@ async function getSubmissionsFromSheet() {
   return records;
 }
 
-// Functie om een submission naar Google Sheets te schrijven (ongewijzigd)
+// Functie om een submission naar Google Sheets te schrijven (nu met Type_naam en Lengte)
 async function appendToGoogleSheet(record) {
   const client = await auth.getClient();
   const sheets = google.sheets({ version: 'v4', auth: client });
@@ -72,6 +72,8 @@ async function appendToGoogleSheet(record) {
     record.RedenGeenETD,
     record.Toelichting,
     record.Status,
+    record.Type_naam,     // Toegevoegd
+    record.Lengte,        // Toegevoegd
     record.Timestamp,
     record.Latitude,
     record.Longitude
