@@ -1,10 +1,9 @@
 require('dotenv').config();
 const basicAuth = require('express-basic-auth');
-
 const express = require("express");
-const fs = require("fs");
 const path = require("path");
 const { startStream, getNearbyShips } = require("./aisstream");
+const { google } = require('googleapis');
 
 startStream();
 const app = express();
@@ -14,32 +13,41 @@ const authMiddleware = basicAuth({
   realm: 'Beveiligd gebied'
 });
 
-
-app.use("/admin.html", authMiddleware);
-app.use("/data/submissions.json", authMiddleware);
-app.use("/data/schepen.json", authMiddleware);
-app.use("/admin/export", authMiddleware);
-
-app.use(express.json());
-app.use(express.static("public"));
-const { google } = require('googleapis');
-
 // Sheets-authenticatie
 const credentials = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_JSON);
-
 const auth = new google.auth.GoogleAuth({
   credentials,
   scopes: ['https://www.googleapis.com/auth/spreadsheets'],
 });
-
 const SPREADSHEET_ID = '1RX5vPm3AzYjlpdXgsbuVkupb4UbJSct2wgpVArhMaRQ';
 const SHEET_NAME = 'submissions';
 
+// Functie om alle submissions uit Google Sheets te halen
+async function getSubmissionsFromSheet() {
+  const client = await auth.getClient();
+  const sheets = google.sheets({ version: 'v4', auth: client });
+
+  const res = await sheets.spreadsheets.values.get({
+    spreadsheetId: SPREADSHEET_ID,
+    range: `${SHEET_NAME}!A1:I`, // Pas 'I' aan naar de laatste kolom die je gebruikt
+  });
+
+  // Eerste rij is je header, daarna de data
+  const rows = res.data.values;
+  if (!rows || rows.length < 2) return [];
+  const headers = rows[0];
+  return rows.slice(1).map(row => {
+    let obj = {};
+    headers.forEach((key, i) => obj[key] = row[i] || "");
+    return obj;
+  });
+}
+
+// Functie om een submission naar Google Sheets te schrijven
 async function appendToGoogleSheet(record) {
   const client = await auth.getClient();
   const sheets = google.sheets({ version: 'v4', auth: client });
 
-  // LET OP: zorg dat de volgorde overeenkomt met je Sheet!
   const row = [
     record.Scheepsnaam,
     record.ScheepsnaamHandmatig,
@@ -54,15 +62,32 @@ async function appendToGoogleSheet(record) {
 
   await sheets.spreadsheets.values.append({
     spreadsheetId: SPREADSHEET_ID,
-    range: `${SHEET_NAME}!A:A`,
+    range: `${SHEET_NAME}!A1`, // Gebruik altijd !A1, niet !A:A
     valueInputOption: 'USER_ENTERED',
     resource: { values: [row] },
   });
 }
 
-const SUBMISSIONS_PATH = path.join(__dirname, "public", "data", "submissions.json");
-const SCHEPEN_PATH = path.join(__dirname, "public", "data", "schepen.json");
+app.use("/admin.html", authMiddleware);
+app.use("/data/submissions.json", authMiddleware);
+app.use("/data/schepen.json", authMiddleware);
+app.use("/admin/export", authMiddleware);
 
+app.use(express.json());
+app.use(express.static("public"));
+
+// === JOUW DYNAMISCHE ROUTE VOOR ADMIN.HTML /data/submissions.json ===
+app.get("/data/submissions.json", authMiddleware, async (req, res) => {
+  try {
+    const data = await getSubmissionsFromSheet();
+    res.json(data);
+  } catch (err) {
+    console.error("Sheets uitlezen mislukt:", err);
+    res.status(500).json({ error: "Kan Google Sheets niet uitlezen." });
+  }
+});
+
+// === VERSTUUR-ROUTE ===
 app.post("/api/verstuur", async (req, res) => {
   const { csv, onderwerp } = req.body;
   if (!csv || !onderwerp) return res.status(400).send("Ongeldige gegevens");
@@ -93,43 +118,27 @@ app.post("/api/verstuur", async (req, res) => {
       record.Lengte = match.lengte || "";
     }
 
-    let data = [];
-    if (fs.existsSync(SUBMISSIONS_PATH)) data = JSON.parse(fs.readFileSync(SUBMISSIONS_PATH));
-    data.push(record);
-    fs.writeFileSync(SUBMISSIONS_PATH, JSON.stringify(data, null, 2));
-
-try {
-  await appendToGoogleSheet(record);
-  return res.json({ success: true, message: "Inzending opgeslagen in Google Sheets." });
-} catch (err) {
-  console.error('Sheets error:', err);
-  return res.status(500).json({ success: false, message: "Fout bij opslaan in Google Sheets." });
-}
-
-
     try {
-      // (optioneel: versturen naar e-mail/Dropbox etc.)
-      console.log("✅ Verzonden + Dropbox upload succesvol");
-      res.json({ status: "ok" });
+      await appendToGoogleSheet(record);
+      return res.json({ success: true, message: "Inzending opgeslagen in Google Sheets." });
     } catch (err) {
-      console.error("❌ Fout bij e-mail of Dropbox:", err);
-      res.status(500).send("Verzending mislukt");
+      console.error('Sheets error:', err);
+      return res.status(500).json({ success: false, message: "Fout bij opslaan in Google Sheets." });
     }
+  } else {
+    return res.status(400).send("Ongeldige gegevens");
   }
 });
-
-
 
 app.get("/api/ping", (req, res) => {
   res.send("✅ API actief");
 });
 
+app.get("/api/schepen", (req, res) => {
+  res.json(getNearbyShips());
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log("✅ Server draait op poort", PORT);
-});
-
-
-app.get("/api/schepen", (req, res) => {
-  res.json(getNearbyShips());
 });
