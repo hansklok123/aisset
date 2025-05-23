@@ -15,7 +15,6 @@ const authMiddleware = basicAuth({
 });
 
 
-
 app.use("/admin.html", authMiddleware);
 app.use("/data/submissions.json", authMiddleware);
 app.use("/data/schepen.json", authMiddleware);
@@ -23,6 +22,43 @@ app.use("/admin/export", authMiddleware);
 
 app.use(express.json());
 app.use(express.static("public"));
+const { google } = require('googleapis');
+
+// Sheets-authenticatie
+const credentials = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_JSON);
+
+const auth = new google.auth.GoogleAuth({
+  credentials,
+  scopes: ['https://www.googleapis.com/auth/spreadsheets'],
+});
+
+const SPREADSHEET_ID = '1RX5vPm3AzYjlpdXgsbuVkupb4UbJSct2wgpVArhMaRQ';
+const SHEET_NAME = 'submissions';
+
+async function appendToGoogleSheet(record) {
+  const client = await auth.getClient();
+  const sheets = google.sheets({ version: 'v4', auth: client });
+
+  // LET OP: zorg dat de volgorde overeenkomt met je Sheet!
+  const row = [
+    record.Scheepsnaam,
+    record.ScheepsnaamHandmatig,
+    record.ETD,
+    record.RedenGeenETD,
+    record.Toelichting,
+    record.Status,
+    record.Timestamp,
+    record.Latitude,
+    record.Longitude
+  ];
+
+  await sheets.spreadsheets.values.append({
+    spreadsheetId: SPREADSHEET_ID,
+    range: `${SHEET_NAME}!A:A`,
+    valueInputOption: 'USER_ENTERED',
+    resource: { values: [row] },
+  });
+}
 
 const SUBMISSIONS_PATH = path.join(__dirname, "public", "data", "submissions.json");
 const SCHEPEN_PATH = path.join(__dirname, "public", "data", "schepen.json");
@@ -62,10 +98,14 @@ app.post("/api/verstuur", async (req, res) => {
     data.push(record);
     fs.writeFileSync(SUBMISSIONS_PATH, JSON.stringify(data, null, 2));
 
-    const inhoudCSV = [
-      "Scheepsnaam,ScheepsnaamHandmatig,ETD,RedenGeenETD,Toelichting,Status,Type_naam,Lengte,Timestamp,Latitude,Longitude",
-      `"${record.Scheepsnaam}","${record.ScheepsnaamHandmatig}","${record.ETD}","${record.RedenGeenETD}","${record.Toelichting}","${record.Status}","${record.Type_naam}","${record.Lengte}","${record.Timestamp}","${record.Latitude}","${record.Longitude}"`
-    ].join("\n");
+try {
+  await appendToGoogleSheet(record);
+  return res.json({ success: true, message: "Inzending opgeslagen in Google Sheets." });
+} catch (err) {
+  console.error('Sheets error:', err);
+  return res.status(500).json({ success: false, message: "Fout bij opslaan in Google Sheets." });
+}
+
 
     try {
       // (optioneel: versturen naar e-mail/Dropbox etc.)
