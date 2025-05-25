@@ -40,19 +40,20 @@ async function appendToGoogleSheet(record) {
   const client = await auth.getClient();
   const sheets = google.sheets({ version: 'v4', auth: client });
 
-  const row = [
-    record.Scheepsnaam,
-    record.ScheepsnaamHandmatig,
-    record.ETD,
-    record.RedenGeenETD,
-    record.Toelichting,
-    record.Status,
-    record.Type_naam,
-    record.Lengte,
-    record.Timestamp,
-    record.Latitude,
-    record.Longitude
-  ];
+const row = [
+  record.Scheepsnaam ?? "",
+  record.ScheepsnaamHandmatig ?? "",
+  record.ETD ?? "",
+  record.RedenGeenETD ?? "",
+  record.Toelichting ?? "",
+  record.Status ?? "",
+  record.Type_naam ?? "",      // ✅ leeg veld opvullen
+  record.Lengte ?? "",         // ✅ leeg veld opvullen
+  record.Timestamp ?? "",
+  record.Latitude ?? "",
+  record.Longitude ?? ""
+];
+
 
   await sheets.spreadsheets.values.append({
     spreadsheetId: SPREADSHEET_ID,
@@ -130,15 +131,16 @@ app.post("/api/verstuur", async (req, res) => {
   }
 });
 
-// Nieuw: route om local submission.json op te vragen
-app.get("/data/submissions.json", authMiddleware, (req, res) => {
-  const filePath = path.join(__dirname, "public", "data", "submissions.json");
-  if (fs.existsSync(filePath)) {
-    res.sendFile(filePath);
-  } else {
-    res.status(404).json({ error: "Bestand niet gevonden." });
+app.get("/data/submissions.json", authMiddleware, async (req, res) => {
+  try {
+    const data = await getSubmissionsFromSheet();
+    res.json(data);
+  } catch (err) {
+    console.error("❌ Fout bij ophalen uit Google Sheets:", err);
+    res.status(500).json({ error: "Kan gegevens niet ophalen." });
   }
 });
+
 
 app.get("/api/ping", (req, res) => {
   res.send("✅ API actief");
