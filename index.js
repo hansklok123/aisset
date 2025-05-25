@@ -123,11 +123,11 @@ app.post("/api/verstuur", async (req, res) => {
       RedenGeenETD: delen[3]?.replaceAll('"', ""),
       Toelichting: delen[4]?.replaceAll('"', ""),
       Status: delen[5]?.replaceAll('"', ""),
-      Type_naam: delen[5]?.replaceAll('"', ""),
-      Lengte: delen[5]?.replaceAll('"', ""),
-      Timestamp: delen[6]?.replaceAll('"', ""),
-      Latitude: delen[7]?.replaceAll('"', ""),
-      Longitude: delen[8]?.replaceAll('"', "")
+      Type_naam: delen[6]?.replaceAll('"', ""),
+      Lengte: delen[7]?.replaceAll('"', ""),
+      Timestamp: delen[8]?.replaceAll('"', ""),
+      Latitude: delen[9]?.replaceAll('"', ""),
+      Longitude: delen[10]?.replaceAll('"', "")
     };
 
     const schepen = getNearbyShips();
