@@ -130,6 +130,16 @@ app.post("/api/verstuur", async (req, res) => {
   }
 });
 
+// Nieuw: route om local submission.json op te vragen
+app.get("/data/submissions.json", authMiddleware, (req, res) => {
+  const filePath = path.join(__dirname, "public", "data", "submission.json");
+  if (fs.existsSync(filePath)) {
+    res.sendFile(filePath);
+  } else {
+    res.status(404).json({ error: "Bestand niet gevonden." });
+  }
+});
+
 app.get("/api/ping", (req, res) => {
   res.send("✅ API actief");
 });
