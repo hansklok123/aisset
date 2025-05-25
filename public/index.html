@@ -487,72 +487,73 @@ function landVlag(mmsi) {
 }
 
 document.getElementById("etdForm").addEventListener("submit", async function (e) {
-    
+    e.preventDefault();
+
     // Vul de hidden input altijd met de handmatige waarde
     document.getElementById("hiddenHandmatigScheepsnaam").value = manualField.value || "";
 
-  e.preventDefault();
+    const nu = Date.now();
+    const tijdSindsLaatste = nu - laatstVerzonden;
 
-  const nu = Date.now();
-  const tijdSindsLaatste = nu - laatstVerzonden;
+    const etdField = document.getElementById("etd");
+    const redenField = document.getElementById("reden");
+    const etd = etdField.value.trim();
+    const reden = redenField.value.trim();
 
-  const etdField = document.getElementById("etd");
-  const redenField = document.getElementById("reden");
-  const etd = etdField.value.trim();
-  const reden = redenField.value.trim();
+    // Reset borders
+    etdField.style.border = "";
+    redenField.style.border = "";
 
-  // Reset borders
-  etdField.style.border = "";
-  redenField.style.border = "";
+    // Controleer of het formulier geldig is (ETD of reden vereist)
+    if (!etd && !reden) {
+        etdField.style.border = "2px solid red";
+        redenField.style.border = "2px solid red";
+        return;
+    }
 
-  // Controleer of het formulier geldig is (ETD of reden vereist)
-  if (!etd && !reden) {
-    etdField.style.border = "2px solid red";
-    redenField.style.border = "2px solid red";
-    return;
-  }
+    // Controleer throttle alleen bij geldig formulier
+    if (tijdSindsLaatste < 60000) {
+        alert("Het formulier is al verzonden. Wacht even voordat je opnieuw verzendt.");
+        return;
+    }
 
-  // Controleer throttle alleen bij geldig formulier
-  if (tijdSindsLaatste < 60000) {
-    alert("Het formulier is al verzonden. Wacht even voordat je opnieuw verzendt.");
-    return;
-  }
+    // Verzamel data zoals je nieuwe backend verwacht:
+    const data = {
+        Scheepsnaam: document.getElementById("huidigSchipSelect").value,
+        ScheepsnaamHandmatig: document.getElementById("handmatigSchip").value,
+        ETD: etd,
+        RedenGeenETD: reden,
+        Toelichting: document.getElementById("toelichting").value.trim(),
+        Status: document.getElementById('berichtTypeValue').value,
+        Timestamp: new Date().toISOString(),
+        Latitude: "",  // Voeg toe als je deze ergens hebt!
+        Longitude: ""  // Voeg toe als je deze ergens hebt!
+    };
 
-  const data = {
-    scheepsnaam: document.getElementById("huidigSchipSelect").value,
-    scheepsnaamHandmatig: document.getElementById("handmatigSchip").value,
-    etd,
-    reden,
-    toelichting: document.getElementById("toelichting").value.trim(),
-    Status: document.getElementById('berichtTypeValue').value,
-    timestamp: new Date().toISOString()
-  };
+    try {
+        const res = await fetch("/api/verstuur", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data)
+        });
 
-  const csv = `Scheepsnaam, scheepsnaamHandmatig,ETD,RedenGeenETD,Toelichting,Status,Timestamp\n${data.scheepsnaam},${data.scheepsnaamHandmatig},${data.etd},${data.reden},${data.toelichting},${data.Status},${data.timestamp}`;
+        if (res.ok) {
+            laatstVerzonden = Date.now();
+            document.getElementById("bevestiging").style.display = "block";
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            setTimeout(() => {
+                location.reload();
+            }, 30000); // herlaad na 30 seconden
 
-  const onderwerp = data.etd ?
-    `ETD Positive, ${data.scheepsnaam}, ${data.timestamp}` :
-    `ETD Negative, ${data.scheepsnaam}, ${data.timestamp}`;
-
-  const res = await fetch("/api/verstuur", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ csv, onderwerp })
-  });
-
-  if (res.ok) {
-    laatstVerzonden = Date.now();
-    document.getElementById("bevestiging").style.display = "block";
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-  setTimeout(() => {
-    location.reload();
-  }, 30000); // herlaad na 30 seconden
-
-    vuurConfettiSerie();
-  } else {
-    alert("❌ Fout bij verzenden");
-  }
+            vuurConfettiSerie();
+        } else {
+            alert("❌ Fout bij verzenden");
+        }
+    } catch (err) {
+        alert("❌ Fout bij verzenden");
+    }
 });
+
 
 function vuurConfettiSerie() {
   var duration = 2 * 1000;
