@@ -528,7 +528,7 @@ document.getElementById("etdForm").addEventListener("submit", async function (e)
     timestamp: new Date().toISOString()
   };
 
-  const csv = `Scheepsnaam, scheepsnaamHandmatig,ETD,RedenGeenETD,Toelichting,Status,Timestamp\n${data.scheepsnaam},${data.scheepsnaamHandmatig},${data.etd},${data.reden},${data.toelichting},${data.Status},${data.timestamp}`;
+  const csv = `Scheepsnaam,ScheepsnaamHandmatig,ETD,RedenGeenETD,Toelichting,Status,Type_naam,Lengte,Timestamp,Latitude,Longitude\n${data.scheepsnaam},${data.scheepsnaamHandmatig},${data.etd},${data.reden},${data.toelichting},${data.Status},${data.Type_naam},${data.Lengte},${data.timestamp}`;
 
   const onderwerp = data.etd ?
     `ETD Positive, ${data.scheepsnaam}, ${data.timestamp}` :
