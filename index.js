@@ -93,6 +93,7 @@ app.use("/data/schepen.json", authMiddleware);
 app.use("/admin/export", authMiddleware);
 
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
 // === JOUW DYNAMISCHE ROUTE VOOR ADMIN.HTML /data/submissions.json ===
