@@ -1,10 +1,16 @@
 require('dotenv').config();
 const basicAuth = require('express-basic-auth');
-
 const express = require("express");
-const fs = require("fs");
 const path = require("path");
+const fs = require("fs");
 const { startStream, getNearbyShips } = require("./aisstream");
+const { google } = require('googleapis');
+
+// Zorg dat de data-directory bestaat
+const dataDir = path.join(__dirname, "public", "data");
+if (!fs.existsSync(dataDir)) {
+  fs.mkdirSync(dataDir, { recursive: true });
+}
 
 startStream();
 const app = express();
@@ -14,7 +20,72 @@ const authMiddleware = basicAuth({
   realm: 'Beveiligd gebied'
 });
 
+// Sheets-authenticatie
+const credentials = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_JSON);
+const auth = new google.auth.GoogleAuth({
+  credentials,
+  scopes: ['https://www.googleapis.com/auth/spreadsheets'],
+});
+const SPREADSHEET_ID = '1RX5vPm3AzYjlpdXgsbuVkupb4UbJSct2wgpVArhMaRQ';
+const SHEET_NAME = 'submissions';
 
+// Functie om alle submissions uit Google Sheets te halen (met extra logging)
+async function getSubmissionsFromSheet() {
+  const client = await auth.getClient();
+  const sheets = google.sheets({ version: 'v4', auth: client });
+
+  const res = await sheets.spreadsheets.values.get({
+    spreadsheetId: SPREADSHEET_ID,
+    range: `${SHEET_NAME}!A1:K`, // Nu 11 kolommen
+  });
+
+  const rows = res.data.values;
+  console.log("========== Google Sheets ruwe rows ==========");
+  console.log(JSON.stringify(rows, null, 2)); // Log alle rows uit de Sheet
+
+  if (!rows || rows.length < 2) {
+    console.log("Geen data gevonden in de Sheet of alleen headers!");
+    return [];
+  }
+  const headers = rows[0];
+  console.log("Headers gevonden:", headers); // Log de headers
+
+  const records = rows.slice(1).map(row => {
+    let obj = {};
+    headers.forEach((key, i) => obj[key] = row[i] || "");
+    return obj;
+  });
+
+  console.log("Records die naar admin.html gestuurd worden:", JSON.stringify(records, null, 2));
+  return records;
+}
+
+// Functie om een submission naar Google Sheets te schrijven (nu met Type_naam en Lengte)
+async function appendToGoogleSheet(record) {
+  const client = await auth.getClient();
+  const sheets = google.sheets({ version: 'v4', auth: client });
+
+  const row = [
+    record.Scheepsnaam,
+    record.ScheepsnaamHandmatig,
+    record.ETD,
+    record.RedenGeenETD,
+    record.Toelichting,
+    record.Status,
+    record.Type_naam,     // Toegevoegd
+    record.Lengte,        // Toegevoegd
+    record.Timestamp,
+    record.Latitude,
+    record.Longitude
+  ];
+
+  await sheets.spreadsheets.values.append({
+    spreadsheetId: SPREADSHEET_ID,
+    range: `${SHEET_NAME}!A1`, // Gebruik altijd !A1, niet !A:A
+    valueInputOption: 'USER_ENTERED',
+    resource: { values: [row] },
+  });
+}
 
 app.use("/admin.html", authMiddleware);
 app.use("/data/submissions.json", authMiddleware);
@@ -24,9 +95,19 @@ app.use("/admin/export", authMiddleware);
 app.use(express.json());
 app.use(express.static("public"));
 
-const SUBMISSIONS_PATH = path.join(__dirname, "public", "data", "submissions.json");
-const SCHEPEN_PATH = path.join(__dirname, "public", "data", "schepen.json");
+// === JOUW DYNAMISCHE ROUTE VOOR ADMIN.HTML /data/submissions.json ===
+app.get("/data/submissions.json", authMiddleware, async (req, res) => {
+  try {
+    const data = await getSubmissionsFromSheet();
+    console.log("/data/submissions.json stuurt deze data naar frontend:", JSON.stringify(data, null, 2));
+    res.json(data);
+  } catch (err) {
+    console.error("Sheets uitlezen mislukt:", err);
+    res.status(500).json({ error: "Kan Google Sheets niet uitlezen." });
+  }
+});
 
+// === VERSTUUR-ROUTE ===
 app.post("/api/verstuur", async (req, res) => {
   const { csv, onderwerp } = req.body;
   if (!csv || !onderwerp) return res.status(400).send("Ongeldige gegevens");
@@ -57,39 +138,27 @@ app.post("/api/verstuur", async (req, res) => {
       record.Lengte = match.lengte || "";
     }
 
-    let data = [];
-    if (fs.existsSync(SUBMISSIONS_PATH)) data = JSON.parse(fs.readFileSync(SUBMISSIONS_PATH));
-    data.push(record);
-    fs.writeFileSync(SUBMISSIONS_PATH, JSON.stringify(data, null, 2));
-
-    const inhoudCSV = [
-      "Scheepsnaam,ScheepsnaamHandmatig,ETD,RedenGeenETD,Toelichting,Status,Type_naam,Lengte,Timestamp,Latitude,Longitude",
-      `"${record.Scheepsnaam}","${record.ScheepsnaamHandmatig}","${record.ETD}","${record.RedenGeenETD}","${record.Toelichting}","${record.Status}","${record.Type_naam}","${record.Lengte}","${record.Timestamp}","${record.Latitude}","${record.Longitude}"`
-    ].join("\n");
-
     try {
-      // (optioneel: versturen naar e-mail/Dropbox etc.)
-      console.log("✅ Verzonden + Dropbox upload succesvol");
-      res.json({ status: "ok" });
+      await appendToGoogleSheet(record);
+      return res.json({ success: true, message: "Inzending opgeslagen in Google Sheets." });
     } catch (err) {
-      console.error("❌ Fout bij e-mail of Dropbox:", err);
-      res.status(500).send("Verzending mislukt");
+      console.error('Sheets error:', err);
+      return res.status(500).json({ success: false, message: "Fout bij opslaan in Google Sheets." });
     }
+  } else {
+    return res.status(400).send("Ongeldige gegevens");
   }
 });
-
-
 
 app.get("/api/ping", (req, res) => {
   res.send("✅ API actief");
 });
 
+app.get("/api/schepen", (req, res) => {
+  res.json(getNearbyShips());
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log("✅ Server draait op poort", PORT);
-});
-
-
-app.get("/api/schepen", (req, res) => {
-  res.json(getNearbyShips());
 });
