@@ -118,9 +118,17 @@ app.post("/api/verstuur", async (req, res) => {
   try {
     await appendToGoogleSheet(record);
 
-    const data = await getSubmissionsFromSheet();
-    const syncPath = path.join(__dirname, "public", "data", "submissions.json");
-    fs.writeFileSync(syncPath, JSON.stringify(data, null, 2));
+    const rows = await getSubmissionsFromSheet();
+const headers = rows[0]; // eerste rij = kolomnamen
+const records = rows.slice(1).map(rij => {
+  const obj = {};
+  headers.forEach((kolom, i) => {
+    obj[kolom] = rij[i] || "";
+  });
+  return obj;
+});
+fs.writeFileSync(syncPath, JSON.stringify(records, null, 2));
+
 
     return res.json({ success: true, message: "Inzending opgeslagen in Google Sheets." });
   } catch (err) {
