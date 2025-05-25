@@ -35,7 +35,6 @@ const auth = new google.auth.GoogleAuth({
 const SPREADSHEET_ID = '1RX5vPm3AzYjlpdXgsbuVkupb4UbJSct2wgpVArhMaRQ';
 const SHEET_NAME = 'submissions';
 
-// ✅ Functie om alle submissions uit Google Sheets te halen
 async function getSubmissionsFromSheet() {
   const client = await auth.getClient();
   const sheets = google.sheets({ version: 'v4', auth: client });
@@ -48,7 +47,6 @@ async function getSubmissionsFromSheet() {
   return res.data.values || [];
 }
 
-// Functie om een submission naar Google Sheets te schrijven
 async function appendToGoogleSheet(record) {
   const client = await auth.getClient();
   const sheets = google.sheets({ version: 'v4', auth: client });
@@ -75,7 +73,6 @@ async function appendToGoogleSheet(record) {
   });
 }
 
-// POST /api/verstuur
 app.post("/api/verstuur", async (req, res) => {
   const csv = req.body.csv;
 
@@ -118,22 +115,20 @@ app.post("/api/verstuur", async (req, res) => {
     record.Lengte = match.lengte || "";
   }
 
-try {
-  await appendToGoogleSheet(record);
+  try {
+    await appendToGoogleSheet(record);
 
-  // 🔄 Ververs submissions.json met actuele Google Sheets inhoud
-  const data = await getSubmissionsFromSheet();
-  const syncPath = path.join(__dirname, "public", "data", "submissions.json");
-  fs.writeFileSync(syncPath, JSON.stringify(data, null, 2));
+    const data = await getSubmissionsFromSheet();
+    const syncPath = path.join(__dirname, "public", "data", "submissions.json");
+    fs.writeFileSync(syncPath, JSON.stringify(data, null, 2));
 
-  return res.json({ success: true, message: "Inzending opgeslagen in Google Sheets." });
-} catch (err) {
-  console.error('Sheets error:', err);
-  return res.status(500).json({ success: false, message: "Fout bij opslaan." });
-}
+    return res.json({ success: true, message: "Inzending opgeslagen in Google Sheets." });
+  } catch (err) {
+    console.error('Sheets error:', err);
+    return res.status(500).json({ success: false, message: "Fout bij opslaan." });
+  }
+});
 
-
-// ✅ Route die Google Sheets data live serveert
 app.get("/data/submissions.json", authMiddleware, async (req, res) => {
   try {
     const data = await getSubmissionsFromSheet();
