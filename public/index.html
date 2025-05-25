@@ -1,22 +1,82 @@
 <!DOCTYPE html>
 <html lang="nl">
 <head>
-  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-  <meta charset="utf-8"/>
+  <meta charset="UTF-8">
   <title>ETD Formulier</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#003b5c" />
+  <link rel="icon" type="image/png" href="https://hansklok123.github.io/aisset/logo.png" />
   <style>
-    /* (Jouw complete originele CSS ongewijzigd) */
     body { font-family: sans-serif; max-width: 600px; margin: auto; padding: 2rem; }
-    /* ... de rest van je CSS ... */
     .form-container {
       background: none !important;
       box-shadow: none !important;
       backdrop-filter: none !important;
     }
-    /* (CSS van GPS-button, select, etc. ongewijzigd) */
+    .form-header img { max-width: 120px; }
+    #bevestiging {
+      display: none;
+      background: #c5e1a5;
+      color: #003b5c;
+      padding: 1em;
+      margin-bottom: 1em;
+      border-radius: 8px;
+      text-align: center;
+      font-weight: bold;
+    }
+    .toggle-switch-row {
+      display: flex;
+      align-items: center;
+      margin-bottom: 1em;
+      gap: .6em;
+    }
+    #switchLabel {
+      display: block;
+      width: 44px;
+      height: 26px;
+      background: #ccc;
+      border-radius: 13px;
+      position: relative;
+      cursor: pointer;
+    }
+    #switchDot {
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 22px;
+      height: 22px;
+      background: #003b5c;
+      border-radius: 50%;
+      transition: left .2s;
+    }
+    #binnenkomendLabel, #verhalendLabel { font-size: 0.99em; }
+    .infobutton-page {
+      position: fixed;
+      top: 15px;
+      right: 15px;
+      border-radius: 100%;
+      border: none;
+      width: 40px;
+      height: 40px;
+      background: #003b5c;
+      color: #fff;
+      font-size: 1.4em;
+      z-index: 1001;
+      box-shadow: 0 2px 8px rgba(0,0,0,.17);
+      cursor: pointer;
+    }
+    .info-circle {
+      display: inline-block;
+      width: 22px; height: 22px; border-radius: 50%; background: #fff; color: #003b5c;
+      text-align: center; line-height: 22px; font-weight: bold;
+    }
+    .foutmelding { color: #b71c1c; }
+    @media (max-width: 720px) {
+      body { padding: 0.5em; }
+      .form-header img { max-width: 70px;}
+    }
   </style>
-  <link rel="manifest" href="/manifest.json" />
-  <meta name="theme-color" content="#003b5c" />
 </head>
 <body>
   <button id="infoButton" type="button" title="Meer informatie" class="infobutton-page">
@@ -65,22 +125,18 @@
       <button type="submit">Verzenden</button>
     </form>
   </div>
-  <!-- Confetti script -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   <script>
     function vuurConfettiSerie() {
       var duration = 2 * 1000;
       var animationEnd = Date.now() + duration;
       var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 1000 };
-
       function randomInRange(min, max) {
         return Math.random() * (max - min) + min;
       }
-
       var interval = setInterval(function() {
         var timeLeft = animationEnd - Date.now();
         if (timeLeft <= 0) return clearInterval(interval);
-
         var particleCount = 50 * (timeLeft / duration);
         confetti(Object.assign({}, defaults, {
           particleCount,
@@ -96,7 +152,6 @@
     let laatstVerzonden = 0;
     let laatsteLat = "";
     let laatsteLon = "";
-
     // Probeer direct locatie alvast op te halen
     navigator.geolocation.getCurrentPosition(
       (geo) => {
@@ -105,7 +160,6 @@
       },
       () => {}
     );
-
     document.getElementById("reden").addEventListener("change", function () {
       const toelichting = document.getElementById("toelichting");
       if (this.value) {
@@ -115,7 +169,6 @@
         toelichting.value = "";
       }
     });
-
     async function laadSchepen() {
       try {
         const geo = await new Promise((resolve, reject) =>
@@ -123,12 +176,10 @@
         );
         const lat = geo.coords.latitude;
         const lon = geo.coords.longitude;
-        laatsteLat = lat; // Sla op voor verzending
+        laatsteLat = lat;
         laatsteLon = lon;
-
         const res = await fetch("/api/schepen");
         const schepen = await res.json();
-
         const dichtbij = schepen
           .map(s => {
             const laatst = s.track?.[s.track.length - 1];
@@ -139,10 +190,8 @@
           .filter(Boolean)
           .sort((a, b) => a.afstand - b.afstand)
           .slice(0, 15);
-
         const select = document.getElementById("huidigSchipSelect");
         select.innerHTML = "";
-
         dichtbij.forEach((s, i) => {
           const opt = document.createElement("option");
           opt.value = s.naam;
@@ -154,7 +203,6 @@
         console.error("Fout bij laden schepen:", err);
       }
     }
-
     function afstandKm(lat1, lon1, lat2, lon2) {
       const R = 6371;
       const dLat = (lat2 - lat1) * Math.PI / 180;
@@ -164,43 +212,31 @@
         Math.sin(dLon / 2) ** 2;
       return 2 * R * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     }
-
     function landVlag(mmsi) {
-      // ... jouw landcode mapping ...
-      return "🏳️"; // (hou je eigen functie hier)
+      return "🏳️";
     }
-
-    // *** HIERONDER DE AANGEPASTE SUBMIT-HANDLER ***
+    // -------- HIER DE GEWIJZIGDE SUBMIT HANDLER --------
     document.getElementById("etdForm").addEventListener("submit", async function (e) {
-      document.getElementById("hiddenHandmatigScheepsnaam").value = manualField.value || "";
-
+      document.getElementById("hiddenHandmatigScheepsnaam").value = handmatigSchip.value || "";
       e.preventDefault();
-
       const nu = Date.now();
       const tijdSindsLaatste = nu - laatstVerzonden;
-
       const etdField = document.getElementById("etd");
       const redenField = document.getElementById("reden");
       const etd = etdField.value.trim();
       const reden = redenField.value.trim();
-
       // Reset borders
       etdField.style.border = "";
       redenField.style.border = "";
-
-      // Controleer of het formulier geldig is (ETD of reden vereist)
       if (!etd && !reden) {
         etdField.style.border = "2px solid red";
         redenField.style.border = "2px solid red";
         return;
       }
-
-      // Controleer throttle alleen bij geldig formulier
       if (tijdSindsLaatste < 60000) {
         alert("Het formulier is al verzonden. Wacht even voordat je opnieuw verzendt.");
         return;
       }
-
       const data = {
         scheepsnaam: document.getElementById("huidigSchipSelect").value,
         scheepsnaamHandmatig: document.getElementById("handmatigSchip").value,
@@ -212,28 +248,24 @@
         latitude: laatsteLat,
         longitude: laatsteLon
       };
-
       const res = await fetch("/api/verstuur", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data)
       });
-
       if (res.ok) {
         laatstVerzonden = Date.now();
         document.getElementById("bevestiging").style.display = "block";
         window.scrollTo({ top: 0, behavior: 'smooth' });
         setTimeout(() => {
           location.reload();
-        }, 30000); // herlaad na 30 seconden
-
+        }, 30000);
         vuurConfettiSerie();
       } else {
         alert("❌ Fout bij verzenden");
       }
     });
-
-    // GPS-knop
+    // -------- EINDE GEWIJZIGDE SUBMIT HANDLER --------
     function forceerGPSLaad() {
       navigator.geolocation.getCurrentPosition(
         async (geo) => {
@@ -243,7 +275,6 @@
           try {
             const res = await fetch("/api/schepen");
             const schepen = await res.json();
-
             const dichtbij = schepen
               .map(s => {
                 const laatst = s.track?.[s.track.length - 1];
@@ -254,10 +285,8 @@
               .filter(Boolean)
               .sort((a, b) => a.afstand - b.afstand)
               .slice(0, 15);
-
             const select = document.getElementById("huidigSchipSelect");
             select.innerHTML = "";
-
             dichtbij.forEach((s, i) => {
               const opt = document.createElement("option");
               opt.value = s.naam;
@@ -274,10 +303,6 @@
         }
       );
     }
-
-    // ... de rest van je originele JS voor datalists, enable/disable, modal, switch, service worker, etc. ... 
-
-    // (Bijvoorbeeld:)
     async function vulAutoAan() {
       try {
         const res = await fetch("/api/schepen");
@@ -296,14 +321,12 @@
       }
     }
     document.getElementById("handmatigSchip").addEventListener("input", function () {
-      document.getElementById("huidigSchipSelect").value = ""; // reset dropdown keuze
+      document.getElementById("huidigSchipSelect").value = "";
     });
     window.onload = function () {
       laadSchepen();
       vulAutoAan();
     };
-    // ... etc ...
   </script>
-  <!-- ... De rest van je modal/info scripts ... -->
 </body>
 </html>
