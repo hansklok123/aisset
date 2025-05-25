@@ -118,28 +118,20 @@ app.post("/api/verstuur", async (req, res) => {
     record.Lengte = match.lengte || "";
   }
 
-  try {
-    await appendToGoogleSheet(record);
+try {
+  await appendToGoogleSheet(record);
 
-    const localPath = path.join(__dirname, "public", "data", "submissions.json");
-    let bestaande = [];
-    if (fs.existsSync(localPath)) {
-      try {
-        const raw = fs.readFileSync(localPath, "utf8");
-        bestaande = JSON.parse(raw);
-      } catch (e) {
-        console.warn("⚠️ Kon bestaande JSON niet lezen:", e);
-      }
-    }
-    bestaande.push(record);
-    fs.writeFileSync(localPath, JSON.stringify(bestaande, null, 2));
+  // 🔄 Ververs submissions.json met actuele Google Sheets inhoud
+  const data = await getSubmissionsFromSheet();
+  const syncPath = path.join(__dirname, "public", "data", "submissions.json");
+  fs.writeFileSync(syncPath, JSON.stringify(data, null, 2));
 
-    return res.json({ success: true, message: "Inzending opgeslagen in Google Sheets en submissions.json." });
-  } catch (err) {
-    console.error('Sheets error:', err);
-    return res.status(500).json({ success: false, message: "Fout bij opslaan." });
-  }
-});
+  return res.json({ success: true, message: "Inzending opgeslagen in Google Sheets." });
+} catch (err) {
+  console.error('Sheets error:', err);
+  return res.status(500).json({ success: false, message: "Fout bij opslaan." });
+}
+
 
 // ✅ Route die Google Sheets data live serveert
 app.get("/data/submissions.json", authMiddleware, async (req, res) => {
