@@ -118,8 +118,8 @@ app.post("/api/verstuur", async (req, res) => {
   try {
     await appendToGoogleSheet(record);
 
-    const rows = await getSubmissionsFromSheet();
-const headers = rows[0]; // eerste rij = kolomnamen
+ const rows = await getSubmissionsFromSheet();
+const headers = rows[0]; // eerste rij zijn de kolomnamen
 const records = rows.slice(1).map(rij => {
   const obj = {};
   headers.forEach((kolom, i) => {
@@ -128,6 +128,7 @@ const records = rows.slice(1).map(rij => {
   return obj;
 });
 fs.writeFileSync(syncPath, JSON.stringify(records, null, 2));
+
 
 
     return res.json({ success: true, message: "Inzending opgeslagen in Google Sheets." });
