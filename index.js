@@ -10,6 +10,26 @@ const { parse } = require('csv-parse/sync');
 
 startStream();
 
+(async () => {
+  try {
+    const rows = await getSubmissionsFromSheet();
+    const headers = rows[0];
+    const records = rows.slice(1).map(rij => {
+      const obj = {};
+      headers.forEach((kolom, i) => {
+        obj[kolom] = rij[i] || "";
+      });
+      return obj;
+    });
+    const syncPath = path.join(__dirname, "public", "data", "submissions.json");
+    fs.writeFileSync(syncPath, JSON.stringify(records, null, 2));
+    console.log("✅ submissions.json gesynchroniseerd bij serverstart.");
+  } catch (err) {
+    console.error("❌ Fout bij initiële synchronisatie:", err);
+  }
+})();
+
+
 const app = express();
 app.use(express.json());
 app.use(express.static("public"));
