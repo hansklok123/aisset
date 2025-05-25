@@ -528,7 +528,17 @@ document.getElementById("etdForm").addEventListener("submit", async function (e)
     timestamp: new Date().toISOString()
   };
 
-  const csv = `Scheepsnaam, scheepsnaamHandmatig,ETD,RedenGeenETD,Toelichting,Status,Timestamp\n${data.scheepsnaam},${data.scheepsnaamHandmatig},${data.etd},${data.reden},${data.toelichting},${data.Status},${data.timestamp}`;
+ function escapeCSV(value) {
+  if (typeof value === 'string' && (value.includes(',') || value.includes('"'))) {
+    return `"${value.replace(/"/g, '""')}"`; // escape dubbele quotes
+  }
+  return value;
+}
+
+const csv = `Scheepsnaam, scheepsnaamHandmatig,ETD,RedenGeenETD,Toelichting,Status,Timestamp\n` +
+            `${escapeCSV(data.scheepsnaam)},${escapeCSV(data.scheepsnaamHandmatig)},${escapeCSV(data.etd)},` +
+            `${escapeCSV(data.reden)},${escapeCSV(data.toelichting)},${escapeCSV(data.Status)},${escapeCSV(data.timestamp)}`;
+
 
   const onderwerp = data.etd ?
     `ETD Positive, ${data.scheepsnaam}, ${data.timestamp}` :
