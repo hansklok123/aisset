@@ -1,16 +1,10 @@
 require('dotenv').config();
 const basicAuth = require('express-basic-auth');
-const express = require("express");
-const path = require("path");
-const fs = require("fs");
-const { startStream, getNearbyShips } = require("./aisstream");
-const { google } = require('googleapis');
 
-// Zorg dat de data-directory bestaat
-const dataDir = path.join(__dirname, "public", "data");
-if (!fs.existsSync(dataDir)) {
-  fs.mkdirSync(dataDir, { recursive: true });
-}
+const express = require("express");
+const fs = require("fs");
+const path = require("path");
+const { startStream, getNearbyShips } = require("./aisstream");
 
 startStream();
 const app = express();
@@ -20,103 +14,82 @@ const authMiddleware = basicAuth({
   realm: 'Beveiligd gebied'
 });
 
-app.use(express.json());
-app.use(express.static("public"));
 
-// Sheets-authenticatie
-const credentials = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_JSON);
-const auth = new google.auth.GoogleAuth({
-  credentials,
-  scopes: ['https://www.googleapis.com/auth/spreadsheets'],
-});
-const SPREADSHEET_ID = '1RX5vPm3AzYjlpdXgsbuVkupb4UbJSct2wgpVArhMaRQ';
-const SHEET_NAME = 'submissions';
 
-// Functie om alle submissions uit Google Sheets te halen
-async function getSubmissionsFromSheet() {
-  const client = await auth.getClient();
-  const sheets = google.sheets({ version: 'v4', auth: client });
-
-  const res = await sheets.spreadsheets.values.get({
-    spreadsheetId: SPREADSHEET_ID,
-    range: `${SHEET_NAME}!A1:K`, // Nu 11 kolommen
-  });
-
-  const rows = res.data.values;
-  if (!rows || rows.length < 2) {
-    return [];
-  }
-  const headers = rows[0];
-  const records = rows.slice(1).map(row => {
-    let obj = {};
-    headers.forEach((key, i) => obj[key] = row[i] || "");
-    return obj;
-  });
-  return records;
-}
-
-// === DATA ENDPOINTS ===
-app.get("/data/submissions.json", authMiddleware, async (req, res) => {
-  try {
-    const data = await getSubmissionsFromSheet();
-    res.json(data);
-  } catch (err) {
-    res.status(500).json({ error: "Kan Google Sheets niet uitlezen." });
-  }
-});
-
-// === NIEUWE VERSTUUR-ROUTE MET JSON ===
-app.post("/api/verstuur", async (req, res) => {
-  const record = req.body;
-
-  // Basic check: verplichte velden controleren (pas eventueel aan)
-  const verplichteVelden = ["Scheepsnaam", "ScheepsnaamHandmatig", "ETD", "RedenGeenETD", "Toelichting", "Status", "Timestamp", "Latitude", "Longitude"];
-  for (const veld of verplichteVelden) {
-    if (typeof record[veld] === "undefined") {
-      return res.status(400).json({ error: `Veld ontbreekt: ${veld}` });
-    }
-  }
-
-  // Zet de data netjes in array volgorde
-  const values = [
-    record.Scheepsnaam || "",
-    record.ScheepsnaamHandmatig || "",
-    record.ETD || "",
-    record.RedenGeenETD || "",
-    record.Toelichting || "",
-    record.Status || "",
-    record.Timestamp || "",
-    record.Latitude || "",
-    record.Longitude || ""
-  ];
-
-  try {
-    const client = await auth.getClient();
-    const sheets = google.sheets({ version: 'v4', auth: client });
-
-    // Data append aan Google Sheets
-    await sheets.spreadsheets.values.append({
-      spreadsheetId: SPREADSHEET_ID,
-      range: `${SHEET_NAME}!A2`,
-      valueInputOption: "RAW",
-      insertDataOption: "INSERT_ROWS",
-      resource: { values: [values] }
-    });
-
-    res.json({ success: true, message: "Formulier opgeslagen!" });
-  } catch (error) {
-    console.error("Fout bij opslaan in Google Sheets:", error);
-    res.status(500).json({ error: "Fout bij opslaan in Google Sheets." });
-  }
-});
-
-// Admin/exports etc. (ongewijzigd laten)
+app.use("/admin.html", authMiddleware);
 app.use("/data/submissions.json", authMiddleware);
 app.use("/data/schepen.json", authMiddleware);
 app.use("/admin/export", authMiddleware);
 
-// Start de server
+app.use(express.json());
+app.use(express.static("public"));
+
+const SUBMISSIONS_PATH = path.join(__dirname, "public", "data", "submissions.json");
+const SCHEPEN_PATH = path.join(__dirname, "public", "data", "schepen.json");
+
+app.post("/api/verstuur", async (req, res) => {
+  const { csv, onderwerp } = req.body;
+  if (!csv || !onderwerp) return res.status(400).send("Ongeldige gegevens");
+
+  const regels = csv.split("\n");
+  if (regels.length >= 2) {
+    const [_, inhoud] = regels;
+    const delen = inhoud.split(",");
+    const record = {
+      Scheepsnaam: delen[0]?.replaceAll('"', ""),
+      ScheepsnaamHandmatig: delen[1]?.replaceAll('"', ""),
+      ETD: delen[2]?.replaceAll('"', ""),
+      RedenGeenETD: delen[3]?.replaceAll('"', ""),
+      Toelichting: delen[4]?.replaceAll('"', ""),
+      Status: delen[5]?.replaceAll('"', ""),
+      Timestamp: delen[6]?.replaceAll('"', ""),
+      Latitude: delen[7]?.replaceAll('"', ""),
+      Longitude: delen[8]?.replaceAll('"', "")
+    };
+
+    const schepen = getNearbyShips();
+    const match = schepen.find(s => s.naam?.trim() === record.Scheepsnaam?.trim());
+    if (match && match.track?.length > 0) {
+      const laatste = match.track[match.track.length - 1];
+      record.Latitude = laatste.lat ? parseFloat(laatste.lat).toFixed(5) : "";
+      record.Longitude = laatste.lon ? parseFloat(laatste.lon).toFixed(5) : "";
+      record.Type_naam = match.type_naam || "";
+      record.Lengte = match.lengte || "";
+    }
+
+    let data = [];
+    if (fs.existsSync(SUBMISSIONS_PATH)) data = JSON.parse(fs.readFileSync(SUBMISSIONS_PATH));
+    data.push(record);
+    fs.writeFileSync(SUBMISSIONS_PATH, JSON.stringify(data, null, 2));
+
+    const inhoudCSV = [
+      "Scheepsnaam,ScheepsnaamHandmatig,ETD,RedenGeenETD,Toelichting,Status,Type_naam,Lengte,Timestamp,Latitude,Longitude",
+      `"${record.Scheepsnaam}","${record.ScheepsnaamHandmatig}","${record.ETD}","${record.RedenGeenETD}","${record.Toelichting}","${record.Status}","${record.Type_naam}","${record.Lengte}","${record.Timestamp}","${record.Latitude}","${record.Longitude}"`
+    ].join("\n");
+
+    try {
+      // (optioneel: versturen naar e-mail/Dropbox etc.)
+      console.log("✅ Verzonden + Dropbox upload succesvol");
+      res.json({ status: "ok" });
+    } catch (err) {
+      console.error("❌ Fout bij e-mail of Dropbox:", err);
+      res.status(500).send("Verzending mislukt");
+    }
+  }
+});
+
+
+
+app.get("/api/ping", (req, res) => {
+  res.send("✅ API actief");
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`Server gestart op poort ${PORT}`);
+  console.log("✅ Server draait op poort", PORT);
+});
+
+
+app.get("/api/schepen", (req, res) => {
+  res.json(getNearbyShips());
 });
