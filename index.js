@@ -11,8 +11,8 @@ const { parse } = require('csv-parse/sync');
 startStream();
 
 const app = express();
-app.use(express.static("public"));
 app.use(express.json());
+app.use(express.static("public"));
 
 const authMiddleware = basicAuth({
   users: { [process.env.AUTH_USER]: process.env.AUTH_PASS },
@@ -34,22 +34,6 @@ const auth = new google.auth.GoogleAuth({
 });
 const SPREADSHEET_ID = '1RX5vPm3AzYjlpdXgsbuVkupb4UbJSct2wgpVArhMaRQ';
 const SHEET_NAME = 'submissions';
-
-// Functie om alle submissions uit Google Sheets te halen
-async function getSubmissionsFromSheet() {
-  const client = await auth.getClient();
-  const sheets = google.sheets({ version: 'v4', auth: client });
-
-  const res = await sheets.spreadsheets.values.get({
-    spreadsheetId: SPREADSHEET_ID,
-    range: `${SHEET_NAME}!A1:K`,
-  });
-
-  const rows = res.data.values;
-  console.log("========== Google Sheets ruwe rows ==========");
-  console.log(JSON.stringify(rows, null, 2));
-  return rows;
-}
 
 // Functie om een submission naar Google Sheets te schrijven
 async function appendToGoogleSheet(record) {
@@ -78,7 +62,7 @@ async function appendToGoogleSheet(record) {
   });
 }
 
-// Nieuwe correcte POST route
+// POST /api/verstuur
 app.post("/api/verstuur", async (req, res) => {
   const csv = req.body.csv;
 
@@ -123,10 +107,26 @@ app.post("/api/verstuur", async (req, res) => {
 
   try {
     await appendToGoogleSheet(record);
-    return res.json({ success: true, message: "Inzending opgeslagen in Google Sheets." });
+
+    // === Extra: schrijf ook naar submission.json ===
+    const localPath = path.join(__dirname, "public", "data", "submission.json");
+    let bestaande = [];
+    if (fs.existsSync(localPath)) {
+      try {
+        const raw = fs.readFileSync(localPath, "utf8");
+        bestaande = JSON.parse(raw);
+      } catch (e) {
+        console.warn("⚠️ Kon bestaande JSON niet lezen:", e);
+      }
+    }
+    bestaande.push(record);
+    fs.writeFileSync(localPath, JSON.stringify(bestaande, null, 2));
+    // === einde extra toevoeging ===
+
+    return res.json({ success: true, message: "Inzending opgeslagen in Google Sheets en submission.json." });
   } catch (err) {
     console.error('Sheets error:', err);
-    return res.status(500).json({ success: false, message: "Fout bij opslaan in Google Sheets." });
+    return res.status(500).json({ success: false, message: "Fout bij opslaan." });
   }
 });
 
