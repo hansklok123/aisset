@@ -11,6 +11,7 @@ const { parse } = require('csv-parse/sync');
 startStream();
 
 const app = express();
+app.use(express.static("public"));
 app.use(express.json());
 
 const authMiddleware = basicAuth({
