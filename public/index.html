@@ -486,12 +486,6 @@ function landVlag(mmsi) {
   return landcodes[mmsi?.toString().substring(0, 3)] || "🏳️";
 }
 
-function quoteField(value) {
-  if (value == null) return '""';
-  const escaped = String(value).replace(/"/g, '""');
-  return `"${escaped}"`;
-}
- 
 document.getElementById("etdForm").addEventListener("submit", async function (e) {
     
     // Vul de hidden input altijd met de handmatige waarde
@@ -524,41 +518,17 @@ document.getElementById("etdForm").addEventListener("submit", async function (e)
     return;
   }
 
-const data = {
-  scheepsnaam: document.getElementById("huidigSchipSelect").value
-               || document.getElementById("hiddenHandmatigScheepsnaam").value.trim(),
-  etd:       document.getElementById("etd").value.trim(),
-  reden:     document.getElementById("reden").value,
-  toelichting: document.getElementById("toelichting").value.trim(),
-  Status:    document.getElementById("berichtTypeValue").value,
-  timestamp: new Date().toISOString()
-};
+  const data = {
+    scheepsnaam: document.getElementById("huidigSchipSelect").value,
+    scheepsnaamHandmatig: document.getElementById("handmatigSchip").value,
+    etd,
+    reden,
+    toelichting: document.getElementById("toelichting").value.trim(),
+    Status: document.getElementById('berichtTypeValue').value,
+    timestamp: new Date().toISOString()
+  };
 
-const headers = [
-  "Scheepsnaam",
-  "scheepsnaamHandmatig",
-  "ETD",
-  "RedenGeenETD",
-  "Toelichting",
-  "Status",
-  "Type_naam",
-  "Lengte",
-  "Timestamp",
-  "Latitude",
-  "Longitude"
-];
-const values = [
-  data.scheepsnaam,
-  document.getElementById("hiddenHandmatigScheepsnaam").value.trim(),
-  data.etd,
-  data.reden,
-  data.toelichting,
-  data.Status,
-  data.timestamp
-];
-const csv =
-  headers.map(quoteField).join(",") + "\n" +
-  values.map(quoteField).join(",");
+  const csv = `Scheepsnaam, scheepsnaamHandmatig,ETD,RedenGeenETD,Toelichting,Status,Timestamp\n${data.scheepsnaam},${data.scheepsnaamHandmatig},${data.etd},${data.reden},${data.toelichting},${data.Status},${data.timestamp}`;
 
   const onderwerp = data.etd ?
     `ETD Positive, ${data.scheepsnaam}, ${data.timestamp}` :
