@@ -118,7 +118,7 @@ app.post("/api/verstuur", async (req, res) => {
   try {
     await appendToGoogleSheet(record);
 
- const rows = await getSubmissionsFromSheet();
+const rows = await getSubmissionsFromSheet();
 const headers = rows[0]; // eerste rij zijn de kolomnamen
 const records = rows.slice(1).map(rij => {
   const obj = {};
@@ -127,6 +127,9 @@ const records = rows.slice(1).map(rij => {
   });
   return obj;
 });
+
+// ✅ Hier definieer je syncPath correct
+const syncPath = path.join(__dirname, "public", "data", "submissions.json");
 fs.writeFileSync(syncPath, JSON.stringify(records, null, 2));
 
 
