@@ -35,25 +35,37 @@ const auth = new google.auth.GoogleAuth({
 const SPREADSHEET_ID = '1RX5vPm3AzYjlpdXgsbuVkupb4UbJSct2wgpVArhMaRQ';
 const SHEET_NAME = 'submissions';
 
+// ✅ Functie om alle submissions uit Google Sheets te halen
+async function getSubmissionsFromSheet() {
+  const client = await auth.getClient();
+  const sheets = google.sheets({ version: 'v4', auth: client });
+
+  const res = await sheets.spreadsheets.values.get({
+    spreadsheetId: SPREADSHEET_ID,
+    range: `${SHEET_NAME}!A1:K`,
+  });
+
+  return res.data.values || [];
+}
+
 // Functie om een submission naar Google Sheets te schrijven
 async function appendToGoogleSheet(record) {
   const client = await auth.getClient();
   const sheets = google.sheets({ version: 'v4', auth: client });
 
-const row = [
-  record.Scheepsnaam ?? "",
-  record.ScheepsnaamHandmatig ?? "",
-  record.ETD ?? "",
-  record.RedenGeenETD ?? "",
-  record.Toelichting ?? "",
-  record.Status ?? "",
-  record.Type_naam ?? "",      // ✅ leeg veld opvullen
-  record.Lengte ?? "",         // ✅ leeg veld opvullen
-  record.Timestamp ?? "",
-  record.Latitude ?? "",
-  record.Longitude ?? ""
-];
-
+  const row = [
+    record.Scheepsnaam ?? "",
+    record.ScheepsnaamHandmatig ?? "",
+    record.ETD ?? "",
+    record.RedenGeenETD ?? "",
+    record.Toelichting ?? "",
+    record.Status ?? "",
+    record.Type_naam ?? "",
+    record.Lengte ?? "",
+    record.Timestamp ?? "",
+    record.Latitude ?? "",
+    record.Longitude ?? ""
+  ];
 
   await sheets.spreadsheets.values.append({
     spreadsheetId: SPREADSHEET_ID,
@@ -91,7 +103,7 @@ app.post("/api/verstuur", async (req, res) => {
     Status: delen[5]?.replaceAll('"', ""),
     Type_naam: delen[6]?.replaceAll('"', ""),
     Lengte: delen[7]?.replaceAll('"', ""),
-    Timestamp: delen[8]?.replaceAll('"', ""),
+    Timestamp: new Date().toISOString(),
     Latitude: delen[9]?.replaceAll('"', ""),
     Longitude: delen[10]?.replaceAll('"', "")
   };
@@ -109,7 +121,6 @@ app.post("/api/verstuur", async (req, res) => {
   try {
     await appendToGoogleSheet(record);
 
-    // === Extra: schrijf ook naar submission.json ===
     const localPath = path.join(__dirname, "public", "data", "submissions.json");
     let bestaande = [];
     if (fs.existsSync(localPath)) {
@@ -122,7 +133,6 @@ app.post("/api/verstuur", async (req, res) => {
     }
     bestaande.push(record);
     fs.writeFileSync(localPath, JSON.stringify(bestaande, null, 2));
-    // === einde extra toevoeging ===
 
     return res.json({ success: true, message: "Inzending opgeslagen in Google Sheets en submissions.json." });
   } catch (err) {
@@ -131,6 +141,7 @@ app.post("/api/verstuur", async (req, res) => {
   }
 });
 
+// ✅ Route die Google Sheets data live serveert
 app.get("/data/submissions.json", authMiddleware, async (req, res) => {
   try {
     const data = await getSubmissionsFromSheet();
@@ -140,7 +151,6 @@ app.get("/data/submissions.json", authMiddleware, async (req, res) => {
     res.status(500).json({ error: "Kan gegevens niet ophalen." });
   }
 });
-
 
 app.get("/api/ping", (req, res) => {
   res.send("✅ API actief");
