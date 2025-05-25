@@ -109,7 +109,7 @@ app.post("/api/verstuur", async (req, res) => {
     await appendToGoogleSheet(record);
 
     // === Extra: schrijf ook naar submission.json ===
-    const localPath = path.join(__dirname, "public", "data", "submission.json");
+    const localPath = path.join(__dirname, "public", "data", "submissions.json");
     let bestaande = [];
     if (fs.existsSync(localPath)) {
       try {
@@ -123,7 +123,7 @@ app.post("/api/verstuur", async (req, res) => {
     fs.writeFileSync(localPath, JSON.stringify(bestaande, null, 2));
     // === einde extra toevoeging ===
 
-    return res.json({ success: true, message: "Inzending opgeslagen in Google Sheets en submission.json." });
+    return res.json({ success: true, message: "Inzending opgeslagen in Google Sheets en submissions.json." });
   } catch (err) {
     console.error('Sheets error:', err);
     return res.status(500).json({ success: false, message: "Fout bij opslaan." });
@@ -132,7 +132,7 @@ app.post("/api/verstuur", async (req, res) => {
 
 // Nieuw: route om local submission.json op te vragen
 app.get("/data/submissions.json", authMiddleware, (req, res) => {
-  const filePath = path.join(__dirname, "public", "data", "submission.json");
+  const filePath = path.join(__dirname, "public", "data", "submissions.json");
   if (fs.existsSync(filePath)) {
     res.sendFile(filePath);
   } else {
