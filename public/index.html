@@ -313,110 +313,322 @@ input[type="checkbox"]#typeSwitch {
 <meta name="theme-color" content="#003b5c" />
 
 </head>
-
 <body>
-  <button id="infoButton" type="button" title="Meer informatie" class="infobutton-page">
-    <span class="info-circle">i</span>
-  </button>
-  <div id="bevestiging">✔️ Inzending succesvol verzonden</div>
-  <div class="form-container">
-    <div class="form-header">
-      <img alt="logo" src="https://hansklok123.github.io/aisset/logo.png"/>
-      <h2>ETD Formulier</h2>
-    </div>
-    <form id="etdForm">
-      <label>Scheepsnaam:
-        <select id="huidigSchipSelect" name="scheepsnaam"><option value="">Laden...</option></select>
-      </label>
-      <button id="gpsButton" onclick="forceerGPSLaad()" type="button">📍 Haal locatie op</button>
-      <div class="foutmelding" id="gpsFoutmelding"></div>
-      <label>Of typ handmatig de scheepsnaam:</label>
-      <input disabled="true" id="handmatigSchip" list="schiplijst" name="handmatig_scheepsnaam" placeholder="Begin met typen..." type="text"/>
-      <input type="hidden" id="hiddenHandmatigScheepsnaam" name="ScheepsnaamHandmatig">
-      <datalist id="schiplijst"></datalist>
-      <label>ETD:
-        <input id="etd" name="etd" type="datetime-local"/>
-      </label>
-      <label>Reden indien geen ETD:
-        <select id="reden" name="reden">
-          <option value="">-- Kies reden --</option>
-          <option value="Niet bekend bij de Kapitein">Niet bekend bij de Kapitein</option>
-          <option value="Taal barrière">Taal barrière</option>
-          <option value="Overig">Overig</option>
-        </select>
-      </label>
-      <label>Toelichting (optioneel):
-        <textarea id="toelichting" name="toelichting" rows="4"></textarea>
-      <label for="typeSwitch">Type reis gevraagd:</label>
-      <div class="toggle-switch-row">
-        <span id="binnenkomendLabel">Binnenkomend</span>
-        <input type="checkbox" id="typeSwitch" name="berichtType" style="display:none;">
-        <label for="typeSwitch" id="switchLabel">
-          <span id="switchDot"></span>
-        </label>
-        <span id="verhalendLabel">Verhalend</span>
-        <input type="hidden" name="berichtTypeValue" id="berichtTypeValue" value="Binnenkomend">
-      </div>
-      <button type="submit">Verzenden</button>
-    </form>
-  </div>
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-  <script>
-    function vuurConfettiSerie() {
-      var duration = 2 * 1000;
-      var animationEnd = Date.now() + duration;
-      var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 1000 };
-      function randomInRange(min, max) {
-        return Math.random() * (max - min) + min;
-      }
-      var interval = setInterval(function() {
-        var timeLeft = animationEnd - Date.now();
-        if (timeLeft <= 0) return clearInterval(interval);
-        var particleCount = 50 * (timeLeft / duration);
-        confetti(Object.assign({}, defaults, {
-          particleCount,
-          origin: {
-            x: randomInRange(0.1, 0.9),
-            y: Math.random() - 0.2
-          }
-        }));
-      }, 200);
+    <button id="infoButton" type="button" title="Meer informatie" class="infobutton-page">
+  <span class="info-circle">i</span>
+</button>
+    
+<div id="bevestiging">✔️ Inzending succesvol verzonden</div>
+<div class="form-container">
+
+<div class="form-header">
+<img alt="logo" src="https://hansklok123.github.io/aisset/logo.png"/>
+</div>
+<form id="etdForm">
+<h2>ETD Invoeren</h2>
+<label>Scheepsnaam:<select id="huidigSchipSelect" name="scheepsnaam"><option value="">Laden...</option></select></label><button id="gpsButton" onclick="forceerGPSLaad()" type="button">📍 Haal locatie op</button><div class="foutmelding" id="gpsFoutmelding"></div><label>Of typ handmatig de scheepsnaam:</label><input disabled="true" id="handmatigSchip" list="schiplijst" name="handmatig_scheepsnaam" placeholder="Begin met typen..." type="text"/>
+<input type="hidden" id="hiddenHandmatigScheepsnaam" name="ScheepsnaamHandmatig"><datalist id="schiplijst"></datalist><label>ETD:
+      <input id="etd" name="etd" type="datetime-local"/>
+</label>
+<label>Reden indien geen ETD:
+      <select id="reden" name="reden">
+<option value="">-- Kies reden --</option>
+<option value="Niet bekend bij de Kapitein">Niet bekend bij de Kapitein</option>
+<option value="Taal barrière">Taal barrière</option>
+<option value="Overig">Overig</option>
+</select>
+</label>
+<label>Toelichting (optioneel):
+      <textarea id="toelichting" name="toelichting" rows="4"></textarea>
+<label for="typeSwitch">Type reis gevraagd:</label>
+<div class="toggle-switch-row">
+  <span id="binnenkomendLabel">Binnenkomend</span>
+  <input type="checkbox" id="typeSwitch" name="berichtType" style="display:none;">
+  <label for="typeSwitch"
+    id="switchLabel">
+    <span id="switchDot"></span>
+  </label>
+  <span id="verhalendLabel">Verhalend</span>
+  <input type="hidden" name="berichtTypeValue" id="berichtTypeValue" value="Binnenkomend">
+</div>
+
+</label>
+<button type="submit">Verzenden</button>
+</form></div>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script><script>
+function vuurConfettiSerie() {
+  var duration = 2 * 1000;
+  var animationEnd = Date.now() + duration;
+  var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 1000 };
+
+  function randomInRange(min, max) {
+    return Math.random() * (max - min) + min;
+  }
+
+  var interval = setInterval(function() {
+    var timeLeft = animationEnd - Date.now();
+
+    if (timeLeft <= 0) {
+      return clearInterval(interval);
     }
-  </script>
-  <script>
-    let laatstVerzonden = 0;
-    let laatsteLat = "";
-    let laatsteLon = "";
 
-    navigator.geolocation.getCurrentPosition(
-      (geo) => {
-        laatsteLat = geo.coords.latitude;
-        laatsteLon = geo.coords.longitude;
-      },
-      () => {}
+    var particleCount = 50 * (timeLeft / duration);
+    confetti(Object.assign({}, defaults, {
+      particleCount,
+      origin: {
+        x: randomInRange(0.1, 0.9),
+        y: Math.random() - 0.2
+      }
+    }));
+  }, 200);
+}
+</script><script>
+let laatstVerzonden = 0;
+
+document.getElementById("reden").addEventListener("change", function () {
+  const toelichting = document.getElementById("toelichting");
+  if (this.value) {
+    toelichting.removeAttribute("disabled");
+  } else {
+    toelichting.setAttribute("disabled", "true");
+    toelichting.value = "";
+  }
+});
+
+async function laadSchepen() {
+  try {
+    const geo = await new Promise((resolve, reject) =>
+      navigator.geolocation.getCurrentPosition(resolve, reject)
     );
+    const lat = geo.coords.latitude;
+    const lon = geo.coords.longitude;
 
-    document.getElementById("reden").addEventListener("change", function () {
-      const toelichting = document.getElementById("toelichting");
-      if (this.value) {
-        toelichting.removeAttribute("disabled");
-      } else {
-        toelichting.setAttribute("disabled", "true");
-        toelichting.value = "";
+    const res = await fetch("/api/schepen");
+    const schepen = await res.json();
+
+    const dichtbij = schepen
+      .map(s => {
+        const laatst = s.track?.[s.track.length - 1];
+        if (!s.naam || !s.mmsi || !laatst) return null;
+        const afstand = afstandKm(lat, lon, laatst.lat, laatst.lon);
+        return { naam: s.naam, mmsi: s.mmsi, afstand };
+      })
+      .filter(Boolean)
+      .sort((a, b) => a.afstand - b.afstand)
+      .slice(0, 15);
+
+    const select = document.getElementById("huidigSchipSelect");
+    select.innerHTML = "";
+
+    dichtbij.forEach((s, i) => {
+      const opt = document.createElement("option");
+      opt.value = s.naam;
+      opt.textContent = `${s.naam} ${landVlag(s.mmsi)} (${Math.round(s.afstand * 1000)}m)`;
+      if (i === 0) opt.selected = true;
+      select.appendChild(opt);
+    });
+  } catch (err) {
+    console.error("Fout bij laden schepen:", err);
+  }
+}
+
+function afstandKm(lat1, lon1, lat2, lon2) {
+  const R = 6371;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = Math.sin(dLat / 2) ** 2 +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLon / 2) ** 2;
+  return 2 * R * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+function landVlag(mmsi) {
+  const landcodes = {
+  "201": "🇦🇱", "202": "🇦🇩", "203": "🇦🇹", "204": "🇵🇹", "205": "🇧🇪",
+  "206": "🇧🇾", "207": "🇧🇬", "208": "🇻🇦", "209": "🇨🇾", "210": "🇨🇿",
+  "211": "🇩🇪", "212": "🇪🇪", "213": "🇲🇹", "214": "🇬🇷", "215": "🇭🇷",
+  "216": "🇮🇹", "218": "🇮🇪", "219": "🇮🇸", "220": "🇮🇹", "224": "🇱🇻",
+  "225": "🇱🇮", "226": "🇱🇹", "227": "🇱🇺", "228": "🇲🇨", "229": "🇲🇹",
+  "230": "🇳🇴", "231": "🇵🇱", "232": "🇬🇧", "233": "🇬🇧", "234": "🇬🇧",
+  "235": "🇬🇧", "236": "🇬🇮", "237": "🇸🇰", "238": "🇸🇮", "239": "🇪🇸",
+  "240": "🇸🇪", "241": "🇨🇭", "242": "🇨🇿", "243": "🇭🇺", "244": "🇳🇱",
+  "245": "🇳🇱", "246": "🇳🇱", "247": "🇸🇲", "248": "🇻🇦", "249": "🇲🇹",
+  "250": "🇬🇳", "251": "🇲🇰", "252": "🇲🇨", "253": "🇸🇰", "254": "🇸🇮",
+  "255": "🇵🇹", "301": "🇩🇪", "302": "🇱🇺", "303": "🇺🇸", "304": "🇧🇲",
+  "305": "🇨🇦", "306": "🇸🇽", "307": "🇨🇼", "308": "🇧🇸", "309": "🇫🇴",
+  "310": "🇦🇬", "311": "🇧🇧", "312": "🇧🇿", "314": "🇩🇲", "316": "🇨🇦",
+  "319": "🇯🇲", "321": "🇻🇨", "323": "🇻🇪", "325": "🇸🇷", "327": "🇲🇸",
+  "329": "🇹🇹", "330": "🇬🇩", "331": "🇰🇳", "332": "🇱🇨", "334": "🇲🇽",
+  "338": "🇺🇸", "339": "🇺🇸", "341": "🇵🇦", "343": "🇧🇷", "345": "🇰🇾",
+  "348": "🇻🇮", "350": "🇬🇹", "351": "🇸🇻", "352": "🇭🇳", "353": "🇳🇮",
+  "354": "🇨🇷", "355": "🇵🇦", "356": "🇵🇪", "357": "🇦🇷", "358": "🇨🇱",
+  "359": "🇨🇴", "361": "🇻🇪", "362": "🇺🇾", "364": "🇵🇾", "366": "🇺🇸",
+  "371": "🇵🇦", "372": "🇪🇨", "373": "🇧🇴", "375": "🇻🇪", "376": "🇬🇹",
+  "400": "🇦🇺", "401": "🇮🇩", "403": "🇮🇳", "405": "🇰🇷", "408": "🇯🇵",
+  "412": "🇨🇳", "413": "🇨🇳", "414": "🇨🇳", "416": "🇹🇼", "417": "🇰🇵",
+  "419": "🇮🇳", "422": "🇮🇱", "423": "🇮🇷", "424": "🇰🇿", "425": "🇷🇺",
+  "428": "🇸🇦", "431": "🇸🇬", "432": "🇹🇭", "434": "🇹🇷", "436": "🇺🇿",
+  "437": "🇻🇳", "440": "🇰🇷", "441": "🇯🇵", "443": "🇲🇾", "445": "🇵🇭",
+  "447": "🇰🇵", "450": "🇧🇩", "451": "🇰🇭", "453": "🇱🇦", "455": "🇲🇲",
+  "457": "🇵🇰", "459": "🇱🇰", "501": "🇦🇺", "503": "🇦🇺", "506": "🇳🇿",
+  "508": "🇵🇬", "510": "🇫🇯", "511": "🇲🇭", "512": "🇳🇷", "513": "🇳🇿",
+  "514": "🇹🇴", "515": "🇹🇻", "516": "🇼🇸", "518": "🇻🇺", "601": "🇿🇦",
+  "603": "🇦🇴", "605": "🇧🇮", "607": "🇨🇲", "608": "🇨🇻", "609": "🇨🇫",
+  "610": "🇨🇬", "611": "🇨🇩", "612": "🇧🇯", "613": "🇬🇦", "615": "🇬🇲",
+  "616": "🇬🇳", "617": "🇨🇮", "618": "🇰🇪", "619": "🇱🇷", "620": "🇲🇬",
+  "621": "🇲🇼", "622": "🇲🇱", "624": "🇲🇷", "625": "🇲🇿", "626": "🇳🇦",
+  "627": "🇳🇪", "628": "🇳🇬", "630": "🇸🇹", "631": "🇸🇳", "632": "🇸🇨",
+  "633": "🇸🇱", "634": "🇸🇴", "635": "🇿🇦", "636": "🇸🇩", "637": "🇸🇿",
+  "638": "🇹🇿", "639": "🇹🇬", "640": "🇹🇳", "641": "🇺🇬", "642": "🇿🇲",
+  "643": "🇿🇼", "645": "🇪🇷", "647": "🇪🇹", "649": "🇲🇺", "650": "🇸🇭"
+}
+;
+  return landcodes[mmsi?.toString().substring(0, 3)] || "🏳️";
+}
+
+document.getElementById("etdForm").addEventListener("submit", async function (e) {
+    
+    // Vul de hidden input altijd met de handmatige waarde
+    document.getElementById("hiddenHandmatigScheepsnaam").value = manualField.value || "";
+
+  e.preventDefault();
+
+  const nu = Date.now();
+  const tijdSindsLaatste = nu - laatstVerzonden;
+
+  const etdField = document.getElementById("etd");
+  const redenField = document.getElementById("reden");
+  const etd = etdField.value.trim();
+  const reden = redenField.value.trim();
+
+  // Reset borders
+  etdField.style.border = "";
+  redenField.style.border = "";
+
+  // Controleer of het formulier geldig is (ETD of reden vereist)
+  if (!etd && !reden) {
+    etdField.style.border = "2px solid red";
+    redenField.style.border = "2px solid red";
+    return;
+  }
+
+  // Controleer throttle alleen bij geldig formulier
+  if (tijdSindsLaatste < 60000) {
+    alert("Het formulier is al verzonden. Wacht even voordat je opnieuw verzendt.");
+    return;
+  }
+
+  const data = {
+    scheepsnaam: document.getElementById("huidigSchipSelect").value,
+    scheepsnaamHandmatig: document.getElementById("handmatigSchip").value,
+    etd,
+    reden,
+    toelichting: document.getElementById("toelichting").value.trim(),
+    Status: document.getElementById('berichtTypeValue').value,
+    timestamp: new Date().toISOString()
+  };
+
+  const csv = `Scheepsnaam, scheepsnaamHandmatig,ETD,RedenGeenETD,Toelichting,Status,Timestamp\n${data.scheepsnaam},${data.scheepsnaamHandmatig},${data.etd},${data.reden},${data.toelichting},${data.Status},${data.timestamp}`;
+
+  const onderwerp = data.etd ?
+    `ETD Positive, ${data.scheepsnaam}, ${data.timestamp}` :
+    `ETD Negative, ${data.scheepsnaam}, ${data.timestamp}`;
+
+  const res = await fetch("/api/verstuur", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ csv, onderwerp })
+  });
+
+  if (res.ok) {
+    laatstVerzonden = Date.now();
+    document.getElementById("bevestiging").style.display = "block";
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  setTimeout(() => {
+    location.reload();
+  }, 30000); // herlaad na 30 seconden
+
+    vuurConfettiSerie();
+  } else {
+    alert("❌ Fout bij verzenden");
+  }
+});
+
+function vuurConfettiSerie() {
+  var duration = 2 * 1000;
+  var animationEnd = Date.now() + duration;
+  var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 1000 };
+
+  function randomInRange(min, max) {
+    return Math.random() * (max - min) + min;
+  }
+
+  var interval = setInterval(function() {
+    var timeLeft = animationEnd - Date.now();
+    if (timeLeft <= 0) return clearInterval(interval);
+
+    var particleCount = 50 * (timeLeft / duration);
+    confetti(Object.assign({}, defaults, {
+      particleCount,
+      origin: {
+        x: randomInRange(0.1, 0.9),
+        y: Math.random() - 0.2
+      }
+    }));
+  }, 200);
+}
+
+window.onload = laadSchepen;
+
+setTimeout(() => {
+  const select = document.getElementById("huidigSchipSelect");
+  if (select && select.options.length === 1 && select.options[0].textContent.includes("Laden")) {
+    select.disabled = true;
+    document.getElementById("gpsButton").disabled = true;
+    document.getElementById("gpsFoutmelding").innerText = "⚠️ Functie niet beschikbaar, vul handmatig in.";
+    const handmatig = document.getElementById("handmatigSchip");
+    handmatig.disabled = false;
+    handmatig.focus();
+  }
+}, 5000);</script><script>
+// Vul datalist met scheepsnamen uit fetch
+async function vulAutoAan() {
+  try {
+    const res = await fetch("/api/schepen");
+    const schepen = await res.json();
+    const lijst = document.getElementById("schiplijst");
+    lijst.innerHTML = "";
+    schepen.forEach(s => {
+      if (s.naam) {
+        const opt = document.createElement("option");
+        opt.value = s.naam;
+        lijst.appendChild(opt);
       }
     });
+  } catch (err) {
+    console.error("Auto-aanvul fout:", err);
+  }
+}
 
-    async function laadSchepen() {
+document.getElementById("handmatigSchip").addEventListener("input", function () {
+  document.getElementById("huidigSchipSelect").value = ""; // reset dropdown keuze
+});
+
+window.onload = function () {
+  laadSchepen();
+  vulAutoAan();
+};
+</script><script>
+function forceerGPSLaad() {
+  navigator.geolocation.getCurrentPosition(
+    async (geo) => {
+      const lat = geo.coords.latitude;
+      const lon = geo.coords.longitude;
+
       try {
-        const geo = await new Promise((resolve, reject) =>
-          navigator.geolocation.getCurrentPosition(resolve, reject)
-        );
-        const lat = geo.coords.latitude;
-        const lon = geo.coords.longitude;
-        laatsteLat = lat;
-        laatsteLon = lon;
         const res = await fetch("/api/schepen");
         const schepen = await res.json();
+
         const dichtbij = schepen
           .map(s => {
             const laatst = s.track?.[s.track.length - 1];
@@ -427,8 +639,10 @@ input[type="checkbox"]#typeSwitch {
           .filter(Boolean)
           .sort((a, b) => a.afstand - b.afstand)
           .slice(0, 15);
+
         const select = document.getElementById("huidigSchipSelect");
         select.innerHTML = "";
+
         dichtbij.forEach((s, i) => {
           const opt = document.createElement("option");
           opt.value = s.naam;
@@ -437,137 +651,140 @@ input[type="checkbox"]#typeSwitch {
           select.appendChild(opt);
         });
       } catch (err) {
-        console.error("Fout bij laden schepen:", err);
+        console.error("GPS refresh fout:", err);
       }
+    },
+    (err) => {
+      alert("Kon GPS-locatie niet ophalen: " + err.message);
     }
+  );
+}
+</script><script>
+// IDs van velden
+const selectField = document.getElementById("huidigSchipSelect");
+const manualField = document.getElementById("handmatigSchip");
+const gpsButton = document.getElementById("gpsButton");
 
-    function afstandKm(lat1, lon1, lat2, lon2) {
-      const R = 6371;
-      const dLat = (lat2 - lat1) * Math.PI / 180;
-      const dLon = (lon2 - lon1) * Math.PI / 180;
-      const a = Math.sin(dLat / 2) ** 2 +
-        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-        Math.sin(dLon / 2) ** 2;
-      return 2 * R * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    }
+// Helper om select en gps (de)activeren en transparantie zetten
+function setSelectAndGPS(disabled) {
+    selectField.disabled = disabled;
+    gpsButton.disabled = disabled;
+    selectField.style.opacity = disabled ? "0.5" : "1";
+    gpsButton.style.opacity = disabled ? "0.5" : "1";
+}
 
-    function landVlag(mmsi) {
-      return "🏳️";
-    }
+// Direct na laden: handmatige veld altijd actief
+window.addEventListener("DOMContentLoaded", function() {
+    if (manualField) manualField.disabled = false;
+    setSelectAndGPS(false);
 
-    // ENKEL DIT SUBMIT SCRIPT IS GEWIJZIGD:
-    document.getElementById("etdForm").addEventListener("submit", async function (e) {
-      document.getElementById("hiddenHandmatigScheepsnaam").value = handmatigSchip.value || "";
-      e.preventDefault();
-      const nu = Date.now();
-      const tijdSindsLaatste = nu - laatstVerzonden;
-      const etdField = document.getElementById("etd");
-      const redenField = document.getElementById("reden");
-      const etd = etdField.value.trim();
-      const reden = redenField.value.trim();
-      // Reset borders
-      etdField.style.border = "";
-      redenField.style.border = "";
-      if (!etd && !reden) {
-        etdField.style.border = "2px solid red";
-        redenField.style.border = "2px solid red";
-        return;
-      }
-      if (tijdSindsLaatste < 60000) {
-        alert("Het formulier is al verzonden. Wacht even voordat je opnieuw verzendt.");
-        return;
-      }
-      const data = {
-        scheepsnaam: document.getElementById("huidigSchipSelect").value,
-        scheepsnaamHandmatig: document.getElementById("handmatigSchip").value,
-        etd,
-        reden,
-        toelichting: document.getElementById("toelichting").value.trim(),
-        Status: document.getElementById('berichtTypeValue').value,
-        timestamp: new Date().toISOString(),
-        latitude: laatsteLat,
-        longitude: laatsteLon
-      };
-      const res = await fetch("/api/verstuur", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data)
-      });
-      if (res.ok) {
-        laatstVerzonden = Date.now();
-        document.getElementById("bevestiging").style.display = "block";
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-        setTimeout(() => {
-          location.reload();
-        }, 30000);
-        vuurConfettiSerie();
-      } else {
-        alert("❌ Fout bij verzenden");
-      }
-    });
-
-    function forceerGPSLaad() {
-      navigator.geolocation.getCurrentPosition(
-        async (geo) => {
-          const lat = geo.coords.latitude;
-          const lon = geo.coords.longitude;
-          laatsteLat = lat; laatsteLon = lon;
-          try {
-            const res = await fetch("/api/schepen");
-            const schepen = await res.json();
-            const dichtbij = schepen
-              .map(s => {
-                const laatst = s.track?.[s.track.length - 1];
-                if (!s.naam || !s.mmsi || !laatst) return null;
-                const afstand = afstandKm(lat, lon, laatst.lat, laatst.lon);
-                return { naam: s.naam, mmsi: s.mmsi, afstand };
-              })
-              .filter(Boolean)
-              .sort((a, b) => a.afstand - b.afstand)
-              .slice(0, 15);
-            const select = document.getElementById("huidigSchipSelect");
-            select.innerHTML = "";
-            dichtbij.forEach((s, i) => {
-              const opt = document.createElement("option");
-              opt.value = s.naam;
-              opt.textContent = `${s.naam} ${landVlag(s.mmsi)} (${Math.round(s.afstand * 1000)}m)`;
-              if (i === 0) opt.selected = true;
-              select.appendChild(opt);
-            });
-          } catch (err) {
-            console.error("GPS refresh fout:", err);
-          }
-        },
-        (err) => {
-          alert("Kon GPS-locatie niet ophalen: " + err.message);
+    // 5-seconden check of laden klaar is
+    setTimeout(function() {
+        // Controleer of eerste optie nog steeds 'Laden...' is
+        if (selectField && selectField.options.length && selectField.options[0].textContent.includes('Laden')) {
+            setSelectAndGPS(true);
         }
-      );
+    }, 5000);
+});
+
+// Wanneer je in het handmatige veld typt
+manualField && manualField.addEventListener("input", function() {
+    if (manualField.value.trim() !== "") {
+        setSelectAndGPS(true);
+        selectField.value = "";
+    } else {
+        // Alleen weer activeren als er wél schepen geladen zijn (dus niet als nog 'Laden...')
+        if (selectField && (!selectField.options.length || !selectField.options[0].textContent.includes('Laden'))) {
+            setSelectAndGPS(false);
+        }
     }
-    async function vulAutoAan() {
-      try {
-        const res = await fetch("/api/schepen");
-        const schepen = await res.json();
-        const lijst = document.getElementById("schiplijst");
-        lijst.innerHTML = "";
-        schepen.forEach(s => {
-          if (s.naam) {
-            const opt = document.createElement("option");
-            opt.value = s.naam;
-            lijst.appendChild(opt);
-          }
-        });
-      } catch (err) {
-        console.error("Auto-aanvul fout:", err);
-      }
-    }
-    document.getElementById("handmatigSchip").addEventListener("input", function () {
-      document.getElementById("huidigSchipSelect").value = "";
+});
+
+// Zorg dat handmatige veld zijn datalist-link houdt
+if (manualField) manualField.disabled = false;
+
+</script>
+
+
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/service-worker.js')
+        .then(reg => console.log('✅ Service Worker geregistreerd:', reg.scope))
+        .catch(err => console.warn('❌ Service Worker fout:', err));
     });
-    window.onload = function () {
-      laadSchepen();
-      vulAutoAan();
-    };
-  </script>
+  }
+</script>
+
+
+<script>
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") {
+      location.reload();
+    }
+  });
+</script>
+
+
+<div id="infoModal"
+     style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.38);z-index:1000;align-items:center;justify-content:center;">
+  <div style="background:#fff;padding:24px 18px 16px 18px;border-radius:18px;max-width:400px;width:92vw;position:relative;box-shadow:0 4px 24px #003b5c33;">
+    <button id="closeModal" type="button"
+            style="position:absolute;top:10px;right: -150px;font-size:22px;color:#003b5c;background:none;border:none;cursor:pointer;font-weight:bold;line-height:1;">&times;</button>
+    <h2 style="font-size:1.18rem;font-weight:700;margin-bottom:8px;color:#2563eb;">Informatie</h2>
+    <p style="color:#28323c;">
+      Deze app is onderdeel van een MMP14-onderzoek en onderzoekt
+    de waarde van het opvragen van de ETD bij de kapitein van een binnenkomend of verhalend schip.<br><br>
+      Scheepsnaam wordt doormiddel van GPS locatie automatisch gezocht.
+      Mocht de voorgestelde scheepsnaam niet kloppen dan kan hij handmatig ingevuld worden. <br><br>
+      
+      Check: <b>Scheepsnaam, ETD of Reden geen ETD, Type reis: Binnenkomend of Verhalend.</b><br><br>
+      Bedankt voor uw bijdrage!
+    </p>
+  </div>
+</div>
+
+
+<script>
+  // Info popup
+  document.getElementById('infoButton').onclick = function(e) {
+    e.preventDefault();
+    document.getElementById('infoModal').style.display = 'flex';
+  };
+  document.getElementById('closeModal').onclick = function() {
+    document.getElementById('infoModal').style.display = 'none';
+  };
+  // Toggle switch
+  const typeSwitch = document.getElementById('typeSwitch');
+  const switchDot = document.getElementById('switchDot');
+  const berichtTypeValue = document.getElementById('berichtTypeValue');
+  const verhalendLabel = document.getElementById('verhalendLabel');
+  const binnenkomendLabel = document.getElementById('binnenkomendLabel');
+  function updateToggleUI() {
+    if(typeSwitch.checked) {
+      switchDot.style.left = '22px';
+      berichtTypeValue.value = 'Verhalend';
+      verhalendLabel.style.fontWeight = 'bold';
+      verhalendLabel.style.color = '#85d678';
+      binnenkomendLabel.style.color = '#f8f9fa';
+      binnenkomendLabel.style.fontWeight = 'normal';
+      binnenkomendLabel.style.opacity = '.5';
+      verhalendLabel.style.opacity = '1';
+    
+    } else {
+      switchDot.style.left = '2px';
+      berichtTypeValue.value = 'Binnenkomend';
+      binnenkomendLabel.style.fontWeight = 'bold';
+      binnenkomendLabel.style.color = '#85d678';
+      verhalendLabel.style.color = '#f8f9fa';
+      verhalendLabel.style.fontWeight = 'normal';
+      binnenkomendLabel.style.opacity = '1';
+      verhalendLabel.style.opacity = '.5';
+    }
+  }
+  typeSwitch.onchange = updateToggleUI;
+  updateToggleUI();
+</script>
+
 </body>
 </html>
-
