@@ -113,23 +113,31 @@ app.post("/api/verstuur", async (req, res) => {
   const { csv, onderwerp } = req.body;
   if (!csv || !onderwerp) return res.status(400).send("Ongeldige gegevens");
 
-  const regels = csv.split("\n");
-  if (regels.length >= 2) {
-    const [_, inhoud] = regels;
-    const delen = inhoud.split(",");
-    const record = {
-      Scheepsnaam: delen[0]?.replaceAll('"', ""),
-      ScheepsnaamHandmatig: delen[1]?.replaceAll('"', ""),
-      ETD: delen[2]?.replaceAll('"', ""),
-      RedenGeenETD: delen[3]?.replaceAll('"', ""),
-      Toelichting: delen[4]?.replaceAll('"', ""),
-      Status: delen[5]?.replaceAll('"', ""),
-      Type_naam: delen[6]?.replaceAll('"', ""),
-      Lengte: delen[7]?.replaceAll('"', ""),
-      Timestamp: delen[8]?.replaceAll('"', ""),
-      Latitude: delen[9]?.replaceAll('"', ""),
-      Longitude: delen[10]?.replaceAll('"', "")
-    };
+const { parse } = require('csv-parse/sync');
+
+const parsed = parse(csv, {
+  skip_empty_lines: true,
+  trim: true
+});
+
+if (parsed.length >= 2) {
+  const delen = parsed[1]; // eerste regel is de header, tweede is de data
+
+  const record = {
+    Scheepsnaam: delen[0]?.replaceAll('"', ""),
+    ScheepsnaamHandmatig: delen[1]?.replaceAll('"', ""),
+    ETD: delen[2]?.replaceAll('"', ""),
+    RedenGeenETD: delen[3]?.replaceAll('"', ""),
+    Toelichting: delen[4]?.replaceAll('"', ""),
+    Status: delen[5]?.replaceAll('"', ""),
+    Type_naam: delen[6]?.replaceAll('"', ""),
+    Lengte: delen[7]?.replaceAll('"', ""),
+    Timestamp: delen[8]?.replaceAll('"', ""),
+    Latitude: delen[9]?.replaceAll('"', ""),
+    Longitude: delen[10]?.replaceAll('"', "")
+  };
+}
+
 
     const schepen = getNearbyShips();
     const match = schepen.find(s => s.naam?.trim() === record.Scheepsnaam?.trim());
