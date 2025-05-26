@@ -21,6 +21,8 @@ const authMiddleware = basicAuth({
   realm: 'Beveiligd gebied'
 });
 
+const { DateTime } = require('luxon');
+
 // Zorg dat de data-directory bestaat
 const dataDir = path.join(__dirname, "public", "data");
 if (!fs.existsSync(dataDir)) {
@@ -74,15 +76,9 @@ async function appendToGoogleSheet(record) {
   });
 }
 
-function getLocalISOString() {
-  const date = new Date();
-  const tzo = -date.getTimezoneOffset(); // offset in minuten
-  const sign = tzo >= 0 ? "+" : "-";
-  const pad = (n) => String(Math.floor(Math.abs(n))).padStart(2, '0');
-  const offset = `${sign}${pad(tzo / 60)}:${pad(tzo % 60)}`;
-  return date.toISOString().replace("Z", offset);
+function getAmsterdamISOString() {
+  return DateTime.now().setZone("Europe/Amsterdam").toISO(); // met offset
 }
-
 
 app.post("/api/verstuur", async (req, res) => {
   const csv = req.body.csv;
@@ -111,7 +107,7 @@ app.post("/api/verstuur", async (req, res) => {
     Status: delen[5]?.replaceAll('"', ""),
     Type_naam: delen[6]?.replaceAll('"', ""),
     Lengte: delen[7]?.replaceAll('"', ""),
-    Timestamp: getLocalISOString(),
+    Timestamp: getAmsterdamISOString(),
     Latitude: delen[9]?.replaceAll('"', ""),
     Longitude: delen[10]?.replaceAll('"', "")
   };
