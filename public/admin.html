@@ -31,13 +31,13 @@
     }
     /* Kolombreedtes aanpassen voor leesbaarheid, inclusief Status */
     th:nth-child(1), td:nth-child(1) { width: 150px; }
-    th:nth-child(2), td:nth-child(2) { width: 100px; }
+    th:nth-child(2), td:nth-child(2) { width: 70px; }
     th:nth-child(3), td:nth-child(3) { width: 60px; }
-    th:nth-child(4), td:nth-child(4) { width: 170px; }
+    th:nth-child(4), td:nth-child(4) { width: 140px; }
     th:nth-child(5), td:nth-child(5) { width: 120px; }
     th:nth-child(6), td:nth-child(6) { width: 150px; }
     th:nth-child(7), td:nth-child(7) { width: 90px; }
-    th:nth-child(8), td:nth-child(8) { width: 90px; }  /* Status */
+    th:nth-child(8), td:nth-child(8) { width: 140px; }  /* Status */
     th:nth-child(9), td:nth-child(9) { width: 40px; }
     th:nth-child(10), td:nth-child(10) { width: 40px; }
 
@@ -59,17 +59,19 @@
       animation: achtergrondFade 20s ease-in-out infinite alternate;
     }
     h2 { color: white; text-align: center; }
-    table {
-      width: 100%;
-      border-collapse: collapse; 
-      margin-top: 1rem; 
-      table-layout: fixed;
-      background-color: rgba(255,255,255,0.70);
-      color: #000;
-      font-size: 0.95rem;
-      border-radius: 0.7rem;
-      border: 0px solid #ccc;
-    }
+    
+   table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+  table-layout: fixed;
+  background-color: rgba(255,255,255,0.90);
+  color: #000;
+  font-size: 0.95rem;
+  border-radius: 0.7rem;
+  border: none; /* <-- Geen rand om de tabel zelf */
+}
+
     th[onclick]:hover {
       background-color: rgba(0, 59, 92, 0.1);
     }
@@ -208,7 +210,7 @@ updateProgress();
         <tr>
           <th onclick="sorteerOp('Scheepsnaam')" style="cursor: pointer;">Scheepsnaam ▲▼</th>
           <th onclick="sorteerOp('Type_naam')" style="cursor: pointer;">Type ▲▼</th>
-          <th onclick="sorteerOp('Lengte')" style="cursor: pointer;">Lengte ▲▼</th>
+          <th onclick="sorteerOp('Lengte')" style="cursor: pointer;">Lengte </th>
           <th onclick="sorteerOp('ETD')" style="cursor: pointer;">ETD ▲▼</th>
           <th onclick="sorteerOp('RedenGeenETD')" style="cursor: pointer;">NO ETD ▲▼</th>
           <th>Toelichting</th>
