@@ -12,7 +12,7 @@
     "express-basic-auth": "^1.2.0",
     "googleapis": "^130.0.0",
     "csv-parse": "^5.5.3",
-    "luxon": "^3.4.4"  // (versienummer kan variëren)
+    "luxon": "^3.4.4" 
 
 
   }
