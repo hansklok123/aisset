@@ -318,8 +318,14 @@ input[type="time"]:empty {
 <label>ETD:</label>
 <div class="etd-row">
   <div class="etd-datum-tijd">
-    <input type="date" id="etd_datum" name="etd_datum" placeholder="Datum" autocomplete="off" />
-    <input type="time" id="etd_tijd" name="etd_tijd" placeholder="Tijd" autocomplete="off" />
+    <input placeholder="Datum" class="textbox-n" type="text" 
+       onfocus="(this.type='date')" 
+       onblur="if(this.value==''){this.type='text'}" 
+       id="etd_datum" name="etd_datum" autocomplete="off" />
+    <input placeholder="Tijd" class="textbox-n" type="text" 
+       onfocus="(this.type='time')" 
+       onblur="if(this.value==''){this.type='text'}" 
+       id="etd_tijd" name="etd_tijd" autocomplete="off" />
   </div>
   <select id="etd_dagdeel" name="etd_dagdeel">
     <option value="">-- Of kies dagdeel --</option>
@@ -329,6 +335,7 @@ input[type="time"]:empty {
     <option value="evening">Avond (18:00-00:00)</option>
   </select>
 </div>
+
 
 
 <!-- EINDE AANGEPASTE ETD-INVOER -->
