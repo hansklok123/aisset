@@ -247,46 +247,40 @@
     }
 .etd-row {
   display: flex;
-  gap: 10px;
-  margin-bottom: 0.5rem;
+  gap: 1rem;
 }
-.etd-col {
-  flex: 1 1 0;
+.etd-row label {
+  flex: 1;
   position: relative;
-  min-width: 0;
 }
-.etd-col input {
-  width: 100%;
-  box-sizing: border-box;
-  padding-right: 8px;
-}
+
 .custom-placeholder {
   position: absolute;
+  top: 11px;
   left: 16px;
-  top: 13px;
-  color: #555;
   pointer-events: none;
-  transition: all 0.18s;
+  color: #999;
   font-size: 1rem;
-  z-index: 2;
-  background: transparent;
+  transition: 0.15s;
 }
-
-input[type="date"]:focus + .custom-placeholder,
-input[type="date"]:not(:placeholder-shown) + .custom-placeholder,
-input[type="date"]:valid + .custom-placeholder {
-  opacity: 0;
+.etd-row input:focus + .custom-placeholder,
+.etd-row input:not(:placeholder-shown) + .custom-placeholder {
+  color: transparent;
 }
-
-@media (max-width: 650px) {
+.etd-row input {
+  padding-left: 16px;
+  padding-right: 8px;
+}
+@media (max-width: 600px) {
   .etd-row {
-    flex-direction: row; /* nog steeds naast elkaar op mobiel! */
-    gap: 8px;
+    flex-direction: row;
+    gap: 0.5rem;
   }
-  .etd-col {
-    min-width: 0;
+  .etd-row label {
+    flex: 1 1 0;
   }
 }
+
 
 
 
@@ -319,24 +313,38 @@ input[type="date"]:valid + .custom-placeholder {
 <datalist id="schiplijst"></datalist>
 
 <!-- AANGEPASTE ETD-INVOER: -->
-<label>ETD:</label>
 <div class="etd-row">
-  <div class="etd-col">
-    <input type="date" id="etd_datum" name="etd_datum" autocomplete="off" required />
-    <span class="custom-placeholder" id="date-placeholder">Datum</span>
-  </div>
-  <div class="etd-col">
-    <input type="text" id="etd_tijd" name="etd_tijd" placeholder="Tijd" 
-           onfocus="this.type='time'" onblur="if(!this.value)this.type='text'" autocomplete="off" required />
-  </div>
+  <label>
+    <input
+      type="date"
+      id="etd_datum"
+      name="etd_datum"
+      placeholder="Datum"
+      autocomplete="off"
+    />
+    <span class="custom-placeholder">Datum</span>
+  </label>
+  <label>
+    <input
+      type="time"
+      id="etd_tijd"
+      name="etd_tijd"
+      placeholder="Tijd"
+      autocomplete="off"
+    />
+    <span class="custom-placeholder">Tijd</span>
+  </label>
 </div>
-<select id="etd_dagdeel" name="etd_dagdeel">
-  <option value="">-- Of kies dagdeel --</option>
-  <option value="overnight">Overnachting (00:00-06:00)</option>
-  <option value="morning">Ochtend (06:00-12:00)</option>
-  <option value="afternoon">Middag (12:00-18:00)</option>
-  <option value="evening">Avond (18:00-00:00)</option>
-</select>
+<label>
+  <select id="etd_dagdeel" name="etd_dagdeel">
+    <option value="">-- Of kies dagdeel --</option>
+    <option value="overnight">Overnachting (00:00-06:00)</option>
+    <option value="morning">Ochtend (06:00-12:00)</option>
+    <option value="afternoon">Middag (12:00-18:00)</option>
+    <option value="evening">Avond (18:00-00:00)</option>
+  </select>
+</label>
+
 
 
 
@@ -757,19 +765,34 @@ if (manualField) manualField.disabled = false;
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script>
 document.addEventListener('DOMContentLoaded', function(){
+  // Datum
   var dateInput = document.getElementById('etd_datum');
   var datePh = document.getElementById('date-placeholder');
   if(dateInput && datePh) {
-    function checkPlaceholder() {
+    function checkDatePlaceholder() {
       datePh.style.opacity = dateInput.value ? 0 : 1;
     }
-    dateInput.addEventListener('change', checkPlaceholder);
-    dateInput.addEventListener('input', checkPlaceholder);
-    dateInput.addEventListener('focus', checkPlaceholder);
-    dateInput.addEventListener('blur', checkPlaceholder);
-    checkPlaceholder();
+    dateInput.addEventListener('change', checkDatePlaceholder);
+    dateInput.addEventListener('input', checkDatePlaceholder);
+    dateInput.addEventListener('focus', checkDatePlaceholder);
+    dateInput.addEventListener('blur', checkDatePlaceholder);
+    checkDatePlaceholder();
+  }
+  // Tijd
+  var timeInput = document.getElementById('etd_tijd');
+  var timePh = document.getElementById('time-placeholder');
+  if(timeInput && timePh) {
+    function checkTimePlaceholder() {
+      timePh.style.opacity = timeInput.value ? 0 : 1;
+    }
+    timeInput.addEventListener('change', checkTimePlaceholder);
+    timeInput.addEventListener('input', checkTimePlaceholder);
+    timeInput.addEventListener('focus', checkTimePlaceholder);
+    timeInput.addEventListener('blur', checkTimePlaceholder);
+    checkTimePlaceholder();
   }
 });
+
 </script>
 
 </body>
