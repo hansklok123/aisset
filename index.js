@@ -108,7 +108,7 @@ app.post("/api/verstuur", async (req, res) => {
     Status: delen[5]?.replaceAll('"', ""),
     Type_naam: delen[6]?.replaceAll('"', ""),
     Lengte: delen[7]?.replaceAll('"', ""),
-    Timestamp: getAmsterdamISOString(),
+    Timestamp: DateTime.now().setZone("Europe/Amsterdam").toFormat("dd-MM-yy HH:mm"),
     Latitude: delen[9]?.replaceAll('"', ""),
     Longitude: delen[10]?.replaceAll('"', "")
   };
