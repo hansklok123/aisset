@@ -76,8 +76,9 @@ async function appendToGoogleSheet(record) {
   });
 }
 
-function getAmsterdamISOString() {
-  return DateTime.now().setZone("Europe/Amsterdam").toISO(); // met offset
+function formatDateTime(dt) {
+  // dt kan string of DateTime zijn
+  return DateTime.fromISO(dt).setZone("Europe/Amsterdam").toFormat("dd-MM-yy HH:mm");
 }
 
 app.post("/api/verstuur", async (req, res) => {
@@ -101,7 +102,7 @@ app.post("/api/verstuur", async (req, res) => {
   const record = {
     Scheepsnaam: delen[0]?.replaceAll('"', ""),
     ScheepsnaamHandmatig: delen[1]?.replaceAll('"', ""),
-    ETD: delen[2]?.replaceAll('"', ""),
+    ETD: delen[2] ? formatDateTime(delen[2].replaceAll('"', "")) : "",
     RedenGeenETD: delen[3]?.replaceAll('"', ""),
     Toelichting: delen[4]?.replaceAll('"', ""),
     Status: delen[5]?.replaceAll('"', ""),
