@@ -313,28 +313,29 @@
 <datalist id="schiplijst"></datalist>
 
 <!-- AANGEPASTE ETD-INVOER: -->
-<div class="etd-row">
+<label style="margin-bottom:0.2rem;">ETD:</label>
+    <div class="etd-row">
   <label>
     <input
       type="date"
       id="etd_datum"
       name="etd_datum"
-      placeholder="Datum"
       autocomplete="off"
+      required
     />
-    <span class="custom-placeholder">Datum</span>
+    <span class="custom-placeholder" id="date-placeholder">Datum</span>
   </label>
   <label>
     <input
       type="time"
       id="etd_tijd"
       name="etd_tijd"
-      placeholder="Tijd"
       autocomplete="off"
     />
-    <span class="custom-placeholder">Tijd</span>
+    <span class="custom-placeholder" id="time-placeholder">Tijd</span>
   </label>
 </div>
+
 <label>
   <select id="etd_dagdeel" name="etd_dagdeel">
     <option value="">-- Of kies dagdeel --</option>
@@ -397,6 +398,35 @@ dagdeelVeld.addEventListener("change", function() {
     tijdVeld.disabled = false;
   }
 });
+</script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<script>
+function vuurConfettiSerie() {
+  var duration = 2 * 1000;
+  var animationEnd = Date.now() + duration;
+  var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 1000 };
+
+  function randomInRange(min, max) {
+    return Math.random() * (max - min) + min;
+  }
+
+  var interval = setInterval(function() {
+    var timeLeft = animationEnd - Date.now();
+
+    if (timeLeft <= 0) {
+      return clearInterval(interval);
+    }
+
+    var particleCount = 50 * (timeLeft / duration);
+    confetti(Object.assign({}, defaults, {
+      particleCount,
+      origin: {
+        x: randomInRange(0.1, 0.9),
+        y: Math.random() - 0.2
+      }
+    }));
+  }, 200);
+}
 </script>
 
 <script>
@@ -763,7 +793,8 @@ if (manualField) manualField.disabled = false;
   updateToggleUI();
 </script>
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    <script>
+   
+<script>
 document.addEventListener('DOMContentLoaded', function(){
   // Datum
   var dateInput = document.getElementById('etd_datum');
@@ -792,7 +823,6 @@ document.addEventListener('DOMContentLoaded', function(){
     checkTimePlaceholder();
   }
 });
-
 </script>
 
 </body>
