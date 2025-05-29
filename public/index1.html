@@ -249,9 +249,18 @@
   display: flex;
   gap: 1rem;
 }
-.etd-row label {
-  flex: 1;
+.etd-field {
+  flex: 1 1 0;
+  min-width: 0;        /* belangrijk! */
   position: relative;
+  display: flex;
+  align-items: center;
+}
+.etd-field input[type="date"],
+.etd-field input[type="time"] {
+  width: 100%;
+  min-width: 0;        /* belangrijk! */
+  box-sizing: border-box;
 }
 
 .custom-placeholder {
@@ -262,22 +271,21 @@
   color: #999;
   font-size: 1rem;
   transition: 0.15s;
+  z-index: 2;
 }
-.etd-row input:focus + .custom-placeholder,
-.etd-row input:not(:placeholder-shown) + .custom-placeholder {
+.etd-field input:focus + .custom-placeholder,
+.etd-field input:not(:placeholder-shown) + .custom-placeholder {
   color: transparent;
 }
-.etd-row input {
-  padding-left: 16px;
-  padding-right: 8px;
-}
+
 @media (max-width: 600px) {
   .etd-row {
     flex-direction: row;
     gap: 0.5rem;
   }
-  .etd-row label {
+  .etd-field {
     flex: 1 1 0;
+    min-width: 0;
   }
 }
 
@@ -314,28 +322,16 @@
 
 <!-- AANGEPASTE ETD-INVOER: -->
 <label style="margin-bottom:0.2rem;">ETD:</label>
-    <div class="etd-row">
-  <label>
-    <input
-      type="date"
-      id="etd_datum"
-      name="etd_datum"
-      autocomplete="off"
-      required
-    />
+<div class="etd-row">
+  <div class="etd-field">
+    <input type="date" id="etd_datum" name="etd_datum" autocomplete="off" />
     <span class="custom-placeholder" id="date-placeholder">Datum</span>
-  </label>
-  <label>
-    <input
-      type="time"
-      id="etd_tijd"
-      name="etd_tijd"
-      autocomplete="off"
-    />
+  </div>
+  <div class="etd-field">
+    <input type="time" id="etd_tijd" name="etd_tijd" autocomplete="off" />
     <span class="custom-placeholder" id="time-placeholder">Tijd</span>
-  </label>
+  </div>
 </div>
-
 <label>
   <select id="etd_dagdeel" name="etd_dagdeel">
     <option value="">-- Of kies dagdeel --</option>
@@ -345,8 +341,6 @@
     <option value="evening">Avond (18:00-00:00)</option>
   </select>
 </label>
-
-
 
 
 
