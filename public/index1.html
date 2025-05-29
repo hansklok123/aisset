@@ -245,24 +245,18 @@
       color: #fff;
       outline: none;
     }
-.etd-row {
-  display: flex;
-  gap: 1rem;
-}
 .etd-field {
-  flex: 1 1 0;
-  min-width: 0;        /* belangrijk! */
   position: relative;
-  display: flex;
-  align-items: center;
+  flex: 1 1 0;
+  min-width: 0;
 }
 .etd-field input[type="date"],
 .etd-field input[type="time"] {
   width: 100%;
-  min-width: 0;        /* belangrijk! */
+  min-width: 0;
   box-sizing: border-box;
+  background: rgba(255,255,255,0.95);
 }
-
 .custom-placeholder {
   position: absolute;
   top: 11px;
@@ -270,13 +264,15 @@
   pointer-events: none;
   color: #999;
   font-size: 1rem;
+  z-index: 9;  /* HOOG */
   transition: 0.15s;
-  z-index: 2;
+  user-select: none;
 }
 .etd-field input:focus + .custom-placeholder,
 .etd-field input:not(:placeholder-shown) + .custom-placeholder {
   color: transparent;
 }
+
 
 @media (max-width: 600px) {
   .etd-row {
@@ -332,6 +328,7 @@
     <span class="custom-placeholder" id="time-placeholder">Tijd</span>
   </div>
 </div>
+
 <label>
   <select id="etd_dagdeel" name="etd_dagdeel">
     <option value="">-- Of kies dagdeel --</option>
@@ -797,8 +794,9 @@ document.addEventListener('DOMContentLoaded', function(){
     function checkDatePlaceholder() {
       datePh.style.opacity = dateInput.value ? 0 : 1;
     }
-    dateInput.addEventListener('change', checkDatePlaceholder);
     dateInput.addEventListener('input', checkDatePlaceholder);
+    dateInput.addEventListener('change', checkDatePlaceholder);
+    // Ook bij focus/blur, voor fallback
     dateInput.addEventListener('focus', checkDatePlaceholder);
     dateInput.addEventListener('blur', checkDatePlaceholder);
     checkDatePlaceholder();
@@ -810,13 +808,14 @@ document.addEventListener('DOMContentLoaded', function(){
     function checkTimePlaceholder() {
       timePh.style.opacity = timeInput.value ? 0 : 1;
     }
-    timeInput.addEventListener('change', checkTimePlaceholder);
     timeInput.addEventListener('input', checkTimePlaceholder);
+    timeInput.addEventListener('change', checkTimePlaceholder);
     timeInput.addEventListener('focus', checkTimePlaceholder);
     timeInput.addEventListener('blur', checkTimePlaceholder);
     checkTimePlaceholder();
   }
 });
+
 </script>
 
 </body>
