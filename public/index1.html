@@ -247,22 +247,31 @@
     }
 .etd-row {
   display: flex;
-  gap: 8px;
+  gap: 10px;
   margin-bottom: 0.5rem;
 }
-.etd-row label {
-  margin-bottom: 0 !important;
+.etd-col {
+  flex: 1 1 0;
+  position: relative;
+  min-width: 0;
+}
+.etd-col input {
+  width: 100%;
+  box-sizing: border-box;
+  padding-right: 8px;
 }
 .custom-placeholder {
   position: absolute;
-  top: 14px;
-  left: 18px;
-  z-index: 2;
-  color: #999;
+  left: 16px;
+  top: 13px;
+  color: #555;
   pointer-events: none;
-  transition: all 0.15s;
+  transition: all 0.18s;
   font-size: 1rem;
+  z-index: 2;
+  background: transparent;
 }
+
 input[type="date"]:focus + .custom-placeholder,
 input[type="date"]:not(:placeholder-shown) + .custom-placeholder,
 input[type="date"]:valid + .custom-placeholder {
@@ -271,14 +280,14 @@ input[type="date"]:valid + .custom-placeholder {
 
 @media (max-width: 650px) {
   .etd-row {
-    flex-direction: row;
+    flex-direction: row; /* nog steeds naast elkaar op mobiel! */
     gap: 8px;
   }
-  .etd-row label {
-    flex: 1 1 0;
+  .etd-col {
     min-width: 0;
   }
 }
+
 
 
 
@@ -286,22 +295,7 @@ input[type="date"]:valid + .custom-placeholder {
 <link rel="manifest" href="/manifest.json" />
 <meta name="theme-color" content="#003b5c" />
 </head>
-    <script>
-document.addEventListener('DOMContentLoaded', function(){
-  var dateInput = document.getElementById('etd_datum');
-  var datePh = document.getElementById('date-placeholder');
-  if(dateInput && datePh) {
-    function checkPlaceholder() {
-      datePh.style.opacity = dateInput.value ? 0 : 1;
-    }
-    dateInput.addEventListener('change', checkPlaceholder);
-    dateInput.addEventListener('input', checkPlaceholder);
-    dateInput.addEventListener('focus', checkPlaceholder);
-    dateInput.addEventListener('blur', checkPlaceholder);
-    checkPlaceholder();
-  }
-});
-</script>
+
 
 <body>
     <button id="infoButton" type="button" title="Meer informatie" class="infobutton-page">
@@ -327,13 +321,14 @@ document.addEventListener('DOMContentLoaded', function(){
 <!-- AANGEPASTE ETD-INVOER: -->
 <label>ETD:</label>
 <div class="etd-row">
-  <label style="flex:1; position:relative; margin-bottom:0;">
-    <input type="date" id="etd_datum" name="etd_datum" style="position:relative; z-index:3;" autocomplete="off" />
+  <div class="etd-col">
+    <input type="date" id="etd_datum" name="etd_datum" autocomplete="off" required />
     <span class="custom-placeholder" id="date-placeholder">Datum</span>
-  </label>
-  <label style="flex:1; position:relative; margin-left:8px; margin-bottom:0;">
-    <input type="time" id="etd_tijd" name="etd_tijd" placeholder="Tijd" autocomplete="off" />
-  </label>
+  </div>
+  <div class="etd-col">
+    <input type="text" id="etd_tijd" name="etd_tijd" placeholder="Tijd" 
+           onfocus="this.type='time'" onblur="if(!this.value)this.type='text'" autocomplete="off" required />
+  </div>
 </div>
 <select id="etd_dagdeel" name="etd_dagdeel">
   <option value="">-- Of kies dagdeel --</option>
@@ -342,6 +337,7 @@ document.addEventListener('DOMContentLoaded', function(){
   <option value="afternoon">Middag (12:00-18:00)</option>
   <option value="evening">Avond (18:00-00:00)</option>
 </select>
+
 
 
 
@@ -759,5 +755,22 @@ if (manualField) manualField.disabled = false;
   updateToggleUI();
 </script>
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script>
+document.addEventListener('DOMContentLoaded', function(){
+  var dateInput = document.getElementById('etd_datum');
+  var datePh = document.getElementById('date-placeholder');
+  if(dateInput && datePh) {
+    function checkPlaceholder() {
+      datePh.style.opacity = dateInput.value ? 0 : 1;
+    }
+    dateInput.addEventListener('change', checkPlaceholder);
+    dateInput.addEventListener('input', checkPlaceholder);
+    dateInput.addEventListener('focus', checkPlaceholder);
+    dateInput.addEventListener('blur', checkPlaceholder);
+    checkPlaceholder();
+  }
+});
+</script>
+
 </body>
 </html>
