@@ -246,30 +246,48 @@
       outline: none;
     }
 
-    .etd-row {
+ .etd-row {
+  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.etd-datum-tijd {
   display: flex;
   gap: 0.5rem;
-  margin-bottom: 1rem;
-  flex-wrap: wrap;
 }
-.etd-row input,
-.etd-row select {
-  width: 33.333%;
-  min-width: 110px;
-  flex: 1 1 110px;
+.etd-datum-tijd input[type="date"],
+.etd-datum-tijd input[type="time"] {
+  flex: 1 1 0;
+  min-width: 100px;
 }
-@media (max-width: 480px) {
+
+/* Placeholder kleur voor input types (date & time ondersteunen dit niet standaard in alle browsers, maar meeste mobiel wel) */
+input[type="date"]:empty,
+input[type="time"]:empty {
+  color: #999;
+}
+
+/* Voor mobiele schermen: */
+@media (max-width: 600px) {
   .etd-row {
-    flex-direction: column;
-    gap: 0.2rem;
+    gap: 0.3rem;
   }
-  .etd-row input,
-  .etd-row select {
+  .etd-datum-tijd {
+    flex-direction: row;
+    gap: 0.3rem;
+  }
+  .etd-datum-tijd input[type="date"],
+  .etd-datum-tijd input[type="time"] {
+    min-width: 0;
+    font-size: 1rem;
+  }
+  #etd_dagdeel {
     width: 100%;
     min-width: 0;
-    flex: unset;
   }
 }
+
 
 </style>
 <link rel="manifest" href="/manifest.json" />
@@ -299,8 +317,10 @@
 <!-- AANGEPASTE ETD-INVOER: -->
 <label>ETD:</label>
 <div class="etd-row">
-  <input type="date" id="etd_datum" name="etd_datum" placeholder="Datum" autocomplete="off" />
-  <input type="time" id="etd_tijd" name="etd_tijd" placeholder="Tijd" autocomplete="off" />
+  <div class="etd-datum-tijd">
+    <input type="date" id="etd_datum" name="etd_datum" placeholder="Datum" autocomplete="off" />
+    <input type="time" id="etd_tijd" name="etd_tijd" placeholder="Tijd" autocomplete="off" />
+  </div>
   <select id="etd_dagdeel" name="etd_dagdeel">
     <option value="">-- Of kies dagdeel --</option>
     <option value="overnight">Overnachting (00:00-06:00)</option>
@@ -309,6 +329,7 @@
     <option value="evening">Avond (18:00-00:00)</option>
   </select>
 </div>
+
 
 <!-- EINDE AANGEPASTE ETD-INVOER -->
 
