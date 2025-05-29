@@ -246,7 +246,7 @@
       outline: none;
     }
 
- .etd-row {
+.etd-row {
   margin-bottom: 1rem;
   display: flex;
   flex-direction: column;
@@ -256,19 +256,12 @@
   display: flex;
   gap: 0.5rem;
 }
+.etd-datum-tijd input[type="text"],
 .etd-datum-tijd input[type="date"],
 .etd-datum-tijd input[type="time"] {
   flex: 1 1 0;
   min-width: 100px;
 }
-
-/* Placeholder kleur voor input types (date & time ondersteunen dit niet standaard in alle browsers, maar meeste mobiel wel) */
-input[type="date"]:empty,
-input[type="time"]:empty {
-  color: #999;
-}
-
-/* Voor mobiele schermen: */
 @media (max-width: 600px) {
   .etd-row {
     gap: 0.3rem;
@@ -277,6 +270,7 @@ input[type="time"]:empty {
     flex-direction: row;
     gap: 0.3rem;
   }
+  .etd-datum-tijd input[type="text"],
   .etd-datum-tijd input[type="date"],
   .etd-datum-tijd input[type="time"] {
     min-width: 0;
@@ -287,6 +281,7 @@ input[type="time"]:empty {
     min-width: 0;
   }
 }
+
 
 
 </style>
