@@ -80,10 +80,26 @@ const SHIP_TYPE_NAMES = {
   99: "NA"
 };
 
-// Laad schepenlijst uit bestand bij serverstart (indien aanwezig)
+// Laad schepenlijst uit bestand bij serverstart (indien aanwezig) EN fix type_naam direct!
 if (fs.existsSync(DATA_PATH)) {
   try {
     schepen = JSON.parse(fs.readFileSync(DATA_PATH, "utf8"));
+
+    // FIX alle type_naam voor bestaande records op basis van het type-nummer:
+    let gefixt = 0;
+    for (const mmsi in schepen) {
+      const schip = schepen[mmsi];
+      const typeNum = Number(schip.type);
+      const nieuweNaam = SHIP_TYPE_NAMES[typeNum] || "Onbekend";
+      if (schip.type_naam !== nieuweNaam) {
+        schip.type_naam = nieuweNaam;
+        gefixt++;
+      }
+    }
+    if (gefixt > 0) {
+      fs.writeFileSync(DATA_PATH, JSON.stringify(schepen, null, 2));
+      console.log(`✅ ${gefixt} bestaande records met type_naam bijgewerkt bij startup.`);
+    }
   } catch (err) {
     console.error("❌ Fout bij laden van schepen.json:", err);
   }
@@ -138,7 +154,7 @@ function startStream() {
 
       const mmsi = msg.MetaData.MMSI;
       const { latitude, longitude, ShipName, Type, ShipType, VesselType, time_utc } = msg.MetaData;
-      
+
       // ===== Type & lengte bepalen (ook ShipStaticData uit Message pakken) =====
       let shipType = "";
       let length = null;
@@ -152,7 +168,7 @@ function startStream() {
         shipType = Type || ShipType || VesselType || "";
       }
 
-      const typeNum = Number(shipType); // 👈 voeg deze regel toe!
+      const typeNum = Number(shipType);
       const typeNaam = SHIP_TYPE_NAMES[typeNum] || "Onbekend";
 
       // ====== Bijwerken schip ======
