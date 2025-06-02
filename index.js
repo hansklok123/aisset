@@ -113,15 +113,24 @@ app.post("/api/verstuur", async (req, res) => {
     Longitude: delen[10]?.replaceAll('"', "")
   };
 
-  const schepen = getNearbyShips();
-  const match = schepen.find(s => s.naam?.trim() === record.Scheepsnaam?.trim());
-  if (match && match.track?.length > 0) {
-    const laatste = match.track[match.track.length - 1];
-    record.Latitude = laatste.lat ? parseFloat(laatste.lat).toFixed(5) : "";
-    record.Longitude = laatste.lon ? parseFloat(laatste.lon).toFixed(5) : "";
-    record.Type_naam = match.type_naam || "";
-    record.Lengte = match.lengte || "";
-  }
+// Laad schepen.json direct (altijd actueel)
+const schepenPath = path.join(__dirname, "public", "data", "schepen.json");
+let schepenObj = {};
+try {
+  schepenObj = JSON.parse(fs.readFileSync(schepenPath, "utf8"));
+} catch (err) {
+  console.error("Kon schepen.json niet lezen:", err);
+}
+
+const match = Object.values(schepenObj).find(s => s.naam?.trim() === record.Scheepsnaam?.trim());
+if (match && match.track?.length > 0) {
+  const laatste = match.track[match.track.length - 1];
+  record.Latitude = laatste.lat ? parseFloat(laatste.lat).toFixed(5) : "";
+  record.Longitude = laatste.lon ? parseFloat(laatste.lon).toFixed(5) : "";
+  record.Type_naam = match.type_naam || "";
+  record.Lengte = match.lengte || "";
+}
+
 
   try {
     await appendToGoogleSheet(record);
