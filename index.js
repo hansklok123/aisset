@@ -12,6 +12,19 @@ startStream();
 
 
 const app = express();
+
+app.use((req, res, next) => {
+  // Voeg hier meer paden toe als je meer wilt beveiligen
+  if (
+    req.path === "/admin.html" ||
+    req.path === "/data/submissions.json"
+  ) {
+    return authMiddleware(req, res, next);
+  }
+  next();
+});
+
+
 app.use(express.json());
 app.use(express.static("public"));
 
