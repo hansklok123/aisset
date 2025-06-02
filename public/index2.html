@@ -605,11 +605,15 @@ setTimeout(() => {
     handmatig.focus();
   }
 }, 5000);</script><script>
-// Vul datalist met scheepsnamen uit fetch
+// Vul datalist met scheepsnamen uit schepen.json
 async function vulAutoAan() {
   try {
-    const res = await fetch("/api/schepen");
-    const schepen = await res.json();
+    const res = await fetch("/data/schepen.json");
+    const schepenObj = await res.json();
+    const schepen = Object.entries(schepenObj).map(([mmsi, schip]) => ({
+      mmsi,
+      ...schip
+    }));
     const lijst = document.getElementById("schiplijst");
     lijst.innerHTML = "";
     schepen.forEach(s => {
@@ -623,6 +627,7 @@ async function vulAutoAan() {
     console.error("Auto-aanvul fout:", err);
   }
 }
+
 
 document.getElementById("handmatigSchip").addEventListener("input", function () {
   document.getElementById("huidigSchipSelect").value = ""; // reset dropdown keuze
