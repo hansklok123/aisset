@@ -3,25 +3,7 @@ const path = require("path");
 
 const DATA_PATH = path.join(__dirname, "public", "data", "schepen.json");
 
-for (const mmsi in schepen) {
-  const schip = schepen[mmsi];
-  const typeRaw = schip.type;
-  const typeNum = Number(typeRaw);
-  const nieuweNaam = SHIP_TYPE_NAMES[typeNum] || "Onbekend";
-  if (nieuweNaam === "Onbekend") {
-    console.log(
-      "DEBUG:",
-      "MMSI:", mmsi,
-      "naam:", schip.naam,
-      "typeRaw:", JSON.stringify(typeRaw),
-      "typeNum:", typeNum,
-      "mapping?:", SHIP_TYPE_NAMES[typeNum]
-    );
-  }
-}
-
-
-// Dezelfde mapping als in je hoofdcode
+// Mapping MOET hierboven!
 const SHIP_TYPE_NAMES = {
   0: "Onbekend",
   20: "Wisselverkeer",
@@ -93,16 +75,43 @@ const SHIP_TYPE_NAMES = {
   97: "Overig",
   98: "Overig",
   99: "NA"
+  // ...je mapping...
 };
 
+// Eerst checken of het bestand bestaat
 if (!fs.existsSync(DATA_PATH)) {
   console.error("schepen.json niet gevonden!");
   process.exit(1);
 }
 
+// Eerst inladen!
 const schepen = JSON.parse(fs.readFileSync(DATA_PATH, "utf8"));
-let gewijzigd = 0;
 
+// Nu kun je debuggen:
+console.log('Mapping 52:', SHIP_TYPE_NAMES[52]);
+console.log('Schip:', schepen['205188000']);
+console.log('TypeNum:', Number(schepen['205188000'].type));
+console.log('TypeNaam:', SHIP_TYPE_NAMES[Number(schepen['205188000'].type)]);
+
+for (const mmsi in schepen) {
+  const schip = schepen[mmsi];
+  const typeRaw = schip.type;
+  const typeNum = Number(typeRaw);
+  const nieuweNaam = SHIP_TYPE_NAMES[typeNum] || "Onbekend";
+  if (nieuweNaam === "Onbekend") {
+    console.log(
+      "DEBUG:",
+      "MMSI:", mmsi,
+      "naam:", schip.naam,
+      "typeRaw:", JSON.stringify(typeRaw),
+      "typeNum:", typeNum,
+      "mapping?:", SHIP_TYPE_NAMES[typeNum]
+    );
+  }
+}
+
+// Daarna pas bijwerken
+let gewijzigd = 0;
 for (const mmsi in schepen) {
   const schip = schepen[mmsi];
   const typeNum = Number(schip.type);
