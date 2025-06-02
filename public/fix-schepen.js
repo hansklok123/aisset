@@ -1,7 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 
-const DATA_PATH = path.join(__dirname, "..", "data", "schepen.json");
+const DATA_PATH = path.join(__dirname, "data", "schepen.json");
 
 
 // Dezelfde mapping als in je hoofdcode
