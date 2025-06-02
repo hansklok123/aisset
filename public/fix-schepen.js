@@ -96,5 +96,14 @@ for (const mmsi in schepen) {
   }
 }
 
+let onbekend = 0;
+for (const mmsi in schepen) {
+  if (schepen[mmsi].type_naam === "Onbekend") {
+    onbekend++;
+    console.log(mmsi, schepen[mmsi].naam, schepen[mmsi].type);
+  }
+}
+console.log(`Nog ${onbekend} records met type_naam Onbekend.`);
+
 fs.writeFileSync(DATA_PATH, JSON.stringify(schepen, null, 2));
 console.log(`✅ ${gewijzigd} records bijgewerkt in schepen.json`);
