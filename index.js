@@ -122,14 +122,36 @@ try {
   console.error("Kon schepen.json niet lezen:", err);
 }
 
-const match = Object.values(schepenObj).find(s => s.naam?.trim() === record.Scheepsnaam?.trim());
+// Maak alle namen lowercase en getrimd voor zoeken
+function normalizeNaam(naam) {
+  return (naam || "").toLowerCase().trim();
+}
+
+const ingevoerdeNaam = normalizeNaam(record.Scheepsnaam) || normalizeNaam(record.ScheepsnaamHandmatig);
+
+// Zoek een match op naam
+let match = Object.values(schepenObj).find(
+  s => normalizeNaam(s.naam) === ingevoerdeNaam && ingevoerdeNaam !== ""
+);
+
+// Extra: als geen naam, probeer op handmatig, en als nog niks: laat alles leeg
+if (!match && ingevoerdeNaam) {
+  // soms zit handmatige naam nergens in lijst, dus niks invullen
+}
+
+// Gevonden? Vul type_naam, lengte en positie in
 if (match && match.track?.length > 0) {
   const laatste = match.track[match.track.length - 1];
   record.Latitude = laatste.lat ? parseFloat(laatste.lat).toFixed(5) : "";
   record.Longitude = laatste.lon ? parseFloat(laatste.lon).toFixed(5) : "";
   record.Type_naam = match.type_naam || "";
   record.Lengte = match.lengte || "";
+} else {
+  // niet gevonden = alles leeg of "Onbekend"
+  record.Type_naam = record.Type_naam || "Onbekend";
+  record.Lengte = record.Lengte || "";
 }
+
 
 
   try {
