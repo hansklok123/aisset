@@ -645,8 +645,13 @@ function forceerGPSLaad() {
       const lon = geo.coords.longitude;
 
       try {
-        const res = await fetch("/api/schepen");
-        const schepen = await res.json();
+        const res = await fetch("/data/schepen.json");
+        const schepenObj = await res.json();
+        const schepen = Object.entries(schepenObj).map(([mmsi, schip]) => ({
+          mmsi,
+          ...schip
+}));
+
 
         const dichtbij = schepen
           .map(s => {
