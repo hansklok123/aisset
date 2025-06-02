@@ -3,6 +3,23 @@ const path = require("path");
 
 const DATA_PATH = path.join(__dirname, "public", "data", "schepen.json");
 
+for (const mmsi in schepen) {
+  const schip = schepen[mmsi];
+  const typeRaw = schip.type;
+  const typeNum = Number(typeRaw);
+  const nieuweNaam = SHIP_TYPE_NAMES[typeNum] || "Onbekend";
+  if (nieuweNaam === "Onbekend") {
+    console.log(
+      "DEBUG:",
+      "MMSI:", mmsi,
+      "naam:", schip.naam,
+      "typeRaw:", JSON.stringify(typeRaw),
+      "typeNum:", typeNum,
+      "mapping?:", SHIP_TYPE_NAMES[typeNum]
+    );
+  }
+}
+
 
 // Dezelfde mapping als in je hoofdcode
 const SHIP_TYPE_NAMES = {
