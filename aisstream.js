@@ -87,18 +87,14 @@ if (fs.existsSync(DATA_PATH)) {
 
     // FIX alle type_naam voor bestaande records op basis van het type-nummer:
     let gefixt = 0;
-
-for (const mmsi in schepen) {
-  const schip = schepen[mmsi];
-  const typeNum = Number(schip.type);
-  // Alleen als het type geldig is (dus groter dan 0 en geen NaN)
-  if (typeNum && !isNaN(typeNum) && typeNum > 0) {
-    const nieuweNaam = SHIP_TYPE_NAMES[typeNum] || "Onbekend";
-    if (schip.type_naam !== nieuweNaam) {
-      schip.type_naam = nieuweNaam;
-      gefixt++;
-    }
-    
+    for (const mmsi in schepen) {
+      const schip = schepen[mmsi];
+      const typeNum = Number(schip.type);
+      const nieuweNaam = SHIP_TYPE_NAMES[typeNum] || "Onbekend";
+      if (schip.type_naam !== nieuweNaam) {
+        schip.type_naam = nieuweNaam;
+        gefixt++;
+      }
     }
     if (gefixt > 0) {
       fs.writeFileSync(DATA_PATH, JSON.stringify(schepen, null, 2));
