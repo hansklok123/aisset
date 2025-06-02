@@ -172,22 +172,31 @@ function startStream() {
       const typeNaam = SHIP_TYPE_NAMES[typeNum] || "Onbekend";
 
       // ====== Bijwerken schip ======
-      if (!schepen[mmsi]) {
-        schepen[mmsi] = {
-          naam: ShipName || "",
-          tijd: time_utc || "",
-          type: shipType || "",
-          type_naam: typeNaam,
-          lengte: length ? `${length} m` : null,
-          track: []
-        };
-      } else {
-        schepen[mmsi].naam = ShipName || schepen[mmsi].naam;
-        schepen[mmsi].tijd = time_utc || schepen[mmsi].tijd;
-        if (length) schepen[mmsi].lengte = length ? `${length} m` : schepen[mmsi].lengte;
-      }
-      schepen[mmsi].type = shipType || schepen[mmsi].type;
-      schepen[mmsi].type_naam = typeNaam;
+// ====== Nieuw: type alleen overschrijven als het een geldige waarde is ======
+
+const bestaandType = schepen[mmsi]?.type ? Number(schepen[mmsi].type) : 0;
+const nieuwTypeNum = Number(shipType);
+const definitiefType = (nieuwTypeNum && nieuwTypeNum > 0) ? nieuwTypeNum : bestaandType;
+const definitieveTypeNaam = SHIP_TYPE_NAMES[definitiefType] || "Onbekend";
+
+if (!schepen[mmsi]) {
+  schepen[mmsi] = {
+    naam: ShipName || "",
+    tijd: time_utc || "",
+    type: definitiefType,
+    type_naam: definitieveTypeNaam,
+    lengte: length ? `${length} m` : null,
+    track: []
+  };
+} else {
+  schepen[mmsi].naam = ShipName || schepen[mmsi].naam;
+  schepen[mmsi].tijd = time_utc || schepen[mmsi].tijd;
+  // Overschrijf type en type_naam alleen als er een geldige nieuwe waarde is!
+  schepen[mmsi].type = definitiefType;
+  schepen[mmsi].type_naam = definitieveTypeNaam;
+  if (length) schepen[mmsi].lengte = length ? `${length} m` : schepen[mmsi].lengte;
+}
+
 
       // Alleen positie toevoegen als die aanwezig is
       if (latitude && longitude) {
