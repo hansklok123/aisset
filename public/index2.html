@@ -307,6 +307,36 @@ input[type="checkbox"]#typeSwitch {
   outline: none;
 }
 
+.etd-row {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 0.5rem;
+}
+
+.etd-col {
+  flex: 1;
+  min-width: 0; /* Zorgt dat het niet forceert naar vaste breedte */
+}
+
+
+.etd-col input,
+.etd-col select {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.etd-col.etd-klein {
+  flex: 0 0 50%;
+}
+
+.etd-col.etd-groot {
+  flex: 2 1 50%;
+}
+
+
+
+
+
 </style>
 
 <link rel="manifest" href="/manifest.json" />
@@ -327,9 +357,90 @@ input[type="checkbox"]#typeSwitch {
 <form id="etdForm">
 <h2>ETD Invoeren</h2>
 <label>Scheepsnaam:<select id="huidigSchipSelect" name="scheepsnaam"><option value="">Laden...</option></select></label><button id="gpsButton" onclick="forceerGPSLaad()" type="button">📍 Haal locatie op</button><div class="foutmelding" id="gpsFoutmelding"></div><label>Of typ handmatig de scheepsnaam:</label><input disabled="true" id="handmatigSchip" list="schiplijst" name="handmatig_scheepsnaam" placeholder="Begin met typen..." type="text"/>
-<input type="hidden" id="hiddenHandmatigScheepsnaam" name="ScheepsnaamHandmatig"><datalist id="schiplijst"></datalist><label>ETD:
-      <input id="etd" name="etd" type="datetime-local"/>
-</label>
+<input type="hidden" id="hiddenHandmatigScheepsnaam" name="ScheepsnaamHandmatig"><datalist id="schiplijst"></datalist>
+
+<div class="etd-row">
+  <div class="etd-col etd-klein">
+    <label for="etd">ETD:</label>
+    <input id="etd" name="etd" type="datetime-local" />
+  </div>
+  <div class="etd-col etd-groot">
+    <label for="tijdvakSwitch">Tijd onbekend:</label>
+    <div class="toggle-switch-row" style="justify-content: center;">
+      <input type="checkbox" id="tijdvakSwitch" name="tijdvakSwitch" style="display:none;">
+      <label for="tijdvakSwitch" id="tijdvakSwitchLabel">
+        <span id="tijdvakSwitchDot"></span>
+      </label>
+    </div>
+    <select id="etdTijdvak" name="etdTijdvak" style="display:none; margin-top: 0.5rem;">
+      <option value="">Tijdvak</option>
+      <option value="00:00-06:00">Nacht 00:00 - 06:00</option>
+      <option value="06:00-12:00">Ochtend 06:00 - 12:00</option>
+      <option value="12:00-18:00">Middag 12:00 - 18:00</option>
+      <option value="18:00-00:00">Avond 18:00 - 24:00</option>
+    </select>
+  </div>
+</div>
+
+<div id="etdModal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
+  <div style="background:white; padding:20px; border-radius:12px; text-align:center; max-width:300px; width:90%;">
+    <p style="margin-bottom:1rem; font-weight:bold;">Is de exacte ETD bekend?</p>
+    <button id="btnWelBekend" type="button" style="margin-right:0.5rem; padding:0.5rem 1rem;">Wel bekend</button>
+    <button id="btnNietBekend" type="button" style="padding:0.5rem 1rem;">Niet bekend</button>
+  </div>
+</div>
+
+<script>
+  const tijdvakSwitch = document.getElementById("tijdvakSwitch");
+  const tijdvakSwitchDot = document.getElementById("tijdvakSwitchDot");
+  const tijdvakSwitchLabel = document.getElementById("tijdvakSwitchLabel");
+  const tijdvakDropdown = document.getElementById("etdTijdvak");
+  const switchRow = document.querySelector(".toggle-switch-row");
+  const etdModal = document.getElementById("etdModal");
+  const btnWel = document.getElementById("btnWelBekend");
+  const btnNiet = document.getElementById("btnNietBekend");
+
+  tijdvakSwitchLabel.style.cursor = "pointer";
+  tijdvakSwitchLabel.style.display = "inline-block";
+  tijdvakSwitchLabel.style.width = "44px";
+  tijdvakSwitchLabel.style.height = "24px";
+  tijdvakSwitchLabel.style.background = "#e5e7eb";
+  tijdvakSwitchLabel.style.borderRadius = "20px";
+  tijdvakSwitchLabel.style.position = "relative";
+
+  tijdvakSwitchDot.style.position = "absolute";
+  tijdvakSwitchDot.style.left = "2px";
+  tijdvakSwitchDot.style.top = "2px";
+  tijdvakSwitchDot.style.width = "20px";
+  tijdvakSwitchDot.style.height = "20px";
+  tijdvakSwitchDot.style.background = "#fff";
+  tijdvakSwitchDot.style.borderRadius = "50%";
+  tijdvakSwitchDot.style.transition = "all 0.22s ease";
+
+  tijdvakSwitchLabel.addEventListener("click", () => {
+    etdModal.style.display = "flex";
+  });
+
+  btnWel.addEventListener("click", () => {
+    tijdvakSwitch.checked = false;
+    tijdvakDropdown.style.display = "none";
+    tijdvakSwitchDot.style.left = "2px";
+    document.getElementById("etd").disabled = false;
+    etdModal.style.display = "none";
+  });
+
+  btnNiet.addEventListener("click", () => {
+    tijdvakSwitch.checked = true;
+    tijdvakDropdown.style.display = "block";
+    tijdvakSwitchDot.style.left = "22px";
+    document.getElementById("etd").disabled = true;
+    switchRow.style.display = "none";
+    etdModal.style.display = "none";
+  });
+</script>
+
+
+
 <label>Reden indien geen ETD:
       <select id="reden" name="reden">
 <option value="">-- Kies reden --</option>
@@ -355,6 +466,9 @@ input[type="checkbox"]#typeSwitch {
 </label>
 <button type="submit">Verzenden</button>
 </form></div>
+
+
+
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script><script>
 function vuurConfettiSerie() {
   var duration = 2 * 1000;
@@ -403,12 +517,8 @@ async function laadSchepen() {
     const lat = geo.coords.latitude;
     const lon = geo.coords.longitude;
 
-const res = await fetch("/data/schepen.json");
-const schepenObj = await res.json();
-const schepen = Object.entries(schepenObj).map(([mmsi, schip]) => ({
-  mmsi,
-  ...schip
-}));
+    const res = await fetch("/api/schepen");
+    const schepen = await res.json();
 
     const dichtbij = schepen
       .map(s => {
@@ -504,6 +614,8 @@ document.getElementById("etdForm").addEventListener("submit", async function (e)
   const redenField = document.getElementById("reden");
   const etd = etdField.value.trim();
   const reden = redenField.value.trim();
+  const tijdvak = document.getElementById("etdTijdvak").value;
+  const etdWaarde = tijdvak ? `${etd} (E:${tijdvak})` : etd;
 
   // Reset borders
   etdField.style.border = "";
@@ -522,15 +634,20 @@ document.getElementById("etdForm").addEventListener("submit", async function (e)
     return;
   }
 
-  const data = {
-    scheepsnaam: document.getElementById("huidigSchipSelect").value,
-    scheepsnaamHandmatig: document.getElementById("handmatigSchip").value,
-    etd,
-    reden,
-    toelichting: document.getElementById("toelichting").value.trim(),
-    Status: document.getElementById('berichtTypeValue').value,
-    timestamp: new Date().toISOString()
-  };
+
+
+
+
+const data = {
+  scheepsnaam: document.getElementById("huidigSchipSelect").value,
+  scheepsnaamHandmatig: document.getElementById("handmatigSchip").value,
+  etd: etdWaarde,
+  reden,
+  toelichting: document.getElementById("toelichting").value.trim(),
+  Status: document.getElementById('berichtTypeValue').value,
+  timestamp: new Date().toISOString()
+};
+
 
  function escapeCSV(value) {
   if (typeof value === 'string' && (value.includes(',') || value.includes('"'))) {
@@ -605,15 +722,11 @@ setTimeout(() => {
     handmatig.focus();
   }
 }, 5000);</script><script>
-// Vul datalist met scheepsnamen uit schepen.json
+// Vul datalist met scheepsnamen uit fetch
 async function vulAutoAan() {
   try {
-    const res = await fetch("/data/schepen.json");
-    const schepenObj = await res.json();
-    const schepen = Object.entries(schepenObj).map(([mmsi, schip]) => ({
-      mmsi,
-      ...schip
-    }));
+    const res = await fetch("/api/schepen");
+    const schepen = await res.json();
     const lijst = document.getElementById("schiplijst");
     lijst.innerHTML = "";
     schepen.forEach(s => {
@@ -627,7 +740,6 @@ async function vulAutoAan() {
     console.error("Auto-aanvul fout:", err);
   }
 }
-
 
 document.getElementById("handmatigSchip").addEventListener("input", function () {
   document.getElementById("huidigSchipSelect").value = ""; // reset dropdown keuze
@@ -645,13 +757,8 @@ function forceerGPSLaad() {
       const lon = geo.coords.longitude;
 
       try {
-        const res = await fetch("/data/schepen.json");
-        const schepenObj = await res.json();
-        const schepen = Object.entries(schepenObj).map(([mmsi, schip]) => ({
-          mmsi,
-          ...schip
-}));
-
+        const res = await fetch("/api/schepen");
+        const schepen = await res.json();
 
         const dichtbij = schepen
           .map(s => {
