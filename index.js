@@ -55,39 +55,58 @@ const SPREADSHEET_ID = '1RX5vPm3AzYjlpdXgsbuVkupb4UbJSct2wgpVArhMaRQ';
 const SHEET_NAME = 'submissions';
 
 async function getShipInfoByMMSI(mmsi) {
-  const url = `https://www.vesselfinder.com/?mmsi=${mmsi}`;
-  const res = await fetch(url);
+  // Eerste stap: haal de hoofdpagina op en zoek IMO
+  const searchUrl = `https://www.vesselfinder.com/?mmsi=${mmsi}`;
+  const res = await fetch(searchUrl, { headers: { "User-Agent": "Mozilla/5.0" } });
   const html = await res.text();
-  const $ = cheerio.load(html);
 
-  const shipName = $('.section-title > h1').first().text().trim();
+  // IMO uit JavaScript (var IMO = 9376725;)
+  const imoMatch = html.match(/var\s+IMO\s*=\s*(\d+);/);
+  let imo = imoMatch ? imoMatch[1] : null;
 
-  // Type
-  const typeRow = $('.tparams tr').filter((i, el) =>
-    $(el).find('td').first().text().toLowerCase().includes('ship type')
-  ).first();
-  const shipType = typeRow.find('td').eq(1).text().trim();
+  if (!imo) {
+    return {
+      shipName: null,
+      shipType: null,
+      length: null,
+      draught: null,
+      imo: null,
+      mmsi,
+      source: searchUrl,
+      error: "IMO niet gevonden"
+    };
+  }
 
-  // Lengte (Length Overall)
-  const lengthRow = $('.tparams tr').filter((i, el) =>
-    $(el).find('td').first().text().toLowerCase().includes('length overall')
-  ).first();
-  const shipLength = lengthRow.find('td').eq(1).text().trim();
+  // Tweede stap: haal de details op via de IMO detailpagina
+  const detailsUrl = `https://www.vesselfinder.com/vessels/details/${imo}`;
+  const detailsRes = await fetch(detailsUrl, { headers: { "User-Agent": "Mozilla/5.0" } });
+  const detailsHtml = await detailsRes.text();
+  const $ = cheerio.load(detailsHtml);
 
-  // Diepgang (Draught)
-  const draughtRow = $('.tparams tr').filter((i, el) =>
-    $(el).find('td').first().text().toLowerCase().includes('draught')
-  ).first();
-  const shipDraught = draughtRow.find('td').eq(1).text().trim();
+  // Naam
+  const shipName = $('.vessl-title span').first().text().trim() || $('.vessl-title').first().text().trim();
+
+  // Type, lengte, draught
+  let shipType = null, length = null, draught = null;
+  $('tr').each((i, el) => {
+    const key = $(el).find('td.tpc1').text().trim();
+    const val = $(el).find('td.tpc2').text().trim();
+    if (/ship type/i.test(key)) shipType = val;
+    if (/length overall/i.test(key)) length = val;
+    if (/draught/i.test(key)) draught = val;
+  });
 
   return {
     shipName: shipName || null,
     shipType: shipType || null,
-    length: shipLength || null,
-    draught: shipDraught || null,
-    source: url
+    length: length || null,
+    draught: draught || null,
+    imo,
+    mmsi,
+    source: detailsUrl
   };
 }
+
 
 
 // ======= sheets authenticatie, pas range aan =======
@@ -225,18 +244,22 @@ if (record.MMSI) {
     record.Type_actueel = vesselFinderInfo.shipType || "";
     record.Lengte_actueel = vesselFinderInfo.length || "";
     record.Draught_actueel = vesselFinderInfo.draught || "";
+    record.IMO = vesselFinderInfo.imo || "";
     console.log("VesselFinder info:", vesselFinderInfo);
   } catch (err) {
     console.warn("Kon actuele scheepsinfo niet ophalen:", err);
     record.Type_actueel = "";
     record.Lengte_actueel = "";
     record.Draught_actueel = "";
+    record.IMO = "";
   }
 } else {
   record.Type_actueel = "";
   record.Lengte_actueel = "";
   record.Draught_actueel = "";
+  record.IMO = "";
 }
+
 
 
 
