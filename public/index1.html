@@ -326,6 +326,17 @@ input[type="checkbox"]#typeSwitch {
   box-sizing: border-box;
 }
 
+.etd-col.etd-klein {
+  flex: 1 1 35%;
+  min-width: 120px;
+}
+
+.etd-col.etd-groot {
+  flex: 2 1 60%;
+  min-width: 180px;
+}
+
+
 
 
 </style>
@@ -351,11 +362,11 @@ input[type="checkbox"]#typeSwitch {
 <input type="hidden" id="hiddenHandmatigScheepsnaam" name="ScheepsnaamHandmatig"><datalist id="schiplijst"></datalist>
 
 <div class="etd-row">
-  <div class="etd-col">
+  <div class="etd-col etd-klein">
     <label for="etd">ETD:</label>
     <input id="etd" name="etd" type="datetime-local"/>
   </div>
-  <div class="etd-col">
+  <div class="etd-col etd-groot">
     <label for="etdTijdvak">ETD (tijdvak):</label>
     <select id="etdTijdvak" name="etdTijdvak">
       <option value="">Voorkeur: exacte ETD</option>
@@ -366,6 +377,7 @@ input[type="checkbox"]#typeSwitch {
     </select>
   </div>
 </div>
+
 
 
 <label>Reden indien geen ETD:
