@@ -153,6 +153,9 @@ const row = [
   });
 }
 
+function isValidISODate(str) {
+  return DateTime.fromISO(str).isValid;
+}
 
 function formatDateTime(dt) {
   // dt kan string of DateTime zijn
@@ -180,7 +183,7 @@ app.post("/api/verstuur", async (req, res) => {
   const record = {
     Scheepsnaam: delen[0]?.replaceAll('"', ""),
     ScheepsnaamHandmatig: delen[1]?.replaceAll('"', ""),
-    ETD: delen[2] ? formatDateTime(delen[2].replaceAll('"', "")) : "",
+    ETD: isValidISODate(delen[2]) ? formatDateTime(delen[2].replaceAll('"', "")) : delen[2],
     RedenGeenETD: delen[3]?.replaceAll('"', ""),
     Toelichting: delen[4]?.replaceAll('"', ""),
     Status: delen[5]?.replaceAll('"', ""),
