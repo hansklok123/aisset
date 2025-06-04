@@ -249,7 +249,6 @@ if (record.MMSI) {
     ) : "";
     record.Draught_actueel = vesselFinderInfo.draught || "";
     record.IMO = vesselFinderInfo.imo || "";
-    console.log("VesselFinder info:", vesselFinderInfo);
 
     // Overschrijf bestaande velden als er een waarde is!
     if (vesselFinderInfo.shipType) {
@@ -285,7 +284,6 @@ if (record.Lengte_actueel) {
 }
 
 
-console.log("Record naar Google Sheets:", record);
 
 
   try {
