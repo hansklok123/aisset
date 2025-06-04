@@ -538,6 +538,8 @@ document.getElementById("etdForm").addEventListener("submit", async function (e)
   const redenField = document.getElementById("reden");
   const etd = etdField.value.trim();
   const reden = redenField.value.trim();
+  const tijdvak = document.getElementById("etdTijdvak").value;
+  const etdWaarde = tijdvak ? `${etd} (E:${tijdvak})` : etd;
 
   // Reset borders
   etdField.style.border = "";
@@ -556,11 +558,9 @@ document.getElementById("etdForm").addEventListener("submit", async function (e)
     return;
   }
 
-const tijdvak = document.getElementById("etdTijdvak").value;
-const etd = document.getElementById("etd").value.trim();
-const etdWaarde = tijdvak ? `${etd} (E:${tijdvak})` : etd;
 
-const reden = document.getElementById("reden").value.trim();
+
+
 
 const data = {
   scheepsnaam: document.getElementById("huidigSchipSelect").value,
