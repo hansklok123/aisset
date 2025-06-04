@@ -162,6 +162,31 @@ function formatDateTime(dt) {
   return DateTime.fromISO(dt).setZone("Europe/Amsterdam").toFormat("dd-MM-yy HH:mm");
 }
 
+function formatETDWaarde(waarde) {
+  if (!waarde) return "";
+  
+  // Kijk of het tijdvak erbij staat
+  const tijdvakMatch = waarde.match(/\(E:(.*?)\)/);
+  const tijdvak = tijdvakMatch ? tijdvakMatch[1] : null;
+
+  // Pak alleen de datum uit de ISO string
+  const datumMatch = waarde.match(/(\d{4}-\d{2}-\d{2})/);
+  const datumISO = datumMatch ? datumMatch[1] : null;
+
+  if (tijdvak && datumISO) {
+    const dag = DateTime.fromISO(datumISO).setZone("Europe/Amsterdam").toFormat("dd-MM-yy");
+    return `${dag} E${tijdvak}`;
+  }
+
+  // Geen tijdvak: gewoon exacte ETD
+  if (isValidISODate(waarde)) {
+    return DateTime.fromISO(waarde).setZone("Europe/Amsterdam").toFormat("dd-MM-yy HH:mm");
+  }
+
+  return waarde; // fallback
+}
+
+
 app.post("/api/verstuur", async (req, res) => {
   const csv = req.body.csv;
 
@@ -183,7 +208,7 @@ app.post("/api/verstuur", async (req, res) => {
   const record = {
     Scheepsnaam: delen[0]?.replaceAll('"', ""),
     ScheepsnaamHandmatig: delen[1]?.replaceAll('"', ""),
-    ETD: isValidISODate(delen[2]) ? formatDateTime(delen[2].replaceAll('"', "")) : delen[2],
+    ETD: formatETDWaarde(delen[2]?.replaceAll('"', "")),
     RedenGeenETD: delen[3]?.replaceAll('"', ""),
     Toelichting: delen[4]?.replaceAll('"', ""),
     Status: delen[5]?.replaceAll('"', ""),
