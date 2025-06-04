@@ -309,15 +309,23 @@ input[type="checkbox"]#typeSwitch {
 
 .etd-row {
   display: flex;
-  flex-wrap: wrap;
   gap: 1rem;
+  flex-wrap: wrap;
   margin-top: 1rem;
 }
 
-.etd-row label {
-  flex: 1 1 45%;
-  min-width: 150px;
+.etd-col {
+  flex: 1 1 250px;
+  display: flex;
+  flex-direction: column;
 }
+
+.etd-col input,
+.etd-col select {
+  width: 100%;
+  box-sizing: border-box;
+}
+
 
 
 </style>
@@ -343,12 +351,12 @@ input[type="checkbox"]#typeSwitch {
 <input type="hidden" id="hiddenHandmatigScheepsnaam" name="ScheepsnaamHandmatig"><datalist id="schiplijst"></datalist>
 
 <div class="etd-row">
-  <label>
-    ETD:<br />
+  <div class="etd-col">
+    <label for="etd">ETD:</label>
     <input id="etd" name="etd" type="datetime-local"/>
-  </label>
-  <label>
-    ETD (tijdvak):<br />
+  </div>
+  <div class="etd-col">
+    <label for="etdTijdvak">ETD (tijdvak):</label>
     <select id="etdTijdvak" name="etdTijdvak">
       <option value="">Voorkeur: exacte ETD</option>
       <option value="00:00-06:00">Nacht 00:00 - 06:00</option>
@@ -356,8 +364,9 @@ input[type="checkbox"]#typeSwitch {
       <option value="12:00-18:00">Middag 12:00 - 18:00</option>
       <option value="18:00-00:00">Avond 18:00 - 24:00</option>
     </select>
-  </label>
+  </div>
 </div>
+
 
 <label>Reden indien geen ETD:
       <select id="reden" name="reden">
@@ -547,24 +556,22 @@ document.getElementById("etdForm").addEventListener("submit", async function (e)
     return;
   }
 
-  const tijdvak = document.getElementById("etdTijdvak").value;
+const tijdvak = document.getElementById("etdTijdvak").value;
+const etd = document.getElementById("etd").value.trim();
 const etdWaarde = tijdvak ? `${etd} (E:${tijdvak})` : etd;
+
+const reden = document.getElementById("reden").value.trim();
 
 const data = {
   scheepsnaam: document.getElementById("huidigSchipSelect").value,
   scheepsnaamHandmatig: document.getElementById("handmatigSchip").value,
   etd: etdWaarde,
+  reden,
+  toelichting: document.getElementById("toelichting").value.trim(),
+  Status: document.getElementById('berichtTypeValue').value,
+  timestamp: new Date().toISOString()
+};
 
-
-  const data = {
-    scheepsnaam: document.getElementById("huidigSchipSelect").value,
-    scheepsnaamHandmatig: document.getElementById("handmatigSchip").value,
-    etd,
-    reden,
-    toelichting: document.getElementById("toelichting").value.trim(),
-    Status: document.getElementById('berichtTypeValue').value,
-    timestamp: new Date().toISOString()
-  };
 
  function escapeCSV(value) {
   if (typeof value === 'string' && (value.includes(',') || value.includes('"'))) {
