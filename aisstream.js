@@ -139,7 +139,7 @@ function startStream() {
     const subscription = {
       APIKey: process.env.AIS_API_KEY,
       BoundingBoxes: [
-        [[51.674, 3.61], [52.05, 4.65]] // volledige havengebied van Rotterdam
+        [[51.674, 3.61], [52.15, 4.70]] // volledige havengebied van Rotterdam
       ],
       FilterMessageTypes: ["PositionReport", "ShipStaticData"]
     };
