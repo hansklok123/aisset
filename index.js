@@ -61,17 +61,34 @@ async function getShipInfoByMMSI(mmsi) {
   const $ = cheerio.load(html);
 
   const shipName = $('.section-title > h1').first().text().trim();
+
+  // Type
   const typeRow = $('.tparams tr').filter((i, el) =>
     $(el).find('td').first().text().toLowerCase().includes('ship type')
   ).first();
   const shipType = typeRow.find('td').eq(1).text().trim();
 
+  // Lengte (Length Overall)
+  const lengthRow = $('.tparams tr').filter((i, el) =>
+    $(el).find('td').first().text().toLowerCase().includes('length overall')
+  ).first();
+  const shipLength = lengthRow.find('td').eq(1).text().trim();
+
+  // Diepgang (Draught)
+  const draughtRow = $('.tparams tr').filter((i, el) =>
+    $(el).find('td').first().text().toLowerCase().includes('draught')
+  ).first();
+  const shipDraught = draughtRow.find('td').eq(1).text().trim();
+
   return {
     shipName: shipName || null,
     shipType: shipType || null,
+    length: shipLength || null,
+    draught: shipDraught || null,
     source: url
   };
 }
+
 
 // ======= sheets authenticatie, pas range aan =======
 async function getSubmissionsFromSheet() {
@@ -90,26 +107,28 @@ async function appendToGoogleSheet(record) {
   const client = await auth.getClient();
   const sheets = google.sheets({ version: 'v4', auth: client });
 
-  const row = [
-    record.Scheepsnaam ?? "",
-    record.ScheepsnaamHandmatig ?? "",
-    record.ETD ?? "",
-    record.RedenGeenETD ?? "",
-    record.Toelichting ?? "",
-    record.Status ?? "",
-    record.Type_naam ?? "",
-    record.Lengte ?? "",
-    record.Timestamp ?? "",
-    record.Latitude ?? "",
-    record.Longitude ?? "",
-    record.MMSI ?? "",         // <-- MMSI toegevoegd als laatste kolom
-    record.Type_actueel ?? ""  // <-- NIEUWE KOL0M
+const row = [
+  record.Scheepsnaam ?? "",
+  record.ScheepsnaamHandmatig ?? "",
+  record.ETD ?? "",
+  record.RedenGeenETD ?? "",
+  record.Toelichting ?? "",
+  record.Status ?? "",
+  record.Type_naam ?? "",
+  record.Lengte ?? "",
+  record.Timestamp ?? "",
+  record.Latitude ?? "",
+  record.Longitude ?? "",
+  record.MMSI ?? "",
+  record.Type_actueel ?? "",
+  record.Lengte_actueel ?? "",
+  record.Draught_actueel ?? ""
+];
 
-  ];
 
   await sheets.spreadsheets.values.append({
     spreadsheetId: SPREADSHEET_ID,
-    range: `${SHEET_NAME}!A1:M`,
+    range: `${SHEET_NAME}!A1:O`,
     valueInputOption: 'USER_ENTERED',
     resource: { values: [row] },
   });
@@ -200,18 +219,23 @@ if (match && match.track?.length > 0) {
   record.MMSI = "";
 }
 
-  // Haal actueel schiptype op van VesselFinder als er een MMSI is
-  if (record.MMSI) {
-    try {
-      const vesselFinderInfo = await getShipInfoByMMSI(record.MMSI);
-      record.Type_actueel = vesselFinderInfo.shipType || "";
-    } catch (err) {
-      console.warn("Kon actueel scheepstype niet ophalen:", err);
-      record.Type_actueel = "";
-    }
-  } else {
+if (record.MMSI) {
+  try {
+    const vesselFinderInfo = await getShipInfoByMMSI(record.MMSI);
+    record.Type_actueel = vesselFinderInfo.shipType || "";
+    record.Lengte_actueel = vesselFinderInfo.length || "";
+    record.Draught_actueel = vesselFinderInfo.draught || "";
+  } catch (err) {
+    console.warn("Kon actuele scheepsinfo niet ophalen:", err);
     record.Type_actueel = "";
+    record.Lengte_actueel = "";
+    record.Draught_actueel = "";
   }
+} else {
+  record.Type_actueel = "";
+  record.Lengte_actueel = "";
+  record.Draught_actueel = "";
+}
 
 
 
