@@ -349,6 +349,15 @@ input[type="checkbox"]#typeSwitch {
 </button>
     
 <div id="bevestiging">✔️ Inzending succesvol verzonden</div>
+    
+    <div id="etdModal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.5); z-index:2000; align-items:center; justify-content:center;">
+  <div style="background:white; padding:20px; border-radius:12px; text-align:center; max-width:300px; width:90%; color:black; position:relative; z-index:2001;">
+    <p style="margin-bottom:1rem; font-weight:bold;">Is de exacte ETD bekend?</p>
+    <button id="btnWelBekend" type="button" style="margin-right:0.5rem; padding:0.5rem 1rem; background: #ddd; color: black;">Wel bekend</button>
+    <button id="btnNietBekend" type="button" style="padding:0.5rem 1rem; background: #ddd; color: black;">Niet bekend</button>
+  </div>
+</div>
+    
 <div class="form-container">
 
 <div class="form-header">
@@ -382,13 +391,7 @@ input[type="checkbox"]#typeSwitch {
   </div>
 </div>
 
-<div id="etdModal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.5); z-index:2000; align-items:center; justify-content:center;">
-  <div style="background:white; padding:20px; border-radius:12px; text-align:center; max-width:300px; width:90%; color:black; position:relative; z-index:2001;">
-    <p style="margin-bottom:1rem; font-weight:bold;">Is de exacte ETD bekend?</p>
-    <button id="btnWelBekend" type="button" style="margin-right:0.5rem; padding:0.5rem 1rem; background: #ddd; color: black;">Wel bekend</button>
-    <button id="btnNietBekend" type="button" style="padding:0.5rem 1rem; background: #ddd; color: black;">Niet bekend</button>
-  </div>
-</div>
+
 
 <script>
   const tijdvakSwitch = document.getElementById("tijdvakSwitch");
