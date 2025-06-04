@@ -7,6 +7,9 @@ const fs = require("fs");
 const { startStream, getNearbyShips } = require("./aisstream");
 const { google } = require('googleapis');
 const { parse } = require('csv-parse/sync');
+const fetch = require('node-fetch');
+const cheerio = require('cheerio');
+
 
 startStream();
 
@@ -51,6 +54,25 @@ const auth = new google.auth.GoogleAuth({
 const SPREADSHEET_ID = '1RX5vPm3AzYjlpdXgsbuVkupb4UbJSct2wgpVArhMaRQ';
 const SHEET_NAME = 'submissions';
 
+async function getShipInfoByMMSI(mmsi) {
+  const url = `https://www.vesselfinder.com/?mmsi=${mmsi}`;
+  const res = await fetch(url);
+  const html = await res.text();
+  const $ = cheerio.load(html);
+
+  const shipName = $('.section-title > h1').first().text().trim();
+  const typeRow = $('.tparams tr').filter((i, el) =>
+    $(el).find('td').first().text().toLowerCase().includes('ship type')
+  ).first();
+  const shipType = typeRow.find('td').eq(1).text().trim();
+
+  return {
+    shipName: shipName || null,
+    shipType: shipType || null,
+    source: url
+  };
+}
+
 // ======= sheets authenticatie, pas range aan =======
 async function getSubmissionsFromSheet() {
   const client = await auth.getClient();
@@ -81,11 +103,13 @@ async function appendToGoogleSheet(record) {
     record.Latitude ?? "",
     record.Longitude ?? "",
     record.MMSI ?? ""         // <-- MMSI toegevoegd als laatste kolom
+    record.Type_actueel ?? ""  // <-- NIEUWE KOL0M
+
   ];
 
   await sheets.spreadsheets.values.append({
     spreadsheetId: SPREADSHEET_ID,
-    range: `${SHEET_NAME}!A1`,
+    range: `${SHEET_NAME}!A1:M`,
     valueInputOption: 'USER_ENTERED',
     resource: { values: [row] },
   });
@@ -176,6 +200,18 @@ if (match && match.track?.length > 0) {
   record.MMSI = "";
 }
 
+  // Haal actueel schiptype op van VesselFinder als er een MMSI is
+  if (record.MMSI) {
+    try {
+      const vesselFinderInfo = await getShipInfoByMMSI(record.MMSI);
+      record.Type_actueel = vesselFinderInfo.shipType || "";
+    } catch (err) {
+      console.warn("Kon actueel scheepstype niet ophalen:", err);
+      record.Type_actueel = "";
+    }
+  } else {
+    record.Type_actueel = "";
+  }
 
 
 
