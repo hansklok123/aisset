@@ -158,12 +158,16 @@ function startStream() {
       // ===== Type & lengte bepalen (ook ShipStaticData uit Message pakken) =====
       let shipType = "";
       let length = null;
+      let draught = null;
       if (msg.MessageType === "ShipStaticData" && msg.Message && msg.Message.ShipStaticData) {
         shipType = msg.Message.ShipStaticData.Type || "";
         // Lengte berekenen uit dimension (A+B)
         if (msg.Message.ShipStaticData.Dimension) {
           length = (msg.Message.ShipStaticData.Dimension.A || 0) + (msg.Message.ShipStaticData.Dimension.B || 0);
         }
+        if (msg.Message.ShipStaticData.MaximumStaticDraught != null) {
+    draught = msg.Message.ShipStaticData.MaximumStaticDraught;
+  }
       } else {
         shipType = Type || ShipType || VesselType || "";
       }
@@ -186,6 +190,7 @@ if (!schepen[mmsi]) {
     type: definitiefType,
     type_naam: definitieveTypeNaam,
     lengte: length ? `${length} m` : null,
+    draught: draught || null,             // <--- DIT TOEVOEGEN
     track: []
   };
 } else {
@@ -195,6 +200,7 @@ if (!schepen[mmsi]) {
   schepen[mmsi].type = definitiefType;
   schepen[mmsi].type_naam = definitieveTypeNaam;
   if (length) schepen[mmsi].lengte = length ? `${length} m` : schepen[mmsi].lengte;
+  if (draught) schepen[mmsi].draught = draught;
 }
 
 
