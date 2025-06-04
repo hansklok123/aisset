@@ -1,7 +1,8 @@
+
 <!DOCTYPE html>
+
 <html lang="nl">
-<head>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<head><meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <meta charset="utf-8"/>
 <title>ETD Formulier</title>
 <style>
@@ -30,32 +31,40 @@
       border-radius: 8px;
       margin-bottom: 1rem;
     }
+  
+
     form {
       background-color: rgba(0, 0, 0, 0.7);
       padding: 1rem;
       border-radius: 1rem;
     }
+
     input, select, textarea, button {
       background-color: rgba(255, 255, 255, 0.9);
       color: #000;
     }
+
     label {
       font-weight: bold;
       color: #fff;
     }
+
     #bevestiging {
       background-color: rgba(144, 238, 144, 0.9);
       color: #003b5c;
     }
+    
     body {
       background: url('https://keystoneacademic-res.cloudinary.com/image/upload/f_auto/q_auto/g_auto/w_724/dpr_2.0/element/11/119872_rotterdam-4152380_1920.jpg') no-repeat center center fixed;
       background-size: cover;
       animation: achtergrondFade 20s ease-in-out infinite alternate;
     }
+
     @keyframes achtergrondFade {
       0%   { filter: brightness(1); }
       100% { filter: brightness(0.95); }
     }
+
     form {
       background-color: rgba(0, 0, 0, 0.65);
       box-shadow: 0 0 15px rgba(0, 0, 0, 0.6);
@@ -63,18 +72,23 @@
       border-radius: 1rem;
       backdrop-filter: blur(4px);
     }
+
     input, select, textarea, button {
       background-color: rgba(255, 255, 255, 0.95);
       color: #000;
     }
+
     label {
       font-weight: bold;
       color: #fff;
     }
+
     #bevestiging {
       background-color: rgba(144, 238, 144, 0.9);
       color: #003b5c;
     }
+    
+
     .form-container {
       background-color: rgba(0, 0, 0, 0.65);
       box-shadow: 0 0 18px rgba(0, 0, 0, 0.8);
@@ -84,63 +98,93 @@
       max-width: 600px;
       margin: auto;
     }
+
     .form-header {
       text-align: center;
       margin-bottom: 1.5rem;
     }
+
     .form-header img {
       max-height: 100px;
       margin-bottom: 0.2rem;
     }
+
     .form-header h2 {
       color: white;
       margin: 0;
       font-size: 1.5rem;
     }
-    .form-header h2 { color: #003b5c; }
-    label { color: #003b5c; }
-    #bevestiging { background-color: rgba(200, 255, 200, 0.9); color: #003b5c; }
-    button { background-color: #85d678; color: white; }
+    
+
+    .form-header h2 {
+      color: #003b5c;
+    }
+
+    label {
+      color: #003b5c;
+    }
+
+    #bevestiging {
+      background-color: rgba(200, 255, 200, 0.9);
+      color: #003b5c;
+    }
+
+    button {
+      background-color: #85d678;
+      color: white;
+    }
+    
+
     input, select, textarea {
       width: 100%;
       box-sizing: border-box;
       margin-top: 0.5rem;
       margin-bottom: 1rem;
     }
+
     button {
       width: 100%;
       margin-top: 1rem;
     }
+    
+    
     body, label, h2 {
       color: #f8f9fa;
     }
+
     input, textarea, select {
       background-color: rgba(255, 255, 255, 0.95);
       color: #000;
       border: 1px solid #ccc;
     }
+
     select option {
       color: #000;
       background-color: #fff;
     }
+    
     .form-container {
       background-color: rgba(255, 255, 255, 0.7); /* 70% opaque wit */
       box-shadow: none; /* verwijder donkere rand */
       backdrop-filter: blur(10px);
     }
+    
     .form-container {
       background: none !important;
       box-shadow: none !important;
       backdrop-filter: none !important;
     }
+
     input, select, textarea {
       background-color: rgba(255, 255, 255, 0.95);
       color: #000;
     }
+    
     body {
       position: relative;
       overflow-x: hidden;
     }
+
     body::before {
       content: "";
       position: fixed;
@@ -150,11 +194,13 @@
       z-index: -1;
       animation: achtergrondFade 20s ease-in-out infinite alternate;
     }
+
     .form-container {
       background: none !important;
       box-shadow: none !important;
       backdrop-filter: none !important;
     }
+    
     #gpsButton {
       padding: 0.5rem 1rem;
       border: none;
@@ -165,233 +211,180 @@
       cursor: pointer;
       margin-bottom: 1rem;
     }
+
     #gpsButton:disabled {
       background: #ccc;
       cursor: not-allowed;
     }
+    
     select:disabled, #gpsButton:disabled {
       opacity: 0.5;
     }
+    
     .foutmelding {
       color: red;
       font-weight: bold;
       text-align: center;
       margin-top: 0.5rem;
     }
-    #handmatigSchip { opacity: 0.5; }
-    #handmatigSchip:enabled { opacity: 1; }
-    .toggle-switch-row {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 1.3rem;
-      margin-top: 0.2rem;
+
+    #handmatigSchip {
+      opacity: 0.5;
     }
-    #switchLabel {
-      cursor: pointer;
-      position: relative;
-      display: inline-block;
-      width: 44px;
-      height: 24px;
-      background: #e5e7eb;
-      border-radius: 20px;
-      box-shadow: 0 2px 8px #0002;
-      margin: 0 3px;
+
+    #handmatigSchip:enabled {
+      opacity: 1;
     }
-    #switchDot {
-      position: absolute;
-      left: 2px;
-      top: 2px;
-      width: 20px;
-      height: 20px;
-      background: #fff;
-      border-radius: 50%;
-      transition: all 0.22s cubic-bezier(.8,.5,.2,1.4);
-      box-shadow: 0 1px 4px #003b5c22;
-    }
-    input[type="checkbox"]#typeSwitch { display: none; }
-    .infobutton-page {
-      position: fixed;
-      top: 40px;
-      right: 40px;
-      width: 50px;
-      background: none;
-      border: none;
-      padding: 0;
-      margin: 0;
-      z-index: 2022;
-      cursor: pointer;
-    }
-    .info-circle {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 42px;
-      height: 42px;
-      background: #ededf0;
-      color: #003b5c;
-      font-size: 1.7rem;
-      font-family: Arial, sans-serif;
-      border-radius: 50%;
-      font-weight: bold;
-      box-shadow: 0 2px 16px 0 #003b5c44;
-      user-select: none;
-      border: 2px solid #bfc3cc;
-      transition: background 0.13s, color 0.13s;
-    }
-    .infobutton-page:active .info-circle,
-    .infobutton-page:focus .info-circle {
-      background: #2563eb;
-      color: #fff;
-      outline: none;
-    }
-.etd-field {
+    
+
+.toggle-switch-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 1.3rem;
+  margin-top: 0.2rem;
+}
+#switchLabel {
+  cursor: pointer;
   position: relative;
-  flex: 1 1 0;
-  min-width: 0;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+  background: #e5e7eb;
+  border-radius: 20px;
+  box-shadow: 0 2px 8px #0002;
+  margin: 0 3px;
 }
-.etd-field input[type="date"],
-.etd-field input[type="time"] {
-  width: 100%;
-  min-width: 0;
-  box-sizing: border-box;
-  background: rgba(255,255,255,0.95);
-}
-.custom-placeholder {
+#switchDot {
   position: absolute;
-  top: 11px;
-  left: 16px;
-  pointer-events: none;
-  color: #999;
-  font-size: 1rem;
-  z-index: 9;  /* HOOG */
-  transition: 0.15s;
+  left: 2px;
+  top: 2px;
+  width: 20px;
+  height: 20px;
+  background: #fff;
+  border-radius: 50%;
+  transition: all 0.22s cubic-bezier(.8,.5,.2,1.4);
+  box-shadow: 0 1px 4px #003b5c22;
+}
+input[type="checkbox"]#typeSwitch {
+  display: none;
+}
+
+.infobutton-page {
+  position: fixed;
+  top: 40px;
+  right: 40px;
+  width: 50px;
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  z-index: 2022;
+  cursor: pointer;
+}
+
+.info-circle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  background: #ededf0;
+  color: #003b5c;
+  font-size: 1.7rem;
+  font-family: Arial, sans-serif;
+  border-radius: 50%;
+  font-weight: bold;
+  box-shadow: 0 2px 16px 0 #003b5c44;
   user-select: none;
+  border: 2px solid #bfc3cc;
+  transition: background 0.13s, color 0.13s;
 }
-.etd-field input:focus + .custom-placeholder,
-.etd-field input:not(:placeholder-shown) + .custom-placeholder {
-  color: transparent;
-}
-
-
-@media (max-width: 600px) {
-  .etd-row {
-    flex-direction: row;
-    gap: 0.5rem;
-  }
-  .etd-field {
-    flex: 1 1 0;
-    min-width: 0;
-  }
+    .infobutton-page:active .info-circle,
+.infobutton-page:focus .info-circle {
+  background: #2563eb;
+  color: #fff;
+  outline: none;
 }
 
+.etd-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 1rem;
+}
 
-
+.etd-row label {
+  flex: 1 1 45%;
+  min-width: 150px;
+}
 
 
 </style>
+
 <link rel="manifest" href="/manifest.json" />
 <meta name="theme-color" content="#003b5c" />
+
 </head>
-
-
 <body>
     <button id="infoButton" type="button" title="Meer informatie" class="infobutton-page">
-      <span class="info-circle">i</span>
-    </button>
+  <span class="info-circle">i</span>
+</button>
+    
 <div id="bevestiging">✔️ Inzending succesvol verzonden</div>
 <div class="form-container">
+
 <div class="form-header">
 <img alt="logo" src="https://hansklok123.github.io/aisset/logo.png"/>
 </div>
 <form id="etdForm">
 <h2>ETD Invoeren</h2>
-<label>Scheepsnaam:
-  <select id="huidigSchipSelect" name="scheepsnaam"><option value="">Laden...</option></select>
-</label>
-<button id="gpsButton" onclick="forceerGPSLaad()" type="button">📍 Haal locatie op</button>
-<div class="foutmelding" id="gpsFoutmelding"></div>
-<label>Of typ handmatig de scheepsnaam:</label>
-<input disabled="true" id="handmatigSchip" list="schiplijst" name="handmatig_scheepsnaam" placeholder="Begin met typen..." type="text"/>
-<input type="hidden" id="hiddenHandmatigScheepsnaam" name="ScheepsnaamHandmatig">
-<datalist id="schiplijst"></datalist>
+<label>Scheepsnaam:<select id="huidigSchipSelect" name="scheepsnaam"><option value="">Laden...</option></select></label><button id="gpsButton" onclick="forceerGPSLaad()" type="button">📍 Haal locatie op</button><div class="foutmelding" id="gpsFoutmelding"></div><label>Of typ handmatig de scheepsnaam:</label><input disabled="true" id="handmatigSchip" list="schiplijst" name="handmatig_scheepsnaam" placeholder="Begin met typen..." type="text"/>
+<input type="hidden" id="hiddenHandmatigScheepsnaam" name="ScheepsnaamHandmatig"><datalist id="schiplijst"></datalist>
 
-<!-- AANGEPASTE ETD-INVOER: -->
-<label style="margin-bottom:0.2rem;">ETD:</label>
 <div class="etd-row">
-  <div class="etd-field">
-    <input type="date" id="etd_datum" name="etd_datum" autocomplete="off" />
-    <span class="custom-placeholder" id="date-placeholder">Datum</span>
-  </div>
-  <div class="etd-field">
-    <input type="time" id="etd_tijd" name="etd_tijd" autocomplete="off" />
-    <span class="custom-placeholder" id="time-placeholder">Tijd</span>
-  </div>
+  <label>
+    ETD:<br />
+    <input id="etd" name="etd" type="datetime-local"/>
+  </label>
+  <label>
+    ETD (tijdvak):<br />
+    <select id="etdTijdvak" name="etdTijdvak">
+      <option value="">Voorkeur: exacte ETD</option>
+      <option value="00:00-06:00">Nacht 00:00 - 06:00</option>
+      <option value="06:00-12:00">Ochtend 06:00 - 12:00</option>
+      <option value="12:00-18:00">Middag 12:00 - 18:00</option>
+      <option value="18:00-00:00">Avond 18:00 - 24:00</option>
+    </select>
+  </label>
 </div>
 
-<label>
-  <select id="etd_dagdeel" name="etd_dagdeel">
-    <option value="">-- Of kies dagdeel --</option>
-    <option value="overnight">Overnachting (00:00-06:00)</option>
-    <option value="morning">Ochtend (06:00-12:00)</option>
-    <option value="afternoon">Middag (12:00-18:00)</option>
-    <option value="evening">Avond (18:00-00:00)</option>
-  </select>
-</label>
-
-
-
-
-<!-- EINDE AANGEPASTE ETD-INVOER -->
-
 <label>Reden indien geen ETD:
-  <select id="reden" name="reden">
-    <option value="">-- Kies reden --</option>
-    <option value="Niet bekend bij de Kapitein">Niet bekend bij de Kapitein</option>
-    <option value="Taal barrière">Taal barrière</option>
-    <option value="Overig">Overig</option>
-  </select>
+      <select id="reden" name="reden">
+<option value="">-- Kies reden --</option>
+<option value="Niet bekend bij de Kapitein">Niet bekend bij de Kapitein</option>
+<option value="Taal barrière">Taal barrière</option>
+<option value="Overig">Overig</option>
+</select>
 </label>
 <label>Toelichting (optioneel):
-  <textarea id="toelichting" name="toelichting" rows="4"></textarea>
-</label>
+      <textarea id="toelichting" name="toelichting" rows="4"></textarea>
 <label for="typeSwitch">Type reis gevraagd:</label>
 <div class="toggle-switch-row">
   <span id="binnenkomendLabel">Binnenkomend</span>
   <input type="checkbox" id="typeSwitch" name="berichtType" style="display:none;">
-  <label for="typeSwitch" id="switchLabel"><span id="switchDot"></span></label>
+  <label for="typeSwitch"
+    id="switchLabel">
+    <span id="switchDot"></span>
+  </label>
   <span id="verhalendLabel">Verhalend</span>
   <input type="hidden" name="berichtTypeValue" id="berichtTypeValue" value="Binnenkomend">
 </div>
+
+</label>
 <button type="submit">Verzenden</button>
-</form>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-
-<script>
-// ETD: tijd en dagdeel sluiten elkaar uit
-const tijdVeld = document.getElementById("etd_tijd");
-const dagdeelVeld = document.getElementById("etd_dagdeel");
-tijdVeld.addEventListener("input", function() {
-  if (tijdVeld.value) {
-    dagdeelVeld.value = "";
-    dagdeelVeld.disabled = true;
-  } else {
-    dagdeelVeld.disabled = false;
-  }
-});
-dagdeelVeld.addEventListener("change", function() {
-  if (dagdeelVeld.value) {
-    tijdVeld.value = "";
-    tijdVeld.disabled = true;
-  } else {
-    tijdVeld.disabled = false;
-  }
-});
-</script>
-<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-<script>
+</form></div>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script><script>
 function vuurConfettiSerie() {
   var duration = 2 * 1000;
   var animationEnd = Date.now() + duration;
@@ -418,9 +411,7 @@ function vuurConfettiSerie() {
     }));
   }, 200);
 }
-</script>
-
-<script>
+</script><script>
 let laatstVerzonden = 0;
 
 document.getElementById("reden").addEventListener("change", function () {
@@ -519,59 +510,51 @@ function landVlag(mmsi) {
   "633": "🇸🇱", "634": "🇸🇴", "635": "🇿🇦", "636": "🇸🇩", "637": "🇸🇿",
   "638": "🇹🇿", "639": "🇹🇬", "640": "🇹🇳", "641": "🇺🇬", "642": "🇿🇲",
   "643": "🇿🇼", "645": "🇪🇷", "647": "🇪🇹", "649": "🇲🇺", "650": "🇸🇭"
-};
+}
+;
   return landcodes[mmsi?.toString().substring(0, 3)] || "🏳️";
 }
 
-// LET OP: AANGEPASTE SUBMIT-FUNCTIONALITEIT
 document.getElementById("etdForm").addEventListener("submit", async function (e) {
-  // Vul de hidden input altijd met de handmatige waarde
-  document.getElementById("hiddenHandmatigScheepsnaam").value = manualField.value || "";
+    
+    // Vul de hidden input altijd met de handmatige waarde
+    document.getElementById("hiddenHandmatigScheepsnaam").value = manualField.value || "";
+
   e.preventDefault();
+
   const nu = Date.now();
   const tijdSindsLaatste = nu - laatstVerzonden;
 
-  // ETD-velden
-  const etdDatum = document.getElementById("etd_datum").value;
-  const etdTijd = document.getElementById("etd_tijd").value;
-  const etdDagdeel = document.getElementById("etd_dagdeel").value;
-  let etd = "";
-
-  // Validatie: minimaal datum, EN tijd of dagdeel (maar niet allebei)
-  document.getElementById("etd_datum").style.border = "";
-  document.getElementById("etd_tijd").style.border = "";
-  document.getElementById("etd_dagdeel").style.border = "";
+  const etdField = document.getElementById("etd");
   const redenField = document.getElementById("reden");
+  const etd = etdField.value.trim();
   const reden = redenField.value.trim();
+
+  // Reset borders
+  etdField.style.border = "";
   redenField.style.border = "";
 
-  if (etdDatum) {
-    if (etdTijd) {
-      etd = etdDatum + " " + etdTijd;
-    } else if (etdDagdeel) {
-      let dagdeelTxt = "";
-      switch (etdDagdeel) {
-        case "overnight": dagdeelTxt = "Overnachting (00:00-06:00)"; break;
-        case "morning": dagdeelTxt = "Ochtend (06:00-12:00)"; break;
-        case "afternoon": dagdeelTxt = "Middag (12:00-18:00)"; break;
-        case "evening": dagdeelTxt = "Avond (18:00-00:00)"; break;
-      }
-      etd = etdDatum + " " + dagdeelTxt;
-    }
-  }
-  // Formulier moet ETD OF reden hebben (niet allebei leeg)
-  if ((!etdDatum || (!etdTijd && !etdDagdeel)) && !reden) {
-    document.getElementById("etd_datum").style.border = "2px solid red";
-    document.getElementById("etd_tijd").style.border = "2px solid red";
-    document.getElementById("etd_dagdeel").style.border = "2px solid red";
+  // Controleer of het formulier geldig is (ETD of reden vereist)
+  if (!etd && !reden) {
+    etdField.style.border = "2px solid red";
     redenField.style.border = "2px solid red";
     return;
   }
 
+  // Controleer throttle alleen bij geldig formulier
   if (tijdSindsLaatste < 60000) {
     alert("Het formulier is al verzonden. Wacht even voordat je opnieuw verzendt.");
     return;
   }
+
+  const tijdvak = document.getElementById("etdTijdvak").value;
+const etdWaarde = tijdvak ? `${etd} (E:${tijdvak})` : etd;
+
+const data = {
+  scheepsnaam: document.getElementById("huidigSchipSelect").value,
+  scheepsnaamHandmatig: document.getElementById("handmatigSchip").value,
+  etd: etdWaarde,
+
 
   const data = {
     scheepsnaam: document.getElementById("huidigSchipSelect").value,
@@ -583,16 +566,17 @@ document.getElementById("etdForm").addEventListener("submit", async function (e)
     timestamp: new Date().toISOString()
   };
 
-  function escapeCSV(value) {
-    if (typeof value === 'string' && (value.includes(',') || value.includes('"'))) {
-      return `"${value.replace(/"/g, '""')}"`;
-    }
-    return value;
+ function escapeCSV(value) {
+  if (typeof value === 'string' && (value.includes(',') || value.includes('"'))) {
+    return `"${value.replace(/"/g, '""')}"`; // escape dubbele quotes
   }
+  return value;
+}
 
-  const csv = `Scheepsnaam, scheepsnaamHandmatig,ETD,RedenGeenETD,Toelichting,Status,Timestamp\n` +
-    `${escapeCSV(data.scheepsnaam)},${escapeCSV(data.scheepsnaamHandmatig)},${escapeCSV(data.etd)},` +
-    `${escapeCSV(data.reden)},${escapeCSV(data.toelichting)},${escapeCSV(data.Status)},${escapeCSV(data.timestamp)}`;
+const csv = `Scheepsnaam, scheepsnaamHandmatig,ETD,RedenGeenETD,Toelichting,Status,Timestamp\n` +
+            `${escapeCSV(data.scheepsnaam)},${escapeCSV(data.scheepsnaamHandmatig)},${escapeCSV(data.etd)},` +
+            `${escapeCSV(data.reden)},${escapeCSV(data.toelichting)},${escapeCSV(data.Status)},${escapeCSV(data.timestamp)}`;
+
 
   const onderwerp = data.etd ?
     `ETD Positive, ${data.scheepsnaam}, ${data.timestamp}` :
@@ -607,15 +591,54 @@ document.getElementById("etdForm").addEventListener("submit", async function (e)
   if (res.ok) {
     laatstVerzonden = Date.now();
     document.getElementById("bevestiging").style.display = "block";
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    setTimeout(() => { location.reload(); }, 30000);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  setTimeout(() => {
+    location.reload();
+  }, 30000); // herlaad na 30 seconden
+
     vuurConfettiSerie();
   } else {
     alert("❌ Fout bij verzenden");
   }
 });
-</script>
-<script>
+
+function vuurConfettiSerie() {
+  var duration = 2 * 1000;
+  var animationEnd = Date.now() + duration;
+  var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 1000 };
+
+  function randomInRange(min, max) {
+    return Math.random() * (max - min) + min;
+  }
+
+  var interval = setInterval(function() {
+    var timeLeft = animationEnd - Date.now();
+    if (timeLeft <= 0) return clearInterval(interval);
+
+    var particleCount = 50 * (timeLeft / duration);
+    confetti(Object.assign({}, defaults, {
+      particleCount,
+      origin: {
+        x: randomInRange(0.1, 0.9),
+        y: Math.random() - 0.2
+      }
+    }));
+  }, 200);
+}
+
+window.onload = laadSchepen;
+
+setTimeout(() => {
+  const select = document.getElementById("huidigSchipSelect");
+  if (select && select.options.length === 1 && select.options[0].textContent.includes("Laden")) {
+    select.disabled = true;
+    document.getElementById("gpsButton").disabled = true;
+    document.getElementById("gpsFoutmelding").innerText = "⚠️ Functie niet beschikbaar, vul handmatig in.";
+    const handmatig = document.getElementById("handmatigSchip");
+    handmatig.disabled = false;
+    handmatig.focus();
+  }
+}, 5000);</script><script>
 // Vul datalist met scheepsnamen uit fetch
 async function vulAutoAan() {
   try {
@@ -643,16 +666,17 @@ window.onload = function () {
   laadSchepen();
   vulAutoAan();
 };
-</script>
-<script>
+</script><script>
 function forceerGPSLaad() {
   navigator.geolocation.getCurrentPosition(
     async (geo) => {
       const lat = geo.coords.latitude;
       const lon = geo.coords.longitude;
+
       try {
         const res = await fetch("/api/schepen");
         const schepen = await res.json();
+
         const dichtbij = schepen
           .map(s => {
             const laatst = s.track?.[s.track.length - 1];
@@ -663,8 +687,10 @@ function forceerGPSLaad() {
           .filter(Boolean)
           .sort((a, b) => a.afstand - b.afstand)
           .slice(0, 15);
+
         const select = document.getElementById("huidigSchipSelect");
         select.innerHTML = "";
+
         dichtbij.forEach((s, i) => {
           const opt = document.createElement("option");
           opt.value = s.naam;
@@ -681,39 +707,53 @@ function forceerGPSLaad() {
     }
   );
 }
-</script>
-<script>
+</script><script>
 // IDs van velden
 const selectField = document.getElementById("huidigSchipSelect");
 const manualField = document.getElementById("handmatigSchip");
 const gpsButton = document.getElementById("gpsButton");
+
+// Helper om select en gps (de)activeren en transparantie zetten
 function setSelectAndGPS(disabled) {
     selectField.disabled = disabled;
     gpsButton.disabled = disabled;
     selectField.style.opacity = disabled ? "0.5" : "1";
     gpsButton.style.opacity = disabled ? "0.5" : "1";
 }
+
+// Direct na laden: handmatige veld altijd actief
 window.addEventListener("DOMContentLoaded", function() {
     if (manualField) manualField.disabled = false;
     setSelectAndGPS(false);
+
+    // 5-seconden check of laden klaar is
     setTimeout(function() {
+        // Controleer of eerste optie nog steeds 'Laden...' is
         if (selectField && selectField.options.length && selectField.options[0].textContent.includes('Laden')) {
             setSelectAndGPS(true);
         }
     }, 5000);
 });
+
+// Wanneer je in het handmatige veld typt
 manualField && manualField.addEventListener("input", function() {
     if (manualField.value.trim() !== "") {
         setSelectAndGPS(true);
         selectField.value = "";
     } else {
+        // Alleen weer activeren als er wél schepen geladen zijn (dus niet als nog 'Laden...')
         if (selectField && (!selectField.options.length || !selectField.options[0].textContent.includes('Laden'))) {
             setSelectAndGPS(false);
         }
     }
 });
+
+// Zorg dat handmatige veld zijn datalist-link houdt
 if (manualField) manualField.disabled = false;
+
 </script>
+
+
 <script>
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
@@ -723,6 +763,8 @@ if (manualField) manualField.disabled = false;
     });
   }
 </script>
+
+
 <script>
   document.addEventListener("visibilitychange", () => {
     if (document.visibilityState === "visible") {
@@ -730,6 +772,8 @@ if (manualField) manualField.disabled = false;
     }
   });
 </script>
+
+
 <div id="infoModal"
      style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.38);z-index:1000;align-items:center;justify-content:center;">
   <div style="background:#fff;padding:24px 18px 16px 18px;border-radius:18px;max-width:400px;width:92vw;position:relative;box-shadow:0 4px 24px #003b5c33;">
@@ -738,15 +782,19 @@ if (manualField) manualField.disabled = false;
     <h2 style="font-size:1.18rem;font-weight:700;margin-bottom:8px;color:#2563eb;">Informatie</h2>
     <p style="color:#28323c;">
       Deze app is onderdeel van een MMP14-onderzoek en onderzoekt
-      de waarde van het opvragen van de ETD bij de kapitein van een binnenkomend of verhalend schip.<br><br>
+    de waarde van het opvragen van de ETD bij de kapitein van een binnenkomend of verhalend schip.<br><br>
       Scheepsnaam wordt doormiddel van GPS locatie automatisch gezocht.
       Mocht de voorgestelde scheepsnaam niet kloppen dan kan hij handmatig ingevuld worden. <br><br>
+      
       Check: <b>Scheepsnaam, ETD of Reden geen ETD, Type reis: Binnenkomend of Verhalend.</b><br><br>
       Bedankt voor uw bijdrage!
     </p>
   </div>
 </div>
+
+
 <script>
+  // Info popup
   document.getElementById('infoButton').onclick = function(e) {
     e.preventDefault();
     document.getElementById('infoModal').style.display = 'flex';
@@ -754,6 +802,7 @@ if (manualField) manualField.disabled = false;
   document.getElementById('closeModal').onclick = function() {
     document.getElementById('infoModal').style.display = 'none';
   };
+  // Toggle switch
   const typeSwitch = document.getElementById('typeSwitch');
   const switchDot = document.getElementById('switchDot');
   const berichtTypeValue = document.getElementById('berichtTypeValue');
@@ -769,6 +818,7 @@ if (manualField) manualField.disabled = false;
       binnenkomendLabel.style.fontWeight = 'normal';
       binnenkomendLabel.style.opacity = '.5';
       verhalendLabel.style.opacity = '1';
+    
     } else {
       switchDot.style.left = '2px';
       berichtTypeValue.value = 'Binnenkomend';
@@ -782,40 +832,6 @@ if (manualField) manualField.disabled = false;
   }
   typeSwitch.onchange = updateToggleUI;
   updateToggleUI();
-</script>
-<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-   
-<script>
-document.addEventListener('DOMContentLoaded', function(){
-  // Datum
-  var dateInput = document.getElementById('etd_datum');
-  var datePh = document.getElementById('date-placeholder');
-  if(dateInput && datePh) {
-    function checkDatePlaceholder() {
-      datePh.style.opacity = dateInput.value ? 0 : 1;
-    }
-    dateInput.addEventListener('input', checkDatePlaceholder);
-    dateInput.addEventListener('change', checkDatePlaceholder);
-    // Ook bij focus/blur, voor fallback
-    dateInput.addEventListener('focus', checkDatePlaceholder);
-    dateInput.addEventListener('blur', checkDatePlaceholder);
-    checkDatePlaceholder();
-  }
-  // Tijd
-  var timeInput = document.getElementById('etd_tijd');
-  var timePh = document.getElementById('time-placeholder');
-  if(timeInput && timePh) {
-    function checkTimePlaceholder() {
-      timePh.style.opacity = timeInput.value ? 0 : 1;
-    }
-    timeInput.addEventListener('input', checkTimePlaceholder);
-    timeInput.addEventListener('change', checkTimePlaceholder);
-    timeInput.addEventListener('focus', checkTimePlaceholder);
-    timeInput.addEventListener('blur', checkTimePlaceholder);
-    checkTimePlaceholder();
-  }
-});
-
 </script>
 
 </body>
