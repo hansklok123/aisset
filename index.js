@@ -276,6 +276,13 @@ if (record.MMSI) {
 
 
 
+// Overschrijven van velden voor Sheet-weergave:
+if (record.Type_actueel) {
+  record.Type_naam = record.Type_actueel;
+}
+if (record.Lengte_actueel) {
+  record.Lengte = record.Lengte_actueel;
+}
 
 
 console.log("Record naar Google Sheets:", record);
