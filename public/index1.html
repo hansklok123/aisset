@@ -308,16 +308,16 @@ input[type="checkbox"]#typeSwitch {
 }
 
 .etd-row {
+  display: flex;
   flex-wrap: nowrap;
   gap: 0.5rem;
 }
 
-
 .etd-col {
-  flex: 1 1 250px;
-  display: flex;
-  flex-direction: column;
+  flex: 1;
+  min-width: 0; /* Zorgt dat het niet forceert naar vaste breedte */
 }
+
 
 .etd-col input,
 .etd-col select {
