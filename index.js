@@ -97,7 +97,7 @@ async function getSubmissionsFromSheet() {
 
   const res = await sheets.spreadsheets.values.get({
     spreadsheetId: SPREADSHEET_ID,
-    range: `${SHEET_NAME}!A1:L`,  // <-- nu 12 kolommen i.p.v. 11 (A t/m L)
+    range: `${SHEET_NAME}!A1:O`,  // <-- nu 12 kolommen i.p.v. 11 (A t/m L)
   });
 
   return res.data.values || [];
@@ -225,6 +225,7 @@ if (record.MMSI) {
     record.Type_actueel = vesselFinderInfo.shipType || "";
     record.Lengte_actueel = vesselFinderInfo.length || "";
     record.Draught_actueel = vesselFinderInfo.draught || "";
+    console.log("VesselFinder info:", vesselFinderInfo);
   } catch (err) {
     console.warn("Kon actuele scheepsinfo niet ophalen:", err);
     record.Type_actueel = "";
@@ -238,7 +239,7 @@ if (record.MMSI) {
 }
 
 
-console.log("VesselFinder info:", vesselFinderInfo);
+
 console.log("Record naar Google Sheets:", record);
 
 
