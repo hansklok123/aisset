@@ -238,6 +238,8 @@ if (record.MMSI) {
 }
 
 
+console.log("VesselFinder info:", vesselFinderInfo);
+console.log("Record naar Google Sheets:", record);
 
 
   try {
