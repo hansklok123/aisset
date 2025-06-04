@@ -242,10 +242,24 @@ if (record.MMSI) {
   try {
     const vesselFinderInfo = await getShipInfoByMMSI(record.MMSI);
     record.Type_actueel = vesselFinderInfo.shipType || "";
-    record.Lengte_actueel = vesselFinderInfo.length || "";
+    record.Lengte_actueel = vesselFinderInfo.length ? (
+      vesselFinderInfo.length.endsWith('m') 
+        ? vesselFinderInfo.length 
+        : `${vesselFinderInfo.length} m`
+    ) : "";
     record.Draught_actueel = vesselFinderInfo.draught || "";
     record.IMO = vesselFinderInfo.imo || "";
     console.log("VesselFinder info:", vesselFinderInfo);
+
+    // Overschrijf bestaande velden als er een waarde is!
+    if (vesselFinderInfo.shipType) {
+      record.Type_naam = vesselFinderInfo.shipType;
+    }
+    if (vesselFinderInfo.length) {
+      record.Lengte = vesselFinderInfo.length.endsWith('m')
+        ? vesselFinderInfo.length
+        : `${vesselFinderInfo.length} m`;
+    }
   } catch (err) {
     console.warn("Kon actuele scheepsinfo niet ophalen:", err);
     record.Type_actueel = "";
@@ -259,6 +273,7 @@ if (record.MMSI) {
   record.Draught_actueel = "";
   record.IMO = "";
 }
+
 
 
 
