@@ -51,13 +51,14 @@ const auth = new google.auth.GoogleAuth({
 const SPREADSHEET_ID = '1RX5vPm3AzYjlpdXgsbuVkupb4UbJSct2wgpVArhMaRQ';
 const SHEET_NAME = 'submissions';
 
+// ======= sheets authenticatie, pas range aan =======
 async function getSubmissionsFromSheet() {
   const client = await auth.getClient();
   const sheets = google.sheets({ version: 'v4', auth: client });
 
   const res = await sheets.spreadsheets.values.get({
     spreadsheetId: SPREADSHEET_ID,
-    range: `${SHEET_NAME}!A1:K`,
+    range: `${SHEET_NAME}!A1:L`,  // <-- nu 12 kolommen i.p.v. 11 (A t/m L)
   });
 
   return res.data.values || [];
@@ -78,7 +79,8 @@ async function appendToGoogleSheet(record) {
     record.Lengte ?? "",
     record.Timestamp ?? "",
     record.Latitude ?? "",
-    record.Longitude ?? ""
+    record.Longitude ?? "",
+    record.MMSI ?? ""         // <-- MMSI toegevoegd als laatste kolom
   ];
 
   await sheets.spreadsheets.values.append({
@@ -88,6 +90,7 @@ async function appendToGoogleSheet(record) {
     resource: { values: [row] },
   });
 }
+
 
 function formatDateTime(dt) {
   // dt kan string of DateTime zijn
@@ -152,18 +155,20 @@ if (!match && ingevoerdeNaam) {
   // soms zit handmatige naam nergens in lijst, dus niks invullen
 }
 
-// Gevonden? Vul type_naam, lengte en positie in
+// ... na het zoeken van de match:
 if (match && match.track?.length > 0) {
   const laatste = match.track[match.track.length - 1];
   record.Latitude = laatste.lat ? parseFloat(laatste.lat).toFixed(5) : "";
   record.Longitude = laatste.lon ? parseFloat(laatste.lon).toFixed(5) : "";
   record.Type_naam = match.type_naam || "";
   record.Lengte = match.lengte || "";
+  record.MMSI = match.mmsi || "";   // <-- hier MMSI toevoegen
 } else {
-  // niet gevonden = alles leeg of "Onbekend"
   record.Type_naam = record.Type_naam || "Onbekend";
   record.Lengte = record.Lengte || "";
+  record.MMSI = "";                 // <-- leeg als niet gevonden
 }
+
 
 
 
