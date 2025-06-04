@@ -102,7 +102,7 @@ async function appendToGoogleSheet(record) {
     record.Timestamp ?? "",
     record.Latitude ?? "",
     record.Longitude ?? "",
-    record.MMSI ?? ""         // <-- MMSI toegevoegd als laatste kolom
+    record.MMSI ?? "",         // <-- MMSI toegevoegd als laatste kolom
     record.Type_actueel ?? ""  // <-- NIEUWE KOL0M
 
   ];
