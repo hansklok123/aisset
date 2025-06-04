@@ -146,9 +146,16 @@ function normalizeNaam(naam) {
 const ingevoerdeNaam = normalizeNaam(record.Scheepsnaam) || normalizeNaam(record.ScheepsnaamHandmatig);
 
 // Zoek een match op naam
-let match = Object.values(schepenObj).find(
-  s => normalizeNaam(s.naam) === ingevoerdeNaam && ingevoerdeNaam !== ""
-);
+let matchMmsi = null;
+let match = null;
+for (const [mmsi, s] of Object.entries(schepenObj)) {
+  if (normalizeNaam(s.naam) === ingevoerdeNaam && ingevoerdeNaam !== "") {
+    match = s;
+    matchMmsi = mmsi;
+    break;
+  }
+}
+
 
 // Extra: als geen naam, probeer op handmatig, en als nog niks: laat alles leeg
 if (!match && ingevoerdeNaam) {
@@ -162,12 +169,13 @@ if (match && match.track?.length > 0) {
   record.Longitude = laatste.lon ? parseFloat(laatste.lon).toFixed(5) : "";
   record.Type_naam = match.type_naam || "";
   record.Lengte = match.lengte || "";
-  record.MMSI = match.mmsi || "";   // <-- hier MMSI toevoegen
+  record.MMSI = matchMmsi || ""; // <--- gebruik nu de gevonden MMSI
 } else {
   record.Type_naam = record.Type_naam || "Onbekend";
   record.Lengte = record.Lengte || "";
-  record.MMSI = "";                 // <-- leeg als niet gevonden
+  record.MMSI = "";
 }
+
 
 
 
