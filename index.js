@@ -164,23 +164,21 @@ function formatDateTime(dt) {
 
 function formatETDWaarde(waarde) {
   if (!waarde) return "";
-  
-  // Kijk of het tijdvak erbij staat
+
   const tijdvakMatch = waarde.match(/\(E:(.*?)\)/);
   const tijdvak = tijdvakMatch ? tijdvakMatch[1] : null;
 
-  // Pak alleen de datum uit de ISO string
   const datumMatch = waarde.match(/(\d{4}-\d{2}-\d{2})/);
   const datumISO = datumMatch ? datumMatch[1] : null;
 
   if (tijdvak && datumISO) {
-    const dag = DateTime.fromISO(datumISO).setZone("Europe/Amsterdam").toFormat("dd-MM-yy");
+    const dag = DateTime.fromISO(datumISO).toFormat("dd-MM-yy");
     return `${dag} E${tijdvak}`;
   }
 
-  // Geen tijdvak: gewoon exacte ETD
+  // Geen tijdvak: gewoon exacte ETD zonder tijdzone wijziging
   if (isValidISODate(waarde)) {
-    return DateTime.fromISO(waarde).setZone("Europe/Amsterdam").toFormat("dd-MM-yy HH:mm");
+    return DateTime.fromISO(waarde).toFormat("dd-MM-yy HH:mm");
   }
 
   return waarde; // fallback
