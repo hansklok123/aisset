@@ -344,6 +344,28 @@ input[type="checkbox"]#typeSwitch {
   animation: shake 0.3s;
 }
 
+    input[type="datetime-local"] {
+  width: 100% !important;
+  box-sizing: border-box;
+  max-width: 100%;
+  min-height: 48px;
+  font-size: 1rem;
+}
+
+input[type="datetime-local"]::-webkit-datetime-edit-fields-wrapper {
+  padding: 0.5rem;
+}
+
+input[type="datetime-local"]::-webkit-datetime-edit {
+  color: #000;
+  font-weight: normal;
+}
+
+input[type="datetime-local"]::-webkit-inner-spin-button,
+input[type="datetime-local"]::-webkit-clear-button {
+  display: none;
+}
+
 
 
 
@@ -807,7 +829,9 @@ document.getElementById("etdTijdvak").addEventListener("change", function () {
     }, 3000);
 
     setTimeout(() => {
-      etdField.click();
+      etdField.focus(); 
+      etdField.click(); 
+      if (etdField.showPicker) etdField.showPicker(); 
     }, 100); 
   }
 });
