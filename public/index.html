@@ -308,10 +308,9 @@ input[type="checkbox"]#typeSwitch {
 }
 
 .etd-row {
-  display: flex;
-  flex-wrap: nowrap;
-  gap: 0.5rem;
+  display: block;
 }
+
 
 .etd-col {
   flex: 1;
@@ -333,6 +332,18 @@ input[type="checkbox"]#typeSwitch {
   flex: 2 1 50%;
 }
 
+@keyframes shake {
+  0% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  50% { transform: translateX(5px); }
+  75% { transform: translateX(-5px); }
+  100% { transform: translateX(0); }
+}
+
+.shake {
+  animation: shake 0.3s;
+}
+
 
 
 
@@ -349,15 +360,6 @@ input[type="checkbox"]#typeSwitch {
 </button>
     
 <div id="bevestiging">✔️ Inzending succesvol verzonden</div>
-    
-    <div id="etdModal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.5); z-index:2000; align-items:center; justify-content:center;">
-  <div style="background:white; padding:20px; border-radius:12px; text-align:center; max-width:300px; width:90%; color:black; position:relative; z-index:2001;">
-    <p style="margin-bottom:1rem; font-weight:bold;">Is de exacte ETD bekend?</p>
-    <button id="btnWelBekend" type="button" style="margin-right:0.5rem; padding:0.5rem 1rem; background: #ddd; color: black;">Wel bekend</button>
-    <button id="btnNietBekend" type="button" style="padding:0.5rem 1rem; background: #ddd; color: black;">Niet bekend</button>
-  </div>
-</div>
-    
 <div class="form-container">
 
 <div class="form-header">
@@ -371,17 +373,15 @@ input[type="checkbox"]#typeSwitch {
 <div class="etd-row">
   <div class="etd-col etd-klein">
     <label for="etd">ETD:</label>
-    <input id="etd" name="etd" type="datetime-local" />
+    <input id="etd" name="etd" type="datetime-local"/>
+    <div id="etdFoutmelding" style="display: none; color: red; font-weight: bold; margin-top: 0.2rem;">
+  Vul eerst datum en geschatte tijd in
+</div>
+
   </div>
   <div class="etd-col etd-groot">
-    <label for="tijdvakSwitch">Tijd onbekend:</label>
-    <div class="toggle-switch-row" style="justify-content: center;">
-      <input type="checkbox" id="tijdvakSwitch" name="tijdvakSwitch" style="display:none;">
-      <label for="tijdvakSwitch" id="tijdvakSwitchLabel">
-        <span id="tijdvakSwitchDot"></span>
-      </label>
-    </div>
-    <select id="etdTijdvak" name="etdTijdvak" style="display:none; margin-top: 0.5rem;">
+    <label for="etdTijdvak">Vul in - indien tijd niet exact bekend:</label>
+    <select id="etdTijdvak" name="etdTijdvak">
       <option value="">Tijdvak</option>
       <option value="00:00-06:00">Nacht 00:00 - 06:00</option>
       <option value="06:00-12:00">Ochtend 06:00 - 12:00</option>
@@ -390,60 +390,6 @@ input[type="checkbox"]#typeSwitch {
     </select>
   </div>
 </div>
-
-
-
-<script>
-  const tijdvakSwitch = document.getElementById("tijdvakSwitch");
-  const tijdvakSwitchDot = document.getElementById("tijdvakSwitchDot");
-  const tijdvakSwitchLabel = document.getElementById("tijdvakSwitchLabel");
-  const tijdvakDropdown = document.getElementById("etdTijdvak");
-  const switchRow = document.querySelector(".toggle-switch-row");
-  const etdModal = document.getElementById("etdModal");
-  const btnWel = document.getElementById("btnWelBekend");
-  const btnNiet = document.getElementById("btnNietBekend");
-
-  tijdvakSwitchLabel.style.cursor = "pointer";
-  tijdvakSwitchLabel.style.display = "inline-block";
-  tijdvakSwitchLabel.style.width = "44px";
-  tijdvakSwitchLabel.style.height = "24px";
-  tijdvakSwitchLabel.style.background = "#e5e7eb";
-  tijdvakSwitchLabel.style.borderRadius = "20px";
-  tijdvakSwitchLabel.style.position = "relative";
-
-  tijdvakSwitchDot.style.position = "absolute";
-  tijdvakSwitchDot.style.left = "2px";
-  tijdvakSwitchDot.style.top = "2px";
-  tijdvakSwitchDot.style.width = "20px";
-  tijdvakSwitchDot.style.height = "20px";
-  tijdvakSwitchDot.style.background = "#fff";
-  tijdvakSwitchDot.style.borderRadius = "50%";
-  tijdvakSwitchDot.style.transition = "all 0.22s ease";
-
-  tijdvakSwitchLabel.addEventListener("click", function(e) {
-    e.preventDefault();
-    etdModal.style.display = "flex";
-  });
-
-  btnWel.addEventListener("click", () => {
-    tijdvakSwitch.checked = false;
-    tijdvakDropdown.style.display = "none";
-    tijdvakSwitchDot.style.left = "2px";
-    document.getElementById("etd").disabled = false;
-    etdModal.style.display = "none";
-  });
-
-  btnNiet.addEventListener("click", () => {
-    tijdvakSwitch.checked = true;
-    tijdvakDropdown.style.display = "block";
-    tijdvakSwitchDot.style.left = "22px";
-    document.getElementById("etd").disabled = true;
-    switchRow.style.display = "none";
-    etdModal.style.display = "none";
-  });
-</script>
-
-
 
 
 
@@ -472,9 +418,6 @@ input[type="checkbox"]#typeSwitch {
 </label>
 <button type="submit">Verzenden</button>
 </form></div>
-
-
-
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script><script>
 function vuurConfettiSerie() {
   var duration = 2 * 1000;
@@ -840,6 +783,36 @@ manualField && manualField.addEventListener("input", function() {
 // Zorg dat handmatige veld zijn datalist-link houdt
 if (manualField) manualField.disabled = false;
 
+</script>
+
+<script>
+document.getElementById("etdTijdvak").addEventListener("change", function () {
+  const tijdvak = this.value;
+  const etdField = document.getElementById("etd");
+  const foutmelding = document.getElementById("etdFoutmelding");
+
+  if (tijdvak && !etdField.value.trim()) {
+    // Toon foutmelding + rode rand + shake
+    etdField.style.border = "2px solid red";
+    etdField.classList.add("shake");
+    foutmelding.style.display = "block";
+
+    // Laat shake-effect snel stoppen
+    setTimeout(() => {
+      etdField.classList.remove("shake");
+    }, 1000);
+
+    // Laat foutmelding en rode rand na 3s verdwijnen
+    setTimeout(() => {
+      foutmelding.style.display = "none";
+      etdField.style.border = "";
+    }, 3000);
+
+    // Reset tijdvak
+    this.value = "";
+    etdField.focus();
+  }
+});
 </script>
 
 
