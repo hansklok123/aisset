@@ -682,28 +682,29 @@ document.getElementById("etdTijdvak").addEventListener("change", function () {
     // Shake stoppen
     setTimeout(() => etdField.classList.remove("shake"), 2000);
 
-    // Verwijder foutmelding na 3s
+    // Verwijder foutmelding na 4s
     setTimeout(() => {
       foutmelding.style.display = "none";
       etdField.style.border = "";
     }, 4000);
 
-setTimeout(() => {
-
-  const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || 
-                (navigator.userAgent.includes('Mac') && 'ontouchend' in document);
-
-  if (!isIOS) {
-    etdField.blur();
+    // Probeer picker te openen op niet-iOS
     setTimeout(() => {
-      etdField.focus();
-      if (etdField.showPicker) etdField.showPicker();
-    }, 200);
+      const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || 
+                    (navigator.userAgent.includes('Mac') && 'ontouchend' in document);
+
+      if (!isIOS) {
+        etdField.blur();
+        setTimeout(() => {
+          etdField.focus();
+          if (etdField.showPicker) etdField.showPicker();
+        }, 200);
+      }
+    }, 50);
   }
-}, 50);
-
-
+});
 </script>
+
 
 
 <script>
