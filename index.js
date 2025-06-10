@@ -379,3 +379,18 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log("✅ Server draait op poort", PORT);
 });
+
+function restartAtMidnight() {
+  const now = new Date();
+  const nextMidnight = new Date(now);
+  nextMidnight.setHours(24, 0, 0, 0); // 00:00:00 volgende dag
+
+  const msUntilMidnight = nextMidnight - now;
+
+  setTimeout(() => {
+    console.log("⏰ Herstart om middernacht...");
+    process.exit(0); // Render zal de app automatisch opnieuw starten
+  }, msUntilMidnight);
+}
+
+restartAtMidnight();
