@@ -1,6 +1,9 @@
 const WebSocket = require("ws");
 const fs = require("fs");
 const path = require("path");
+let lastMessageTime = Date.now();
+let timeoutIntervalId = null;
+let aisTimeoutGemeld = false;
 
 const DATA_PATH = path.join(__dirname, "public", "data", "schepen.json");
 
@@ -135,16 +138,24 @@ function afstandKm(lat1, lon1, lat2, lon2) {
 function startStream() {
   const ws = new WebSocket("wss://stream.aisstream.io/v0/stream");
 
-  let lastMessageTime = Date.now();
+
 
 // Controleer elke minuut of we nog data ontvangen
-setInterval(() => {
+if (timeoutIntervalId) clearInterval(timeoutIntervalId);
+
+timeoutIntervalId = setInterval(() => {
   const now = Date.now();
-  if (now - lastMessageTime > 5 * 60 * 1000) { // 5 minuten zonder data
-    console.error("⚠️ Geen AIS-data ontvangen in 5 minuten. Verbinding wordt geforceerd gesloten.");
-    ws.terminate(); // Triggert automatisch .on('close') → reconnect
+  if (now - lastMessageTime > 5 * 60 * 1000) {
+    if (!aisTimeoutGemeld) {
+      console.error("⚠️ Geen AIS-data ontvangen in 5 minuten. Verbinding wordt geforceerd gesloten.");
+      aisTimeoutGemeld = true;
+    }
+    ws.terminate(); // Dit triggert reconnect via ws.on("close")
+  } else {
+    aisTimeoutGemeld = false; // reset zodra er weer data is
   }
 }, 60 * 1000);
+
 
 
   ws.on("open", () => {
