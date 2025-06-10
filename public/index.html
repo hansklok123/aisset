@@ -374,9 +374,7 @@ input[type="checkbox"]#typeSwitch {
   <div class="etd-col etd-klein">
     <label for="etd">ETD:</label>
     <input id="etd" name="etd" type="datetime-local"/>
-    <div id="etdFoutmelding" style="display: none; color: red; font-weight: bold; margin-top: 0.2rem;">
-  Vul eerst datum en geschatte tijd in
-</div>
+
 
   </div>
   <div class="etd-col etd-groot">
@@ -808,9 +806,9 @@ document.getElementById("etdTijdvak").addEventListener("change", function () {
       etdField.style.border = "";
     }, 3000);
 
-    // Reset tijdvak
-    this.value = "";
-    etdField.focus();
+    setTimeout(() => {
+      etdField.click();
+    }, 100); 
   }
 });
 </script>
