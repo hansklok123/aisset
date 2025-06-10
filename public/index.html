@@ -688,17 +688,20 @@ document.getElementById("etdTijdvak").addEventListener("change", function () {
       etdField.style.border = "";
     }, 4000);
 
-    // Probeer picker te openen
+setTimeout(() => {
+
+  const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || 
+                (navigator.userAgent.includes('Mac') && 'ontouchend' in document);
+
+  if (!isIOS) {
+    etdField.blur();
     setTimeout(() => {
-      etdField.blur();
-      setTimeout(() => {
-        etdField.focus();
-        etdField.click();
-        if (etdField.showPicker) etdField.showPicker();
-      }, 200);
-    }, 50);
+      etdField.focus();
+      if (etdField.showPicker) etdField.showPicker();
+    }, 200);
   }
-});
+}, 50);
+
 
 </script>
 
