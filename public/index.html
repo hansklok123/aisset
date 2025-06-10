@@ -308,13 +308,17 @@ input[type="checkbox"]#typeSwitch {
 }
 
 .etd-row {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
+.etd-col {
+  width: 100%;
+}
 
 .etd-col {
-  flex: 1;
-  min-width: 0; /* Zorgt dat het niet forceert naar vaste breedte */
+  width: 100%;
 }
 
 
@@ -344,7 +348,8 @@ input[type="checkbox"]#typeSwitch {
   animation: shake 0.3s;
 }
 
-    input[type="datetime-local"] {
+input[type="datetime-local"],
+select {
   width: 100% !important;
   box-sizing: border-box;
   max-width: 100%;
@@ -812,29 +817,35 @@ document.getElementById("etdTijdvak").addEventListener("change", function () {
   const foutmelding = document.getElementById("etdFoutmelding");
 
   if (tijdvak && !etdField.value.trim()) {
+    // Reset selectie terug naar beginoptie
+    this.value = "";
+
     // Toon foutmelding + rode rand + shake
     etdField.style.border = "2px solid red";
     etdField.classList.add("shake");
     foutmelding.style.display = "block";
 
-    // Laat shake-effect snel stoppen
-    setTimeout(() => {
-      etdField.classList.remove("shake");
-    }, 1000);
+    // Shake stoppen
+    setTimeout(() => etdField.classList.remove("shake"), 1000);
 
-    // Laat foutmelding en rode rand na 3s verdwijnen
+    // Verwijder foutmelding na 3s
     setTimeout(() => {
       foutmelding.style.display = "none";
       etdField.style.border = "";
     }, 3000);
 
+    // Probeer picker te openen
     setTimeout(() => {
-      etdField.focus(); 
-      etdField.click(); 
-      if (etdField.showPicker) etdField.showPicker(); 
-    }, 100); 
+      etdField.blur();
+      setTimeout(() => {
+        etdField.focus();
+        etdField.click();
+        if (etdField.showPicker) etdField.showPicker();
+      }, 200);
+    }, 50);
   }
 });
+
 </script>
 
 
