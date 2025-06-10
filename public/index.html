@@ -6,236 +6,188 @@
 <meta charset="utf-8"/>
 <title>ETD Formulier</title>
 <style>
-    body { font-family: sans-serif; max-width: 600px; margin: auto; padding: 2rem; }
-    label { display: block; margin-top: 1rem; }
-    input, select, textarea, button {
-      width: 100%;
-      padding: 0.75rem;
-      font-size: 1rem;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      margin-top: 0.5rem;
-    }
-    button {
-      background: #003b5c;
-      color: white;
-      border: none;
-      cursor: pointer;
-      margin-top: 1.5rem;
-    }
-    #bevestiging {
-      display: none;
-      padding: 1rem;
-      background: #dff0d8;
-      color: #3c763d;
-      border-radius: 8px;
-      margin-bottom: 1rem;
-    }
-  
+  body {
+    font-family: sans-serif;
+    max-width: 600px;
+    margin: auto;
+    padding: 2rem;
+    background: url('https://keystoneacademic-res.cloudinary.com/image/upload/f_auto/q_auto/g_auto/w_724/dpr_2.0/element/11/119872_rotterdam-4152380_1920.jpg') no-repeat center center fixed;
+    background-size: cover;
+    animation: achtergrondFade 20s ease-in-out infinite alternate;
+    overflow-x: hidden;
+  }
 
-    form {
-      background-color: rgba(0, 0, 0, 0.7);
-      padding: 1rem;
-      border-radius: 1rem;
-    }
+  @keyframes achtergrondFade {
+    0% { filter: brightness(1); }
+    100% { filter: brightness(0.95); }
+  }
 
-    input, select, textarea, button {
-      background-color: rgba(255, 255, 255, 0.9);
-      color: #000;
-    }
+  form, .form-container, .etd-row, .etd-col {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow-x: hidden;
+  }
 
-    label {
-      font-weight: bold;
-      color: #fff;
-    }
+  form {
+    background-color: rgba(0, 0, 0, 0.65);
+    padding: 1rem;
+    border-radius: 1rem;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+  }
 
-    #bevestiging {
-      background-color: rgba(144, 238, 144, 0.9);
-      color: #003b5c;
-    }
-    
-    body {
-      background: url('https://keystoneacademic-res.cloudinary.com/image/upload/f_auto/q_auto/g_auto/w_724/dpr_2.0/element/11/119872_rotterdam-4152380_1920.jpg') no-repeat center center fixed;
-      background-size: cover;
-      animation: achtergrondFade 20s ease-in-out infinite alternate;
-    }
+  .form-container {
+    padding: 0.1rem;
+  }
 
-    @keyframes achtergrondFade {
-      0%   { filter: brightness(1); }
-      100% { filter: brightness(0.95); }
-    }
+  .form-header {
+    text-align: center;
+    margin-bottom: 1.5rem;
+  }
 
-    form {
-      background-color: rgba(0, 0, 0, 0.65);
-      box-shadow: 0 0 15px rgba(0, 0, 0, 0.6);
-      padding: 1rem;
-      border-radius: 1rem;
-      backdrop-filter: blur(4px);
-    }
+  .form-header img {
+    max-height: 100px;
+    margin-bottom: 0.2rem;
+  }
 
-    input, select, textarea, button {
-      background-color: rgba(255, 255, 255, 0.95);
-      color: #000;
-    }
+  .form-header h2 {
+    font-size: 1.5rem;
+    color: #003b5c;
+  }
 
-    label {
-      font-weight: bold;
-      color: #fff;
-    }
+  label {
+    display: block;
+    margin-top: 1rem;
+    font-weight: bold;
+    color: #003b5c;
+  }
 
-    #bevestiging {
-      background-color: rgba(144, 238, 144, 0.9);
-      color: #003b5c;
-    }
-    
+  input, select, textarea, button {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    padding: 0.75rem;
+    font-size: 1rem;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    margin-top: 0.5rem;
+    background-color: rgba(255, 255, 255, 0.95);
+    color: #000;
+  }
 
-    .form-container {
-      background-color: rgba(0, 0, 0, 0.65);
-      box-shadow: 0 0 18px rgba(0, 0, 0, 0.8);
-      border-radius: 0.1rem;
-      padding: 0.1rem;
-      backdrop-filter: blur(6px);
-      max-width: 600px;
-      margin: auto;
-    }
+  input[type="datetime-local"] {
+    min-height: 48px;
+    display: block;
+  }
 
-    .form-header {
-      text-align: center;
-      margin-bottom: 1.5rem;
-    }
+  button {
+    background: #003b5c;
+    color: white;
+    border: none;
+    cursor: pointer;
+    margin-top: 1.5rem;
+  }
 
-    .form-header img {
-      max-height: 100px;
-      margin-bottom: 0.2rem;
-    }
+  #bevestiging {
+    display: none;
+    padding: 1rem;
+    background-color: rgba(200, 255, 200, 0.9);
+    color: #003b5c;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+  }
 
-    .form-header h2 {
-      color: white;
-      margin: 0;
-      font-size: 1.5rem;
-    }
-    
+  .etd-row {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 1rem;
+  }
 
-    .form-header h2 {
-      color: #003b5c;
-    }
+  .foutmelding {
+    color: red;
+    font-weight: bold;
+    text-align: center;
+    margin-top: 0.5rem;
+  }
 
-    label {
-      color: #003b5c;
-    }
+  @keyframes shake {
+    0% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    50% { transform: translateX(5px); }
+    75% { transform: translateX(-5px); }
+    100% { transform: translateX(0); }
+  }
 
-    #bevestiging {
-      background-color: rgba(200, 255, 200, 0.9);
-      color: #003b5c;
-    }
+  .shake {
+    animation: shake 0.3s;
+  }
 
-    button {
-      background-color: #85d678;
-      color: white;
-    }
-    
+  /* Info-knop */
+  .infobutton-page {
+    position: fixed;
+    top: 40px;
+    right: 40px;
+    width: 50px;
+    background: none;
+    border: none;
+    padding: 0;
+    z-index: 2022;
+    cursor: pointer;
+  }
 
-    input, select, textarea {
-      width: 100%;
-      box-sizing: border-box;
-      margin-top: 0.5rem;
-      margin-bottom: 1rem;
-    }
+  .info-circle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    background: #ededf0;
+    color: #003b5c;
+    font-size: 1.7rem;
+    border-radius: 50%;
+    font-weight: bold;
+    border: 2px solid #bfc3cc;
+    box-shadow: 0 2px 16px 0 #003b5c44;
+  }
 
-    button {
-      width: 100%;
-      margin-top: 1rem;
-    }
-    
-    
-    body, label, h2 {
-      color: #f8f9fa;
-    }
+  .infobutton-page:active .info-circle,
+  .infobutton-page:focus .info-circle {
+    background: #2563eb;
+    color: #fff;
+  }
 
-    input, textarea, select {
-      background-color: rgba(255, 255, 255, 0.95);
-      color: #000;
-      border: 1px solid #ccc;
-    }
 
-    select option {
-      color: #000;
-      background-color: #fff;
-    }
-    
-    .form-container {
-      background-color: rgba(255, 255, 255, 0.7); /* 70% opaque wit */
-      box-shadow: none; /* verwijder donkere rand */
-      backdrop-filter: blur(10px);
-    }
-    
-    .form-container {
-      background: none !important;
-      box-shadow: none !important;
-      backdrop-filter: none !important;
-    }
+body, label, h2, .form-header h2 {
+  color: #f8f9fa;
+}
 
-    input, select, textarea {
-      background-color: rgba(255, 255, 255, 0.95);
-      color: #000;
-    }
-    
-    body {
-      position: relative;
-      overflow-x: hidden;
-    }
+button {
+  background-color: #85d678;
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  margin-top: 1.5rem;
+}
 
-    body::before {
-      content: "";
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: url('https://keystoneacademic-res.cloudinary.com/image/upload/f_auto/q_auto/g_auto/w_724/dpr_2.0/element/11/119872_rotterdam-4152380_1920.jpg') no-repeat center center fixed;
-      background-size: cover;
-      z-index: -1;
-      animation: achtergrondFade 20s ease-in-out infinite alternate;
-    }
+#gpsButton {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 0.5rem;
+  background: linear-gradient(to bottom right, #007bff, #66b3ff);
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  margin-bottom: 1rem;
+}
 
-    .form-container {
-      background: none !important;
-      box-shadow: none !important;
-      backdrop-filter: none !important;
-    }
-    
-    #gpsButton {
-      padding: 0.5rem 1rem;
-      border: none;
-      border-radius: 0.5rem;
-      background: linear-gradient(to bottom right, #007bff, #66b3ff);
-      color: white;
-      font-weight: bold;
-      cursor: pointer;
-      margin-bottom: 1rem;
-    }
-
-    #gpsButton:disabled {
-      background: #ccc;
-      cursor: not-allowed;
-    }
-    
-    select:disabled, #gpsButton:disabled {
-      opacity: 0.5;
-    }
-    
-    .foutmelding {
-      color: red;
-      font-weight: bold;
-      text-align: center;
-      margin-top: 0.5rem;
-    }
-
-    #handmatigSchip {
-      opacity: 0.5;
-    }
-
-    #handmatigSchip:enabled {
-      opacity: 1;
-    }
-    
+#gpsButton:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  opacity: 0.5;
+}
 
 .toggle-switch-row {
   display: flex;
@@ -244,6 +196,7 @@
   margin-bottom: 1.3rem;
   margin-top: 0.2rem;
 }
+
 #switchLabel {
   cursor: pointer;
   position: relative;
@@ -255,6 +208,7 @@
   box-shadow: 0 2px 8px #0002;
   margin: 0 3px;
 }
+
 #switchDot {
   position: absolute;
   left: 2px;
@@ -266,115 +220,14 @@
   transition: all 0.22s cubic-bezier(.8,.5,.2,1.4);
   box-shadow: 0 1px 4px #003b5c22;
 }
+
 input[type="checkbox"]#typeSwitch {
   display: none;
 }
 
-.infobutton-page {
-  position: fixed;
-  top: 40px;
-  right: 40px;
-  width: 50px;
-  background: none;
-  border: none;
-  padding: 0;
-  margin: 0;
-  z-index: 2022;
-  cursor: pointer;
+#binnenkomendLabel, #verhalendLabel {
+  color: #f8f9fa;
 }
-
-.info-circle {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 42px;
-  height: 42px;
-  background: #ededf0;
-  color: #003b5c;
-  font-size: 1.7rem;
-  font-family: Arial, sans-serif;
-  border-radius: 50%;
-  font-weight: bold;
-  box-shadow: 0 2px 16px 0 #003b5c44;
-  user-select: none;
-  border: 2px solid #bfc3cc;
-  transition: background 0.13s, color 0.13s;
-}
-    .infobutton-page:active .info-circle,
-.infobutton-page:focus .info-circle {
-  background: #2563eb;
-  color: #fff;
-  outline: none;
-}
-
-.etd-row {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.etd-col {
-  width: 100%;
-}
-
-.etd-col {
-  width: 100%;
-}
-
-
-.etd-col input,
-.etd-col select {
-  width: 100%;
-  box-sizing: border-box;
-}
-
-.etd-col.etd-klein {
-  flex: 0 0 50%;
-}
-
-.etd-col.etd-groot {
-  flex: 2 1 50%;
-}
-
-@keyframes shake {
-  0% { transform: translateX(0); }
-  25% { transform: translateX(-5px); }
-  50% { transform: translateX(5px); }
-  75% { transform: translateX(-5px); }
-  100% { transform: translateX(0); }
-}
-
-.shake {
-  animation: shake 0.3s;
-}
-
-input[type="datetime-local"],
-select {
-  width: 100% !important;
-  box-sizing: border-box;
-  max-width: 100%;
-  min-height: 48px;
-  font-size: 1rem;
-}
-
-input[type="datetime-local"]::-webkit-datetime-edit-fields-wrapper {
-  padding: 0.5rem;
-}
-
-input[type="datetime-local"]::-webkit-datetime-edit {
-  color: #000;
-  font-weight: normal;
-}
-
-input[type="datetime-local"]::-webkit-inner-spin-button,
-input[type="datetime-local"]::-webkit-clear-button {
-  display: none;
-}
-
-
-
-
-
 </style>
 
 <link rel="manifest" href="/manifest.json" />
@@ -401,8 +254,9 @@ input[type="datetime-local"]::-webkit-clear-button {
   <div class="etd-col etd-klein">
     <label for="etd">ETD:</label>
     <input id="etd" name="etd" type="datetime-local"/>
-
-
+<div id="etdFoutmelding" style="display: none; color: red; font-weight: bold; margin-top: 0.2rem;">
+  Vul eerst datum en geschatte tijd in
+</div>
   </div>
   <div class="etd-col etd-groot">
     <label for="etdTijdvak">Vul in - indien tijd niet exact bekend:</label>
@@ -826,13 +680,13 @@ document.getElementById("etdTijdvak").addEventListener("change", function () {
     foutmelding.style.display = "block";
 
     // Shake stoppen
-    setTimeout(() => etdField.classList.remove("shake"), 1000);
+    setTimeout(() => etdField.classList.remove("shake"), 2000);
 
     // Verwijder foutmelding na 3s
     setTimeout(() => {
       foutmelding.style.display = "none";
       etdField.style.border = "";
-    }, 3000);
+    }, 4000);
 
     // Probeer picker te openen
     setTimeout(() => {
