@@ -135,6 +135,18 @@ function afstandKm(lat1, lon1, lat2, lon2) {
 function startStream() {
   const ws = new WebSocket("wss://stream.aisstream.io/v0/stream");
 
+  let lastMessageTime = Date.now();
+
+// Controleer elke minuut of we nog data ontvangen
+setInterval(() => {
+  const now = Date.now();
+  if (now - lastMessageTime > 5 * 60 * 1000) { // 5 minuten zonder data
+    console.error("⚠️ Geen AIS-data ontvangen in 5 minuten. Verbinding wordt geforceerd gesloten.");
+    ws.terminate(); // Triggert automatisch .on('close') → reconnect
+  }
+}, 60 * 1000);
+
+
   ws.on("open", () => {
     const subscription = {
       APIKey: process.env.AIS_API_KEY,
@@ -147,6 +159,8 @@ function startStream() {
   });
 
   ws.on("message", (data) => {
+    lastMessageTime = Date.now();
+
     try {
       const msg = JSON.parse(data);
 
