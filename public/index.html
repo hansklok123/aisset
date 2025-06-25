@@ -502,9 +502,9 @@ const data = {
   return value;
 }
 
-const csv = `Naam,Scheepsnaam,scheepsnaamHandmatig,ETD,RedenGeenETD,Toelichting,Status,Timestamp\n` +
-            `${escapeCSV(data.naam)},${escapeCSV(data.scheepsnaam)},${escapeCSV(data.scheepsnaamHandmatig)},${escapeCSV(data.etd)},` +
-            `${escapeCSV(data.reden)},${escapeCSV(data.toelichting)},${escapeCSV(data.Status)},${escapeCSV(data.timestamp)}`;
+const csv = `Scheepsnaam,ScheepsnaamHandmatig,ETD,RedenGeenETD,Toelichting,Status,Type_naam,Lengte,Timestamp,Latitude,Longitude,Naam\n` +
+  `${escapeCSV(data.scheepsnaam)},${escapeCSV(data.scheepsnaamHandmatig)},${escapeCSV(data.etd)},` +
+  `${escapeCSV(data.reden)},${escapeCSV(data.toelichting)},${escapeCSV(data.Status)},,,${escapeCSV(data.timestamp)},,,${escapeCSV(localStorage.getItem("userName") || "")}`;
 
 
   const onderwerp = data.etd ?
