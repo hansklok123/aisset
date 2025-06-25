@@ -216,7 +216,7 @@ app.post("/api/verstuur", async (req, res) => {
     Timestamp: DateTime.now().setZone("Europe/Amsterdam").toFormat("dd-MM-yy HH:mm"),
     Latitude: delen[9]?.replaceAll('"', ""),
     Longitude: delen[10]?.replaceAll('"', ""),
-    Naam: delen[0]?.replaceAll('"', "")
+    Naam: delen[11]?.replaceAll('"', "")
   };
 
 // Laad schepen.json direct (altijd actueel)
