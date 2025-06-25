@@ -235,13 +235,14 @@ input[type="checkbox"]#typeSwitch {
 
 </head>
 <body>
-<!-- Policy Modal -->
 <div id="policyModal" style="display:none;position:fixed;z-index:3000;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.55);align-items:center;justify-content:center;">
   <div style="background:#fff;padding:28px 18px 18px 18px;border-radius:18px;max-width:420px;width:92vw;position:relative;box-shadow:0 4px 24px #003b5c33;">
-    <h2 style="font-size:1.18rem;font-weight:700;margin-bottom:8px;color:#2563eb;">Gebruiksvoorwaarden</h2>
+    <h2 style="font-size:1.18rem;font-weight:700;margin-bottom:8px;color:#2563eb;">Toestemmingsverklaring</h2>
     <div style="color:#28323c;font-size:1rem;max-height:180px;overflow:auto;margin-bottom:1rem;">
       <p>
-        Door deze applicatie te gebruiken, gaat u akkoord met het verwerken van uw gegevens volgens het privacybeleid van deze app. Uw naam wordt alleen gebruikt voor onderzoeksdoeleinden en niet gedeeld met derden.
+        Door deze applicatie te gebruiken, geeft u toestemming voor het verwerken van uw gegevens voor onderzoeksdoeleinden.<br>
+        Uw naam wordt uitsluitend gebruikt om uw toestemming vast te leggen en wordt niet gedeeld met derden.<br>
+        Lees de <a href="#" id="showFullPrivacy" style="color:#2563eb;text-decoration:underline;">volledige informatie en privacyvoorwaarden</a> voor meer details.
       </p>
       <p>
         <b>Vul hieronder uw naam in om akkoord te gaan:</b>
@@ -252,6 +253,46 @@ input[type="checkbox"]#typeSwitch {
     <button id="policyAgreeBtn" style="background:#003b5c;color:#fff;padding:0.7rem 1.2rem;border:none;border-radius:8px;font-weight:bold;cursor:pointer;width:100%;">Akkoord & Start</button>
   </div>
 </div>
+
+<!-- Uitgebreide privacy modal -->
+<div id="fullPrivacyModal" style="display:none;position:fixed;z-index:4000;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.55);align-items:center;justify-content:center;">
+  <div style="background:#fff;padding:18px 18px 18px 18px;padding-top:76px;border-radius:18px;max-width:540px;width:96vw;position:relative;box-shadow:0 4px 24px #003b5c33;max-height:90vh;overflow:auto;">
+    <button id="closeFullPrivacy" type="button" style="position:absolute;top:10px;right:10px;font-size:28px;color:#003b5c;background:none;border:none;cursor:pointer;font-weight:bold;line-height:1;z-index:10;">&times;</button>
+    <h2 style="font-size:1.18rem;font-weight:700;margin-bottom:8px;color:#2563eb;">Volledige informatie en privacyvoorwaarden</h2>
+    <div style="color:#28323c;font-size:1rem;">
+      <b>Toestemmingsverklaring voor gebruik van de ETD-webapplicatie</b><br><br>
+      Deze webapplicatie is ontwikkeld voor het verzamelen van Estimated Time of Departure (ETD) van binnenkomende of verhalende schepen, zoals ingevoerd door loodsen. De ingevoerde gegevens worden gebruikt in het kader van een onderzoeksproject dat onderzoekt in hoeverre ETD-informatie bijdraagt aan een efficiëntere inzetplanning van loodsen in het gebied Rotterdam-Rijnmond.<br><br>
+      <b>Doel van het onderzoek</b><br>
+      Het doel van dit project is om te onderzoeken in welke mate de ETD-invoer door loodsen helpt bij het verbeteren van de betrouwbaarheid en efficiëntie van het planningsproces. Dit onderzoek wordt uitgevoerd in het kader van een afstudeerproject van de Maritieme Masteropleiding Pilotage, onder begeleiding van het Nederlands Loodswezen.<br><br>
+      <b>Verwerking van gegevens</b><br>
+      De ingevoerde gegevens worden niet gedeeld met derden.<br>
+      Uw naam wordt uitsluitend opgeslagen om uw toestemming vast te leggen.<br>
+      Alle andere gegevens worden anoniem verwerkt.<br>
+      De data worden veilig opgeslagen volgens de richtlijnen van de Algemene Verordening Gegevensbescherming (AVG).<br>
+      Geanonimiseerde gegevens kunnen worden gebruikt in rapportages en eventuele academische of professionele publicaties.<br><br>
+      <b>Vrijwillige deelname</b><br>
+      Het gebruik van deze applicatie is volledig vrijwillig. U kunt op elk moment stoppen met het invullen van gegevens. Als u eerder verzonden gegevens wilt laten verwijderen (zolang ze nog niet geanonimiseerd zijn), kunt u daar om verzoeken via onderstaande contactpersonen.<br><br>
+      <b>Contact</b><br>
+      Voor vragen over dit onderzoek kunt u contact opnemen met:
+      Gijs Smit<br><br>
+      <b>Toestemming</b><br>
+      Door het formulier in te vullen en te verzenden, verklaart u dat:<br>
+      - U deze informatie hebt gelezen en begrepen;<br>
+      - U vrijwillig instemt met deelname aan dit project;<br>
+      - U ten minste 18 jaar oud bent.
+    </div>
+  </div>
+</div>
+
+<script>
+document.getElementById("showFullPrivacy").onclick = function(e) {
+  e.preventDefault();
+  document.getElementById("fullPrivacyModal").style.display = "flex";
+};
+document.getElementById("closeFullPrivacy").onclick = function() {
+  document.getElementById("fullPrivacyModal").style.display = "none";
+};
+</script>
 
     <button id="infoButton" type="button" title="Meer informatie" class="infobutton-page">
   <span class="info-circle">i</span>
