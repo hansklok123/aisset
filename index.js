@@ -141,7 +141,8 @@ const row = [
   record.MMSI ?? "",
   record.Type_actueel ?? "",
   record.Lengte_actueel ?? "",
-  record.Draught_actueel ?? ""
+  record.Draught_actueel ?? "",
+  record.Naam ?? ""
 ];
 
 
@@ -204,6 +205,7 @@ app.post("/api/verstuur", async (req, res) => {
   const delen = parsed[1];
 
   const record = {
+    Naam: delen[0]?.replaceAll('"', ""),
     Scheepsnaam: delen[0]?.replaceAll('"', ""),
     ScheepsnaamHandmatig: delen[1]?.replaceAll('"', ""),
     ETD: formatETDWaarde(delen[2]?.replaceAll('"', "")),
