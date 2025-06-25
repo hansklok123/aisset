@@ -235,6 +235,24 @@ input[type="checkbox"]#typeSwitch {
 
 </head>
 <body>
+<!-- Policy Modal -->
+<div id="policyModal" style="display:none;position:fixed;z-index:3000;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.55);align-items:center;justify-content:center;">
+  <div style="background:#fff;padding:28px 18px 18px 18px;border-radius:18px;max-width:420px;width:92vw;position:relative;box-shadow:0 4px 24px #003b5c33;">
+    <h2 style="font-size:1.18rem;font-weight:700;margin-bottom:8px;color:#2563eb;">Gebruiksvoorwaarden</h2>
+    <div style="color:#28323c;font-size:1rem;max-height:180px;overflow:auto;margin-bottom:1rem;">
+      <p>
+        Door deze applicatie te gebruiken, gaat u akkoord met het verwerken van uw gegevens volgens het privacybeleid van deze app. Uw naam wordt alleen gebruikt voor onderzoeksdoeleinden en niet gedeeld met derden.
+      </p>
+      <p>
+        <b>Vul hieronder uw naam in om akkoord te gaan:</b>
+      </p>
+    </div>
+    <input id="policyNameInput" type="text" placeholder="Uw naam" style="width:100%;padding:0.7rem;font-size:1rem;border-radius:8px;border:1px solid #ccc;margin-bottom:1rem;" />
+    <div id="policyError" style="color:red;display:none;margin-bottom:0.5rem;">Vul uw naam in om akkoord te gaan.</div>
+    <button id="policyAgreeBtn" style="background:#003b5c;color:#fff;padding:0.7rem 1.2rem;border:none;border-radius:8px;font-weight:bold;cursor:pointer;width:100%;">Akkoord & Start</button>
+  </div>
+</div>
+
     <button id="infoButton" type="button" title="Meer informatie" class="infobutton-page">
   <span class="info-circle">i</span>
 </button>
@@ -473,7 +491,7 @@ const data = {
   reden,
   toelichting: document.getElementById("toelichting").value.trim(),
   Status: document.getElementById('berichtTypeValue').value,
-  timestamp: new Date().toISOString()
+  timestamp: new Date().toISOString(),naam: localStorage.getItem("userName") || ""   // <-- voeg deze regel toe
 };
 
 
@@ -484,8 +502,8 @@ const data = {
   return value;
 }
 
-const csv = `Scheepsnaam, scheepsnaamHandmatig,ETD,RedenGeenETD,Toelichting,Status,Timestamp\n` +
-            `${escapeCSV(data.scheepsnaam)},${escapeCSV(data.scheepsnaamHandmatig)},${escapeCSV(data.etd)},` +
+const csv = `Naam,Scheepsnaam,scheepsnaamHandmatig,ETD,RedenGeenETD,Toelichting,Status,Timestamp\n` +
+            `${escapeCSV(data.naam)},${escapeCSV(data.scheepsnaam)},${escapeCSV(data.scheepsnaamHandmatig)},${escapeCSV(data.etd)},` +
             `${escapeCSV(data.reden)},${escapeCSV(data.toelichting)},${escapeCSV(data.Status)},${escapeCSV(data.timestamp)}`;
 
 
@@ -537,7 +555,7 @@ function vuurConfettiSerie() {
   }, 200);
 }
 
-window.onload = laadSchepen;
+
 
 setTimeout(() => {
   const select = document.getElementById("huidigSchipSelect");
@@ -573,10 +591,7 @@ document.getElementById("handmatigSchip").addEventListener("input", function () 
   document.getElementById("huidigSchipSelect").value = ""; // reset dropdown keuze
 });
 
-window.onload = function () {
-  laadSchepen();
-  vulAutoAan();
-};
+
 </script><script>
 function forceerGPSLaad() {
   navigator.geolocation.getCurrentPosition(
@@ -786,6 +801,50 @@ document.getElementById("etdTijdvak").addEventListener("change", function () {
   typeSwitch.onchange = updateToggleUI;
   updateToggleUI();
 </script>
+<script>
+  (function() {
+  const agreed = localStorage.getItem("policyAgreed");
+  const modal = document.getElementById("policyModal");
+  const agreeBtn = document.getElementById("policyAgreeBtn");
+  const nameInput = document.getElementById("policyNameInput");
+  const errorDiv = document.getElementById("policyError");
+  const form = document.getElementById("etdForm");
 
+  function showModal() {
+    modal.style.display = "flex";
+    if (form) form.style.filter = "blur(2px)";
+    document.body.style.overflow = "hidden";
+  }
+  function hideModal() {
+    modal.style.display = "none";
+    if (form) form.style.filter = "";
+    document.body.style.overflow = "";
+  }
+
+  function startNaAkkoord() {
+    if (form) form.querySelectorAll("input,select,textarea,button").forEach(el => el.disabled = false);
+    laadSchepen();
+    if (typeof vulAutoAan === "function") vulAutoAan();
+  }
+
+  if (!agreed) {
+    showModal();
+    if (form) form.querySelectorAll("input,select,textarea,button").forEach(el => el.disabled = true);
+    agreeBtn.onclick = function() {
+      const name = nameInput.value.trim();
+      if (!name) {
+        errorDiv.style.display = "block";
+        return;
+      }
+      localStorage.setItem("policyAgreed", "1");
+      localStorage.setItem("userName", name);
+      hideModal();
+      startNaAkkoord();
+    };
+  } else {
+    startNaAkkoord();
+  }
+})();
+</script>
 </body>
 </html>
