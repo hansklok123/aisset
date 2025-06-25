@@ -205,7 +205,6 @@ app.post("/api/verstuur", async (req, res) => {
   const delen = parsed[1];
 
   const record = {
-    Naam: delen[0]?.replaceAll('"', ""),
     Scheepsnaam: delen[0]?.replaceAll('"', ""),
     ScheepsnaamHandmatig: delen[1]?.replaceAll('"', ""),
     ETD: formatETDWaarde(delen[2]?.replaceAll('"', "")),
@@ -216,7 +215,8 @@ app.post("/api/verstuur", async (req, res) => {
     Lengte: delen[7]?.replaceAll('"', ""),
     Timestamp: DateTime.now().setZone("Europe/Amsterdam").toFormat("dd-MM-yy HH:mm"),
     Latitude: delen[9]?.replaceAll('"', ""),
-    Longitude: delen[10]?.replaceAll('"', "")
+    Longitude: delen[10]?.replaceAll('"', ""),
+    Naam: delen[0]?.replaceAll('"', "")
   };
 
 // Laad schepen.json direct (altijd actueel)
