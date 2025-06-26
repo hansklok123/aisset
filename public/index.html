@@ -886,6 +886,7 @@ document.getElementById("etdTijdvak").addEventListener("change", function () {
       localStorage.setItem("userName", name);
       hideModal();
       startNaAkkoord();
+      location.reload();
     };
   } else {
     startNaAkkoord();
