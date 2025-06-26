@@ -16,6 +16,12 @@ startStream();
 
 const app = express();
 
+const authMiddleware = basicAuth({
+  users: { [process.env.AUTH_USER]: process.env.AUTH_PASS },
+  challenge: true,
+  realm: 'Beveiligd gebied'
+});
+
 app.use((req, res, next) => {
   // Voeg hier meer paden toe als je meer wilt beveiligen
   if (
@@ -31,11 +37,7 @@ app.use((req, res, next) => {
 app.use(express.json());
 app.use(express.static("public"));
 
-const authMiddleware = basicAuth({
-  users: { [process.env.AUTH_USER]: process.env.AUTH_PASS },
-  challenge: true,
-  realm: 'Beveiligd gebied'
-});
+
 
 const { DateTime } = require('luxon');
 
@@ -216,7 +218,7 @@ app.post("/api/verstuur", async (req, res) => {
     Timestamp: DateTime.now().setZone("Europe/Amsterdam").toFormat("dd-MM-yy HH:mm"),
     Latitude: delen[9]?.replaceAll('"', ""),
     Longitude: delen[10]?.replaceAll('"', ""),
-    Naam: delen[11]?.replaceAll('"', "")
+    Naam: delen[0]?.replaceAll('"', "")
   };
 
 // Laad schepen.json direct (altijd actueel)
