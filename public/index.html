@@ -240,6 +240,13 @@ input[type="checkbox"]#typeSwitch {
 
 </head>
 <body>
+  <script>
+let deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+});
+</script>
 <div id="policyModal" style="display:none;position:fixed;z-index:3000;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.55);align-items:center;justify-content:center;">
   <div style="background:#fff;padding:28px 18px 18px 18px;border-radius:18px;max-width:420px;width:92vw;position:relative;box-shadow:0 4px 24px #003b5c33;">
     <h2 style="font-size:1.18rem;font-weight:700;margin-bottom:8px;color:#2563eb;">Toestemmingsverklaring</h2>
@@ -873,21 +880,29 @@ document.getElementById("etdTijdvak").addEventListener("change", function () {
     if (typeof vulAutoAan === "function") vulAutoAan();
   }
 
-  if (!agreed) {
+if (!agreed) {
     showModal();
     if (form) form.querySelectorAll("input,select,textarea,button").forEach(el => el.disabled = true);
-    agreeBtn.onclick = function() {
-      const name = nameInput.value.trim();
-      if (!name) {
-        errorDiv.style.display = "block";
-        return;
-      }
-      localStorage.setItem("policyAgreed", "1");
-      localStorage.setItem("userName", name);
-      hideModal();
-      startNaAkkoord();
-      location.reload();
-    };
+agreeBtn.onclick = async function() {
+  const name = nameInput.value.trim();
+  if (!name) {
+    errorDiv.style.display = "block";
+    return;
+  }
+  localStorage.setItem("policyAgreed", "1");
+  localStorage.setItem("userName", name);
+  hideModal();
+  startNaAkkoord();
+
+  // Toon installatieprompt als beschikbaar
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    await deferredPrompt.userChoice;
+    deferredPrompt = null;
+  }
+
+  location.reload();
+};
   } else {
     startNaAkkoord();
   }
