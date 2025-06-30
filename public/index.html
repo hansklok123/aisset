@@ -894,15 +894,14 @@ agreeBtn.onclick = async function() {
   hideModal();
   startNaAkkoord();
 
-  // Toon installatieprompt als beschikbaar
-  if (deferredPrompt) {
-    deferredPrompt.prompt();
-    await deferredPrompt.userChoice;
-    deferredPrompt = null;
-  }
-
+if (deferredPrompt) {
+  deferredPrompt.prompt();
+  await deferredPrompt.userChoice;
+  deferredPrompt = null;
   location.reload();
-};
+} else {
+  location.reload();
+}
   } else {
     startNaAkkoord();
   }
