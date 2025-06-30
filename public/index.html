@@ -881,30 +881,32 @@ document.getElementById("etdTijdvak").addEventListener("change", function () {
   }
 
 if (!agreed) {
-    showModal();
-    if (form) form.querySelectorAll("input,select,textarea,button").forEach(el => el.disabled = true);
-agreeBtn.onclick = async function() {
-  const name = nameInput.value.trim();
-  if (!name) {
-    errorDiv.style.display = "block";
-    return;
-  }
-  localStorage.setItem("policyAgreed", "1");
-  localStorage.setItem("userName", name);
-  hideModal();
-  startNaAkkoord();
+  showModal();
+  if (form) form.querySelectorAll("input,select,textarea,button").forEach(el => el.disabled = true);
 
-if (deferredPrompt) {
-  deferredPrompt.prompt();
-  await deferredPrompt.userChoice;
-  deferredPrompt = null;
-  location.reload();
-} else {
-  location.reload();
-}
-  } else {
+  agreeBtn.onclick = async function() {
+    const name = nameInput.value.trim();
+    if (!name) {
+      errorDiv.style.display = "block";
+      return;
+    }
+    localStorage.setItem("policyAgreed", "1");
+    localStorage.setItem("userName", name);
+    hideModal();
     startNaAkkoord();
-  }
+    // Wacht even zodat localStorage zeker is opgeslagen
+    await new Promise(r => setTimeout(r, 100));
+
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      await deferredPrompt.userChoice;
+      deferredPrompt = null;
+    }
+    location.reload();
+  };
+} else {
+  startNaAkkoord();
+}
 })();
 </script>
 </body>
