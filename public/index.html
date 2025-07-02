@@ -431,16 +431,27 @@ async function laadSchepen() {
     const schepen = await res.json();
 
     // Schepen verwerken en dropdown vullen:
-    const select = document.getElementById("huidigSchipSelect");
-    select.innerHTML = "";
-    schepen.forEach(s => {
-      if (s.naam) {
-        const opt = document.createElement("option");
-        opt.value = s.naam;
-        opt.textContent = s.naam;
-        select.appendChild(opt);
-      }
-    });
+const select = document.getElementById("huidigSchipSelect");
+select.innerHTML = "";
+
+const dichtbij = schepen
+  .map(s => {
+    const laatst = s.track?.[s.track.length - 1];
+    if (!s.naam || !s.mmsi || !laatst) return null;
+    const afstand = afstandKm(lat, lon, laatst.lat, laatst.lon);
+    return { naam: s.naam, mmsi: s.mmsi, afstand };
+  })
+  .filter(Boolean)
+  .sort((a, b) => a.afstand - b.afstand)
+  .slice(0, 15);
+
+dichtbij.forEach((s, i) => {
+  const opt = document.createElement("option");
+  opt.value = s.naam;
+  opt.textContent = `${s.naam} ${landVlag(s.mmsi)} (${Math.round(s.afstand * 1000)}m)`;
+  if (i === 0) opt.selected = true;
+  select.appendChild(opt);
+});
 
     // Eventueel: handmatig veld activeren
     document.getElementById("handmatigSchip").disabled = false;
