@@ -14,10 +14,19 @@ html, body {
 }
 body {
     font-family: sans-serif;
-    background: url('https://keystoneacademic-res.cloudinary.com/image/upload/f_auto/q_auto/g_auto/w_724/dpr_2.0/element/11/119872_rotterdam-4152380_1920.jpg') no-repeat center center fixed;
-    background-size: cover;
-    animation: achtergrondFade 20s ease-in-out infinite alternate;
     overflow-x: hidden;
+}
+
+.bg {
+  position: fixed;
+  z-index: -1;
+  top: 0; left: 0; right: 0; bottom: 0;
+  width: 100vw;
+  height: 100vh;
+  background: url('https://keystoneacademic-res.cloudinary.com/image/upload/f_auto/q_auto/g_auto/w_724/dpr_2.0/element/11/119872_rotterdam-4152380_1920.jpg') no-repeat center center;
+  background-size: cover;
+  animation: achtergrondFade 20s ease-in-out infinite alternate;
+  pointer-events: none;
 }
 
   @keyframes achtergrondFade {
@@ -240,7 +249,7 @@ input[type="checkbox"]#typeSwitch {
 
 </head>
 <body>
-  
+<div class="bg"></div>
   <script>
 let deferredPrompt = null;
 window.addEventListener('beforeinstallprompt', (e) => {
@@ -355,7 +364,7 @@ document.getElementById("closeFullPrivacy").onclick = function() {
 </label>
 <label>Toelichting (optioneel):
       <textarea id="toelichting" name="toelichting" rows="4"></textarea>
-<label for="typeSwitch">Type (huidige) reis:</label>
+<label for="typeSwitch">Type reis gevraagd:</label>
 <div class="toggle-switch-row">
   <span id="binnenkomendLabel">Binnenkomend</span>
   <input type="checkbox" id="typeSwitch" name="berichtType" style="display:none;">
