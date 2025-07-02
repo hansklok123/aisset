@@ -240,6 +240,7 @@ input[type="checkbox"]#typeSwitch {
 
 </head>
 <body>
+  
   <script>
 let deferredPrompt = null;
 window.addEventListener('beforeinstallprompt', (e) => {
@@ -247,6 +248,7 @@ window.addEventListener('beforeinstallprompt', (e) => {
   deferredPrompt = e;
 });
 </script>
+
 <div id="policyModal" style="display:none;position:fixed;z-index:3000;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.55);align-items:center;justify-content:center;">
   <div style="background:#fff;padding:28px 18px 18px 18px;border-radius:18px;max-width:420px;width:92vw;position:relative;box-shadow:0 4px 24px #003b5c33;">
     <h2 style="font-size:1.18rem;font-weight:700;margin-bottom:8px;color:#2563eb;">Toestemmingsverklaring</h2>
@@ -419,28 +421,35 @@ async function laadSchepen() {
     const res = await fetch("/api/schepen");
     const schepen = await res.json();
 
-    const dichtbij = schepen
-      .map(s => {
-        const laatst = s.track?.[s.track.length - 1];
-        if (!s.naam || !s.mmsi || !laatst) return null;
-        const afstand = afstandKm(lat, lon, laatst.lat, laatst.lon);
-        return { naam: s.naam, mmsi: s.mmsi, afstand };
-      })
-      .filter(Boolean)
-      .sort((a, b) => a.afstand - b.afstand)
-      .slice(0, 15);
-
+    // Schepen verwerken en dropdown vullen:
     const select = document.getElementById("huidigSchipSelect");
     select.innerHTML = "";
-
-    dichtbij.forEach((s, i) => {
-      const opt = document.createElement("option");
-      opt.value = s.naam;
-      opt.textContent = `${s.naam} ${landVlag(s.mmsi)} (${Math.round(s.afstand * 1000)}m)`;
-      if (i === 0) opt.selected = true;
-      select.appendChild(opt);
+    schepen.forEach(s => {
+      if (s.naam) {
+        const opt = document.createElement("option");
+        opt.value = s.naam;
+        opt.textContent = s.naam;
+        select.appendChild(opt);
+      }
     });
+
+    // Eventueel: handmatig veld activeren
+    document.getElementById("handmatigSchip").disabled = false;
+    setSelectAndGPS(false);
+
   } catch (err) {
+    // Controleer of het een locatie-fout is
+    if (err && err.code !== undefined) {
+      // Alleen bij locatie geweigerd of fout
+      setSelectAndGPS(true);
+      document.getElementById("gpsFoutmelding").innerText = "⚠️ Locatie niet toegestaan, vul handmatig in.";
+      const handmatig = document.getElementById("handmatigSchip");
+      handmatig.disabled = false;
+      handmatig.focus();
+    } else {
+      // Andere fout (bijvoorbeeld fetch-fout)
+      document.getElementById("gpsFoutmelding").innerText = "⚠️ Fout bij laden schepen, probeer later opnieuw.";
+    }
     console.error("Fout bij laden schepen:", err);
   }
 }
@@ -610,18 +619,7 @@ function vuurConfettiSerie() {
 
 
 
-setTimeout(() => {
-  const select = document.getElementById("huidigSchipSelect");
-  if (select && select.options.length === 1 && select.options[0].textContent.includes("Laden")) {
-    select.disabled = true;
-    document.getElementById("gpsButton").disabled = true;
-    document.getElementById("gpsFoutmelding").innerText = "⚠️ Functie niet beschikbaar, vul handmatig in.";
-    const handmatig = document.getElementById("handmatigSchip");
-    handmatig.disabled = false;
-    handmatig.focus();
-  }
-}, 5000);</script><script>
-// Vul datalist met scheepsnamen uit fetch
+
 async function vulAutoAan() {
   try {
     const res = await fetch("/api/schepen");
@@ -705,13 +703,7 @@ window.addEventListener("DOMContentLoaded", function() {
     if (manualField) manualField.disabled = false;
     setSelectAndGPS(false);
 
-    // 5-seconden check of laden klaar is
-    setTimeout(function() {
-        // Controleer of eerste optie nog steeds 'Laden...' is
-        if (selectField && selectField.options.length && selectField.options[0].textContent.includes('Laden')) {
-            setSelectAndGPS(true);
-        }
-    }, 5000);
+
 });
 
 // Wanneer je in het handmatige veld typt
