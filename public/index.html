@@ -315,6 +315,10 @@ document.getElementById("showFullPrivacy").onclick = function(e) {
 };
 document.getElementById("closeFullPrivacy").onclick = function() {
   document.getElementById("fullPrivacyModal").style.display = "none";
+  // Alleen herladen als ?consent=1 in de URL staat
+  if (window.location.search.includes("consent=1")) {
+    window.location.href = window.location.pathname;
+  }
 };
 </script>
 
