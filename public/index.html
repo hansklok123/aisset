@@ -922,16 +922,22 @@ if (!agreed) {
 }
 })();
 
-  (function() {
+</script>
+
+  <script>
+(function() {
   const params = new URLSearchParams(window.location.search);
-  if (params.get("consent") === "1") {
-    const modal = document.getElementById("policyModal");
-    const form = document.getElementById("etdForm");
-    if (modal) {
-      modal.style.display = "flex";
-      if (form) form.style.filter = "blur(2px)";
-      document.body.style.overflow = "hidden";
-    }
+  const showFullPrivacy = params.get("consent") === "1";
+  const fullPrivacyModal = document.getElementById("fullPrivacyModal");
+  const policyModal = document.getElementById("policyModal");
+  const form = document.getElementById("etdForm");
+
+  if (showFullPrivacy) {
+    fullPrivacyModal.style.display = "flex";
+    policyModal.style.display = "none";
+    if (form) form.style.filter = "blur(2px)";
+    document.body.style.overflow = "hidden";
+    if (form) form.querySelectorAll("input,select,textarea,button").forEach(el => el.disabled = true);
   }
 })();
 </script>
