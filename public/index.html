@@ -868,13 +868,14 @@ document.getElementById("etdTijdvak").addEventListener("change", function () {
   updateToggleUI();
 </script>
 <script>
-  (function() {
+(function() {
   const agreed = localStorage.getItem("policyAgreed");
   const modal = document.getElementById("policyModal");
   const agreeBtn = document.getElementById("policyAgreeBtn");
   const nameInput = document.getElementById("policyNameInput");
   const errorDiv = document.getElementById("policyError");
   const form = document.getElementById("etdForm");
+  const params = new URLSearchParams(window.location.search);
 
   function showModal() {
     modal.style.display = "flex";
@@ -893,38 +894,36 @@ document.getElementById("etdTijdvak").addEventListener("change", function () {
     if (typeof vulAutoAan === "function") vulAutoAan();
   }
 
-if (!agreed) {
-  showModal();
-  if (form) form.querySelectorAll("input,select,textarea,button").forEach(el => el.disabled = true);
+  
+  if (!agreed && !params.get("consent")) {
+    showModal();
+    if (form) form.querySelectorAll("input,select,textarea,button").forEach(el => el.disabled = true);
 
-  agreeBtn.onclick = async function() {
-    const name = nameInput.value.trim();
-    if (!name) {
-      errorDiv.style.display = "block";
-      return;
-    }
-    localStorage.setItem("policyAgreed", "1");
-    localStorage.setItem("userName", name);
-    hideModal();
+    agreeBtn.onclick = async function() {
+      const name = nameInput.value.trim();
+      if (!name) {
+        errorDiv.style.display = "block";
+        return;
+      }
+      localStorage.setItem("policyAgreed", "1");
+      localStorage.setItem("userName", name);
+      hideModal();
+      startNaAkkoord();
+      await new Promise(r => setTimeout(r, 100));
+
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        await deferredPrompt.userChoice;
+        deferredPrompt = null;
+      }
+      location.reload();
+    };
+  } else if (!params.get("consent")) {
+  
     startNaAkkoord();
-    // Wacht even zodat localStorage zeker is opgeslagen
-    await new Promise(r => setTimeout(r, 100));
-
-    if (deferredPrompt) {
-      deferredPrompt.prompt();
-      await deferredPrompt.userChoice;
-      deferredPrompt = null;
-    }
-    location.reload();
-  };
-} else {
-  startNaAkkoord();
-}
+  }
 })();
 
-</script>
-
-  <script>
 (function() {
   const params = new URLSearchParams(window.location.search);
   const showFullPrivacy = params.get("consent") === "1";
