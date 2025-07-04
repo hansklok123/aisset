@@ -549,6 +549,9 @@ document.getElementById("etdForm").addEventListener("submit", async function (e)
 
   e.preventDefault();
 
+  const submitBtn = this.querySelector('button[type="submit"]');
+  if (submitBtn) submitBtn.disabled = true;
+
   const nu = Date.now();
   const tijdSindsLaatste = nu - laatstVerzonden;
 
