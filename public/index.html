@@ -484,7 +484,6 @@ async function laadSchepen() {
     foutDiv.style.display = "block";
     const handmatig = document.getElementById("handmatigSchip");
     handmatig.disabled = false;
-    handmatig.focus();
     if (typeof vulAutoAan === "function") vulAutoAan();
   }
 }
@@ -698,7 +697,6 @@ function forceerGPSLaad() {
     foutDiv.style.display = "block";
     const handmatig = document.getElementById("handmatigSchip");
     handmatig.disabled = false;
-    handmatig.focus();
     if (typeof vulAutoAan === "function") vulAutoAan();
   }, 2000);
 
@@ -741,7 +739,6 @@ function forceerGPSLaad() {
         foutDiv.style.display = "block";
         const handmatig = document.getElementById("handmatigSchip");
         handmatig.disabled = false;
-        handmatig.focus();
         if (typeof vulAutoAan === "function") vulAutoAan();
       }
     },
@@ -753,7 +750,6 @@ function forceerGPSLaad() {
       foutDiv.style.display = "block";
       const handmatig = document.getElementById("handmatigSchip");
       handmatig.disabled = false;
-      handmatig.focus();
       if (typeof vulAutoAan === "function") vulAutoAan();
     }
   );
