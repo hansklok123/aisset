@@ -426,9 +426,15 @@ document.getElementById("reden").addEventListener("change", function () {
 
 async function laadSchepen() {
   try {
-    const geo = await new Promise((resolve, reject) =>
-      navigator.geolocation.getCurrentPosition(resolve, reject)
-    );
+    // Timeout wrapper voor geolocation
+    const geo = await Promise.race([
+      new Promise((resolve, reject) =>
+        navigator.geolocation.getCurrentPosition(resolve, reject)
+      ),
+      new Promise((_, reject) =>
+        setTimeout(() => reject(new Error("timeout")), 3000)
+      )
+    ]);
     const lat = geo.coords.latitude;
     const lon = geo.coords.longitude;
 
