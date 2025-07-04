@@ -432,9 +432,6 @@ async function laadSchepen() {
     const foutDiv = document.getElementById("gpsFoutmelding");
     foutDiv.innerText = "⚠️ Locatie niet beschikbaar, vul handmatig in.";
     foutDiv.style.display = "block";
-    const handmatig = document.getElementById("handmatigSchip");
-    handmatig.disabled = false;
-    handmatig.focus();
     if (typeof vulAutoAan === "function") vulAutoAan();
     return;
   }
@@ -683,8 +680,31 @@ document.getElementById("handmatigSchip").addEventListener("input", function () 
 
 </script><script>
 function forceerGPSLaad() {
+  if (!("geolocation" in navigator)) {
+    // Geen geolocatie: direct fallback
+    setSelectAndGPS(true);
+    const foutDiv = document.getElementById("gpsFoutmelding");
+    foutDiv.innerText = "⚠️ Locatie niet beschikbaar, vul handmatig in.";
+    foutDiv.style.display = "block";
+    if (typeof vulAutoAan === "function") vulAutoAan();
+    return;
+  }
+
+  let timeoutId = setTimeout(() => {
+    // Timeout fallback
+    setSelectAndGPS(true);
+    const foutDiv = document.getElementById("gpsFoutmelding");
+    foutDiv.innerText = "⚠️ Locatie ophalen duurde te lang, vul handmatig in.";
+    foutDiv.style.display = "block";
+    const handmatig = document.getElementById("handmatigSchip");
+    handmatig.disabled = false;
+    handmatig.focus();
+    if (typeof vulAutoAan === "function") vulAutoAan();
+  }, 2000);
+
   navigator.geolocation.getCurrentPosition(
     async (geo) => {
+      clearTimeout(timeoutId);
       const lat = geo.coords.latitude;
       const lon = geo.coords.longitude;
 
@@ -713,12 +733,28 @@ function forceerGPSLaad() {
           if (i === 0) opt.selected = true;
           select.appendChild(opt);
         });
+        setSelectAndGPS(false);
       } catch (err) {
-        console.error("GPS refresh fout:", err);
+        setSelectAndGPS(true);
+        const foutDiv = document.getElementById("gpsFoutmelding");
+        foutDiv.innerText = "⚠️ Fout bij ophalen schepen, vul handmatig in.";
+        foutDiv.style.display = "block";
+        const handmatig = document.getElementById("handmatigSchip");
+        handmatig.disabled = false;
+        handmatig.focus();
+        if (typeof vulAutoAan === "function") vulAutoAan();
       }
     },
     (err) => {
-      alert("Kon GPS-locatie niet ophalen: " + err.message);
+      clearTimeout(timeoutId);
+      setSelectAndGPS(true);
+      const foutDiv = document.getElementById("gpsFoutmelding");
+      foutDiv.innerText = "⚠️ Locatie niet toegestaan, vul handmatig in.";
+      foutDiv.style.display = "block";
+      const handmatig = document.getElementById("handmatigSchip");
+      handmatig.disabled = false;
+      handmatig.focus();
+      if (typeof vulAutoAan === "function") vulAutoAan();
     }
   );
 }
