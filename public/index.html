@@ -425,6 +425,19 @@ document.getElementById("reden").addEventListener("change", function () {
 });
 
 async function laadSchepen() {
+  // Controleer of geolocatie beschikbaar is
+  if (!("geolocation" in navigator)) {
+    // Geen geolocatie: direct fallback
+    setSelectAndGPS(true);
+    const foutDiv = document.getElementById("gpsFoutmelding");
+    foutDiv.innerText = "⚠️ Locatie niet beschikbaar, vul handmatig in.";
+    foutDiv.style.display = "block";
+    const handmatig = document.getElementById("handmatigSchip");
+    handmatig.disabled = false;
+    handmatig.focus();
+    if (typeof vulAutoAan === "function") vulAutoAan();
+    return;
+  }
   try {
     // Timeout wrapper voor geolocation
     const geo = await Promise.race([
@@ -432,7 +445,7 @@ async function laadSchepen() {
         navigator.geolocation.getCurrentPosition(resolve, reject)
       ),
       new Promise((_, reject) =>
-        setTimeout(() => reject(new Error("timeout")), 3000)
+        setTimeout(() => reject(new Error("timeout")), 2000)
       )
     ]);
     const lat = geo.coords.latitude;
@@ -442,29 +455,28 @@ async function laadSchepen() {
     const schepen = await res.json();
 
     // Schepen verwerken en dropdown vullen:
-const select = document.getElementById("huidigSchipSelect");
-select.innerHTML = "";
+    const select = document.getElementById("huidigSchipSelect");
+    select.innerHTML = "";
 
-const dichtbij = schepen
-  .map(s => {
-    const laatst = s.track?.[s.track.length - 1];
-    if (!s.naam || !s.mmsi || !laatst) return null;
-    const afstand = afstandKm(lat, lon, laatst.lat, laatst.lon);
-    return { naam: s.naam, mmsi: s.mmsi, afstand };
-  })
-  .filter(Boolean)
-  .sort((a, b) => a.afstand - b.afstand)
-  .slice(0, 15);
+    const dichtbij = schepen
+      .map(s => {
+        const laatst = s.track?.[s.track.length - 1];
+        if (!s.naam || !s.mmsi || !laatst) return null;
+        const afstand = afstandKm(lat, lon, laatst.lat, laatst.lon);
+        return { naam: s.naam, mmsi: s.mmsi, afstand };
+      })
+      .filter(Boolean)
+      .sort((a, b) => a.afstand - b.afstand)
+      .slice(0, 15);
 
-dichtbij.forEach((s, i) => {
-  const opt = document.createElement("option");
-  opt.value = s.naam;
-  opt.textContent = `${s.naam} ${landVlag(s.mmsi)} (${Math.round(s.afstand * 1000)}m)`;
-  if (i === 0) opt.selected = true;
-  select.appendChild(opt);
-});
+    dichtbij.forEach((s, i) => {
+      const opt = document.createElement("option");
+      opt.value = s.naam;
+      opt.textContent = `${s.naam} ${landVlag(s.mmsi)} (${Math.round(s.afstand * 1000)}m)`;
+      if (i === 0) opt.selected = true;
+      select.appendChild(opt);
+    });
 
-    // Eventueel: handmatig veld activeren
     document.getElementById("handmatigSchip").disabled = false;
     setSelectAndGPS(false);
 
@@ -472,13 +484,10 @@ dichtbij.forEach((s, i) => {
     setSelectAndGPS(true);
     const foutDiv = document.getElementById("gpsFoutmelding");
     foutDiv.innerText = "⚠️ Locatie niet toegestaan, vul handmatig in.";
-    foutDiv.style.display = "block"; // Zorg dat het zichtbaar is
-
+    foutDiv.style.display = "block";
     const handmatig = document.getElementById("handmatigSchip");
     handmatig.disabled = false;
     handmatig.focus();
-
-    // Vul de datalist altijd via vulAutoAan()
     if (typeof vulAutoAan === "function") vulAutoAan();
   }
 }
