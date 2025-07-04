@@ -458,35 +458,24 @@ dichtbij.forEach((s, i) => {
   select.appendChild(opt);
 });
 
-
+    // Eventueel: handmatig veld activeren
     document.getElementById("handmatigSchip").disabled = false;
     setSelectAndGPS(false);
 
-
   } catch (err) {
     setSelectAndGPS(true);
-    document.getElementById("gpsFoutmelding").innerText = "⚠️ Locatie niet toegestaan door browser, vul handmatig in.";
+    const foutDiv = document.getElementById("gpsFoutmelding");
+    foutDiv.innerText = "⚠️ Locatie niet toegestaan, vul handmatig in.";
+    foutDiv.style.display = "block"; // Zorg dat het zichtbaar is
+
     const handmatig = document.getElementById("handmatigSchip");
     handmatig.disabled = false;
     handmatig.focus();
 
-    try {
-      const res = await fetch("/api/schepen");
-      const schepen = await res.json();
-      const lijst = document.getElementById("schiplijst");
-      lijst.innerHTML = "";
-      schepen.forEach(s => {
-        if (s.naam) {
-          const opt = document.createElement("option");
-          opt.value = s.naam;
-          lijst.appendChild(opt);
-        }
-      });
-    } catch (e) {
-      document.getElementById("gpsFoutmelding").innerText = "⚠️ Fout bij laden schepen, probeer later opnieuw.";
-    }
-    console.error("Fout bij laden schepen:", err);
+    // Vul de datalist altijd via vulAutoAan()
+    if (typeof vulAutoAan === "function") vulAutoAan();
   }
+}
 
 function afstandKm(lat1, lon1, lat2, lon2) {
   const R = 6371;
