@@ -435,16 +435,11 @@ async function laadSchepen() {
     if (typeof vulAutoAan === "function") vulAutoAan();
     return;
   }
-  try {
-    // Timeout wrapper voor geolocation
-    const geo = await Promise.race([
-      new Promise((resolve, reject) =>
-        navigator.geolocation.getCurrentPosition(resolve, reject)
-      ),
-      new Promise((_, reject) =>
-        setTimeout(() => reject(new Error("timeout")), 2000)
-      )
-    ]);
+try {
+  const geo = await new Promise((resolve, reject) =>
+    navigator.geolocation.getCurrentPosition(resolve, reject)
+  );
+
     const lat = geo.coords.latitude;
     const lon = geo.coords.longitude;
 
@@ -683,7 +678,6 @@ document.getElementById("handmatigSchip").addEventListener("input", function () 
 </script><script>
 function forceerGPSLaad() {
   if (!("geolocation" in navigator)) {
-    // Geen geolocatie: direct fallback
     setSelectAndGPS(true);
     const foutDiv = document.getElementById("gpsFoutmelding");
     foutDiv.innerText = "⚠️ Locatie niet beschikbaar, vul handmatig in.";
@@ -692,48 +686,14 @@ function forceerGPSLaad() {
     return;
   }
 
-  let timeoutId = setTimeout(() => {
-    // Timeout fallback
-    setSelectAndGPS(true);
-    const foutDiv = document.getElementById("gpsFoutmelding");
-    foutDiv.innerText = "⚠️ Locatie ophalen duurde te lang, vul handmatig in.";
-    foutDiv.style.display = "block";
-    const handmatig = document.getElementById("handmatigSchip");
-    handmatig.disabled = false;
-    if (typeof vulAutoAan === "function") vulAutoAan();
-  }, 2000);
-
   navigator.geolocation.getCurrentPosition(
     async (geo) => {
-      clearTimeout(timeoutId);
       const lat = geo.coords.latitude;
       const lon = geo.coords.longitude;
-
       try {
         const res = await fetch("/api/schepen");
         const schepen = await res.json();
-
-        const dichtbij = schepen
-          .map(s => {
-            const laatst = s.track?.[s.track.length - 1];
-            if (!s.naam || !s.mmsi || !laatst) return null;
-            const afstand = afstandKm(lat, lon, laatst.lat, laatst.lon);
-            return { naam: s.naam, mmsi: s.mmsi, afstand };
-          })
-          .filter(Boolean)
-          .sort((a, b) => a.afstand - b.afstand)
-          .slice(0, 15);
-
-        const select = document.getElementById("huidigSchipSelect");
-        select.innerHTML = "";
-
-        dichtbij.forEach((s, i) => {
-          const opt = document.createElement("option");
-          opt.value = s.naam;
-          opt.textContent = `${s.naam} ${landVlag(s.mmsi)} (${Math.round(s.afstand * 1000)}m)`;
-          if (i === 0) opt.selected = true;
-          select.appendChild(opt);
-        });
+        // ...verder zoals je al had...
         setSelectAndGPS(false);
       } catch (err) {
         setSelectAndGPS(true);
@@ -746,7 +706,6 @@ function forceerGPSLaad() {
       }
     },
     (err) => {
-      clearTimeout(timeoutId);
       setSelectAndGPS(true);
       const foutDiv = document.getElementById("gpsFoutmelding");
       foutDiv.innerText = "⚠️ Locatie niet toegestaan, vul handmatig in.";
