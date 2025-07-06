@@ -23,13 +23,13 @@ const authMiddleware = basicAuth({
 });
 
 app.use((req, res, next) => {
-  // Voeg hier meer paden toe als je meer wilt beveiligen
-  if (
-    req.path === "/admin.html" ||
-    req.path === "/data/submissions.json"
-  ) {
-    return authMiddleware(req, res, next);
-  }
+if (
+  req.path === "/admin.html" ||
+  req.path === "/admin-push.html" ||  
+  req.path === "/data/submissions.json"
+) {
+  return authMiddleware(req, res, next);
+}
   next();
 });
 
