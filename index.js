@@ -455,6 +455,32 @@ app.post("/api/send-notification", async (req, res) => {
 app.get("/api/subscription-count", authMiddleware, (req, res) => {
   res.json({ count: subscriptions.length });
 });
+app.get("/api/latest-subscription-count", authMiddleware, async (req, res) => {
+  try {
+    const client = await auth.getClient();
+    const sheets = google.sheets({ version: 'v4', auth: client });
+
+    const resSheet = await sheets.spreadsheets.values.get({
+      spreadsheetId: process.env.SPREADSHEET_ID_SUBSCRIPTIONS,
+      range: 'subscriptions!A:B',
+    });
+
+    const rows = resSheet.data.values;
+    if (!rows || rows.length < 2) {
+      return res.json({ count: 0, date: null });
+    }
+
+    const laatsteRow = rows[rows.length - 1];
+    const date = laatsteRow[0];
+    const count = parseInt(laatsteRow[1], 10) || 0;
+
+    res.json({ count, date });
+  } catch (err) {
+    console.error("❌ Fout bij ophalen subscription count:", err);
+    res.status(500).json({ error: "Fout bij ophalen count" });
+  }
+});
+
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
