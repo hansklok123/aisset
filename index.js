@@ -379,6 +379,46 @@ app.get("/api/schepen", (req, res) => {
   }
 })();
 
+const webpush = require("web-push");
+
+const subscriptions = []; // Hier tijdelijk opslaan, later evt database
+
+webpush.setVapidDetails(
+  "mailto:shipsetd@gmail.com",
+  process.env.VAPID_PUBLIC_KEY,
+  process.env.VAPID_PRIVATE_KEY
+);
+
+// Endpoint om subscriptions op te slaan
+app.post("/api/save-subscription", (req, res) => {
+  const sub = req.body.subscription;
+  subscriptions.push(sub);
+  res.status(201).json({ message: "Subscription opgeslagen" });
+});
+
+// Endpoint om push notificaties te versturen
+app.post("/api/send-notification", async (req, res) => {
+  const { title, body } = req.body;
+
+  const payload = JSON.stringify({
+    title,
+    body,
+    icon: "/logo.png"
+  });
+
+  const results = [];
+  for (const sub of subscriptions) {
+    try {
+      await webpush.sendNotification(sub, payload);
+      results.push({ success: true });
+    } catch (error) {
+      results.push({ success: false, error: error.toString() });
+    }
+  }
+  res.json(results);
+});
+
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log("✅ Server draait op poort", PORT);
