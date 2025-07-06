@@ -394,6 +394,26 @@ if (fs.existsSync(subscriptionsPath)) {
   }
 }
 
+async function logSubscriptionCountToSheet() {
+  const count = subscriptions.length; // actuele teller
+  const client = await auth.getClient();
+  const sheets = google.sheets({ version: 'v4', auth: client });
+
+  const now = DateTime.now().setZone("Europe/Amsterdam").toFormat("dd-MM-yy HH:mm");
+
+  const row = [now, count];
+
+  await sheets.spreadsheets.values.append({
+    spreadsheetId: process.env.SPREADSHEET_ID_SUBSCRIPTIONS,
+    range: 'subscriptions!A1:B',
+    valueInputOption: 'USER_ENTERED',
+    resource: { values: [row] },
+  });
+
+  console.log(`✅ Actuele subscriptions (${count}) gelogd in Google Sheets`);
+}
+
+
 webpush.setVapidDetails(
   "mailto:shipsetd@gmail.com",
   process.env.VAPID_PUBLIC_KEY,
@@ -455,3 +475,8 @@ function restartAtMidnight() {
 }
 
 restartAtMidnight();
+
+setInterval(() => {
+  logSubscriptionCountToSheet().catch(console.error);
+}, 60 * 60 * 1000); // elke 60 minuten
+
