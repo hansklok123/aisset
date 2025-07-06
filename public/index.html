@@ -1056,6 +1056,23 @@ async function vraagNotificationToestemming() {
 
 })();
 
+  (async function() {
+  if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+
+  const registration = await navigator.serviceWorker.ready;
+  const sub = await registration.pushManager.getSubscription();
+
+  if (sub) {
+    // Verstuur naar backend zodat hij opnieuw wordt opgeslagen
+    await fetch("/api/save-subscription", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ subscription: sub })
+    });
+    console.log("✅ Subscription opnieuw geregistreerd bij backend");
+  }
+})();
+
 </script>
 <script>
 let deferredPrompt = null;
