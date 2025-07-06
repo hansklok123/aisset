@@ -23,13 +23,13 @@ const authMiddleware = basicAuth({
 });
 
 app.use((req, res, next) => {
-if (
-  req.path === "/admin.html" ||
-  req.path === "/admin-push.html" ||  
-  req.path === "/data/submissions.json"
-) {
-  return authMiddleware(req, res, next);
-}
+  // Voeg hier meer paden toe als je meer wilt beveiligen
+  if (
+    req.path === "/admin.html" ||
+    req.path === "/data/submissions.json"
+  ) {
+    return authMiddleware(req, res, next);
+  }
   next();
 });
 
@@ -380,8 +380,19 @@ app.get("/api/schepen", (req, res) => {
 })();
 
 const webpush = require("web-push");
+const subscriptionsPath = path.join(__dirname, "subscriptions.json");
 
-const subscriptions = []; // Hier tijdelijk opslaan, later evt database
+let subscriptions = [];
+
+// Probeer bij start al te laden uit bestand
+if (fs.existsSync(subscriptionsPath)) {
+  try {
+    subscriptions = JSON.parse(fs.readFileSync(subscriptionsPath, "utf8"));
+    console.log(`✅ Subscriptions geladen: ${subscriptions.length}`);
+  } catch (err) {
+    console.error("❌ Fout bij lezen subscriptions.json:", err);
+  }
+}
 
 webpush.setVapidDetails(
   "mailto:shipsetd@gmail.com",
@@ -389,10 +400,13 @@ webpush.setVapidDetails(
   process.env.VAPID_PRIVATE_KEY
 );
 
-// Endpoint om subscriptions op te slaan
 app.post("/api/save-subscription", (req, res) => {
   const sub = req.body.subscription;
   subscriptions.push(sub);
+
+  // Opslaan in bestand
+  fs.writeFileSync(subscriptionsPath, JSON.stringify(subscriptions, null, 2));
+
   res.status(201).json({ message: "Subscription opgeslagen" });
 });
 
@@ -418,6 +432,9 @@ app.post("/api/send-notification", async (req, res) => {
   res.json(results);
 });
 
+app.get("/api/subscription-count", authMiddleware, (req, res) => {
+  res.json({ count: subscriptions.length });
+});
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
