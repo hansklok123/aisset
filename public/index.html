@@ -928,6 +928,7 @@ document.getElementById("etdTijdvak").addEventListener("change", function () {
         return;
       }
       localStorage.setItem("policyAgreed", "1");
+      localStorage.setItem("policyAgreedTime", Date.now().toString());
       vraagNotificationToestemming();
       localStorage.setItem("userName", name);
       hideModal();
@@ -993,16 +994,33 @@ async function vraagNotificationToestemming() {
 </script>
 <script>
   (async function() {
-  // Check of je al hebt gevraagd
-  const pushAsked = localStorage.getItem("pushAskedOnce");
-
   if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
 
+  const alreadyAsked = localStorage.getItem("pushAskedOnce");
+  const policyAgreed = localStorage.getItem("policyAgreed");
+  const agreedTime = localStorage.getItem("policyAgreedTime");
+
+  // Als geen akkoord op privacy, stop
+  if (!policyAgreed) return;
+
+  // Check of er al een subscription is
   const registration = await navigator.serviceWorker.ready;
   const existingSub = await registration.pushManager.getSubscription();
 
-  if (!existingSub && !pushAsked) {
-    // Toon de popup
+  // Als al gevraagd of al subscribed, stop
+  if (alreadyAsked || existingSub) return;
+
+  // Check tijd sinds akkoord
+  let elapsed = 0;
+  if (agreedTime) {
+    elapsed = Date.now() - parseInt(agreedTime, 10);
+  }
+
+  const MIN_DELAY = 5 * 60 * 1000; // 5 minuten
+
+  // Wacht zo nodig tot 5 minuten
+  const waitTime = Math.max(MIN_DELAY - elapsed, 0);
+  setTimeout(() => {
     document.getElementById("pushModal").style.display = "flex";
 
     document.getElementById("pushAllowBtn").onclick = async () => {
@@ -1020,7 +1038,6 @@ async function vraagNotificationToestemming() {
             body: JSON.stringify({ subscription: sub })
           });
 
-          console.log("✅ Subscription opgeslagen");
           alert("✅ Push notificaties zijn ingeschakeld!");
         } catch (e) {
           console.error("❌ Fout bij aanmelden:", e);
@@ -1037,8 +1054,11 @@ async function vraagNotificationToestemming() {
       localStorage.setItem("pushAskedOnce", "1");
       document.getElementById("pushModal").style.display = "none";
     };
-  }
+
+  }, waitTime);
+
 })();
+
 </script>
 </body>
 </html>
