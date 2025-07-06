@@ -38,7 +38,6 @@ app.use(express.json());
 app.use(express.static("public"));
 
 
-
 const { DateTime } = require('luxon');
 
 // Zorg dat de data-directory bestaat
@@ -381,6 +380,8 @@ app.get("/api/schepen", (req, res) => {
 
 const webpush = require("web-push");
 const subscriptionsPath = path.join(__dirname, "subscriptions.json");
+const SUBS_SHEET_ID = process.env.SPREADSHEET_ID_SUBSCRIPTIONS;
+const SUBS_SHEET_NAME = 'subscriptions_data';
 
 let subscriptions = [];
 
@@ -429,6 +430,89 @@ app.post("/api/save-subscription", (req, res) => {
 
   res.status(201).json({ message: "Subscription opgeslagen" });
 });
+
+
+async function uploadSubscriptionsToSheet() {
+  try {
+    if (!fs.existsSync(subscriptionsPath)) {
+      console.log("⚠️ subscriptions.json niet gevonden, overslaan upload.");
+      return;
+    }
+    let subscriptions = JSON.parse(fs.readFileSync(subscriptionsPath, "utf8"));
+
+    // Verwijder duplicaten op basis van endpoint
+    const unique = [];
+    const seen = new Set();
+    for (const sub of subscriptions) {
+      if (!seen.has(sub.endpoint)) {
+        unique.push(sub);
+        seen.add(sub.endpoint);
+      }
+    }
+
+    const client = await auth.getClient();
+    const sheets = google.sheets({ version: 'v4', auth: client });
+
+    // Maak rijen: alleen endpoints en keys, je kunt hier evt. kolommen reduceren
+    const values = unique.map(sub => [
+      sub.endpoint,
+      sub.keys?.p256dh || "",
+      sub.keys?.auth || ""
+    ]);
+
+    // Wis eerst oude inhoud
+    await sheets.spreadsheets.values.clear({
+      spreadsheetId: SUBS_SHEET_ID,
+      range: `${SUBS_SHEET_NAME}!A:C`,
+    });
+
+    // Upload nieuwe
+    await sheets.spreadsheets.values.append({
+      spreadsheetId: SUBS_SHEET_ID,
+      range: `${SUBS_SHEET_NAME}!A:C`,
+      valueInputOption: 'USER_ENTERED',
+      resource: { values }
+    });
+
+    console.log(`✅ ${unique.length} subscriptions geüpload naar Google Sheets tab '${SUBS_SHEET_NAME}'`);
+  } catch (err) {
+    console.error("❌ Fout bij uploaden naar Google Sheets:", err);
+  }
+}
+
+async function restoreSubscriptionsFromSheet() {
+  try {
+    const client = await auth.getClient();
+    const sheets = google.sheets({ version: 'v4', auth: client });
+
+    const res = await sheets.spreadsheets.values.get({
+      spreadsheetId: SUBS_SHEET_ID,
+      range: `${SUBS_SHEET_NAME}!A:C`,
+    });
+
+    const rows = res.data.values;
+    if (!rows || rows.length === 0) {
+      console.log("⚠️ Geen subscriptions gevonden in sheet, niets hersteld.");
+      return;
+    }
+
+    const restored = rows.map(r => ({
+      endpoint: r[0],
+      keys: {
+        p256dh: r[1],
+        auth: r[2],
+      }
+    }));
+
+    fs.writeFileSync(subscriptionsPath, JSON.stringify(restored, null, 2));
+    subscriptions = restored;
+
+    console.log(`✅ ${restored.length} subscriptions hersteld vanuit Google Sheets naar subscriptions.json`);
+  } catch (err) {
+    console.error("❌ Fout bij herstellen vanuit Google Sheets:", err);
+  }
+}
+
 
 // Endpoint om push notificaties te versturen
 app.post("/api/send-notification", async (req, res) => {
@@ -481,6 +565,9 @@ app.get("/api/latest-subscription-count", authMiddleware, async (req, res) => {
   }
 });
 
+(async () => {
+  await restoreSubscriptionsFromSheet();
+})();
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
