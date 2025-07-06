@@ -42,7 +42,7 @@
 
   <h2>Stuur push notificatie</h2>
 
-  <div id="counter">Aantal subscriptions: ...</div>
+  <div id="counter">📊 Subscriptions: laden...</div>
 
   <form id="pushForm">
     <input type="text" name="title" placeholder="Titel" required />
@@ -53,14 +53,14 @@
   <div id="result"></div>
 
   <script>
-    // Haal meteen het aantal subscriptions op
     async function updateCounter() {
       try {
-        const res = await fetch('/api/subscription-count');
+        const res = await fetch('/api/latest-subscription-count');
         const data = await res.json();
-        document.getElementById('counter').textContent = `Aantal subscriptions: ${data.count}`;
+        document.getElementById('counter').textContent = 
+          `📊 Huidige subscriptions: ${data.count} (laatste log: ${data.date || "onbekend"})`;
       } catch (e) {
-        document.getElementById('counter').textContent = `Aantal subscriptions: fout bij ophalen`;
+        document.getElementById('counter').textContent = `⚠️ Fout bij ophalen subscription count`;
       }
     }
 
