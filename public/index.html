@@ -837,6 +837,17 @@ document.getElementById("etdTijdvak").addEventListener("change", function () {
   </div>
 </div>
 
+<!-- Popup voor push toestemming -->
+<div id="pushModal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.65);z-index:5000;align-items:center;justify-content:center;">
+  <div style="background:#fff;padding:24px 18px;border-radius:18px;max-width:420px;width:92vw;position:relative;box-shadow:0 4px 24px #003b5c33;text-align:center;">
+    <h2 style="font-size:1.2rem;font-weight:700;margin-bottom:12px;color:#2563eb;">Schakel push notificaties in</h2>
+    <p style="color:#28323c;font-size:1rem;margin-bottom:1rem;">
+      Wil je meldingen ontvangen als er belangrijke updates zijn? Klik hieronder om push notificaties toe te staan.
+    </p>
+    <button id="pushAllowBtn" style="background:#2563eb;color:white;padding:0.7rem 1.2rem;border:none;border-radius:8px;font-weight:bold;cursor:pointer;margin-right:8px;">Ja, inschakelen</button>
+    <button id="pushDeclineBtn" style="background:#ccc;color:#333;padding:0.7rem 1.2rem;border:none;border-radius:8px;cursor:pointer;">Nee, bedankt</button>
+  </div>
+</div>
 
 <script>
   // Info popup
@@ -980,6 +991,54 @@ async function vraagNotificationToestemming() {
 }
 
 </script>
+<script>
+  (async function() {
+  // Check of je al hebt gevraagd
+  const pushAsked = localStorage.getItem("pushAskedOnce");
 
+  if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+
+  const registration = await navigator.serviceWorker.ready;
+  const existingSub = await registration.pushManager.getSubscription();
+
+  if (!existingSub && !pushAsked) {
+    // Toon de popup
+    document.getElementById("pushModal").style.display = "flex";
+
+    document.getElementById("pushAllowBtn").onclick = async () => {
+      const permission = await Notification.requestPermission();
+      if (permission === "granted") {
+        try {
+          const sub = await registration.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: "BNlpqBd4hNBtLxsbRY4ScgmprUOm2FmeBf8RjRTGcWj7bCecKsrWSs7T7LWzKZ_v0nD2b5mpG1xXenq0r66QEqs"
+          });
+
+          await fetch("/api/save-subscription", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ subscription: sub })
+          });
+
+          console.log("✅ Subscription opgeslagen");
+          alert("✅ Push notificaties zijn ingeschakeld!");
+        } catch (e) {
+          console.error("❌ Fout bij aanmelden:", e);
+          alert("❌ Kon push notificaties niet inschakelen.");
+        }
+      } else {
+        alert("⚠️ Je hebt geen toestemming gegeven.");
+      }
+      localStorage.setItem("pushAskedOnce", "1");
+      document.getElementById("pushModal").style.display = "none";
+    };
+
+    document.getElementById("pushDeclineBtn").onclick = () => {
+      localStorage.setItem("pushAskedOnce", "1");
+      document.getElementById("pushModal").style.display = "none";
+    };
+  }
+})();
+</script>
 </body>
 </html>
