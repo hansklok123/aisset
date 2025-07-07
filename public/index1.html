@@ -6,236 +6,202 @@
 <meta charset="utf-8"/>
 <title>ETD Formulier</title>
 <style>
-    body { font-family: sans-serif; max-width: 600px; margin: auto; padding: 2rem; }
-    label { display: block; margin-top: 1rem; }
-    input, select, textarea, button {
-      width: 100%;
-      padding: 0.75rem;
-      font-size: 1rem;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      margin-top: 0.5rem;
-    }
-    button {
-      background: #003b5c;
-      color: white;
-      border: none;
-      cursor: pointer;
-      margin-top: 1.5rem;
-    }
-    #bevestiging {
-      display: none;
-      padding: 1rem;
-      background: #dff0d8;
-      color: #3c763d;
-      border-radius: 8px;
-      margin-bottom: 1rem;
-    }
-  
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+body {
+    font-family: sans-serif;
+    overflow-x: hidden;
+}
 
-    form {
-      background-color: rgba(0, 0, 0, 0.7);
-      padding: 1rem;
-      border-radius: 1rem;
-    }
+.bg {
+  position: fixed;
+  z-index: -1;
+  top: 0; left: 0; right: 0; bottom: 0;
+  width: 100vw;
+  height: 100vh;
+  background: url('https://keystoneacademic-res.cloudinary.com/image/upload/f_auto/q_auto/g_auto/w_724/dpr_2.0/element/11/119872_rotterdam-4152380_1920.jpg') no-repeat center center;
+  background-size: cover;
+  animation: achtergrondFade 20s ease-in-out infinite alternate;
+  pointer-events: none;
+}
 
-    input, select, textarea, button {
-      background-color: rgba(255, 255, 255, 0.9);
-      color: #000;
-    }
+  @keyframes achtergrondFade {
+    0% { filter: brightness(1); }
+    100% { filter: brightness(0.95); }
+  }
 
-    label {
-      font-weight: bold;
-      color: #fff;
-    }
+  form, .form-container, .etd-row, .etd-col {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow-x: hidden;
+  }
 
-    #bevestiging {
-      background-color: rgba(144, 238, 144, 0.9);
-      color: #003b5c;
-    }
-    
-    body {
-      background: url('https://keystoneacademic-res.cloudinary.com/image/upload/f_auto/q_auto/g_auto/w_724/dpr_2.0/element/11/119872_rotterdam-4152380_1920.jpg') no-repeat center center fixed;
-      background-size: cover;
-      animation: achtergrondFade 20s ease-in-out infinite alternate;
-    }
+  form {
+    background-color: rgba(0, 0, 0, 0.65);
+    padding: 1rem;
+    border-radius: 1rem;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+  }
 
-    @keyframes achtergrondFade {
-      0%   { filter: brightness(1); }
-      100% { filter: brightness(0.95); }
-    }
+ .form-container {
+    max-width: 600px;
+    margin: auto;
+    padding: 0.2rem;
+}
 
-    form {
-      background-color: rgba(0, 0, 0, 0.65);
-      box-shadow: 0 0 15px rgba(0, 0, 0, 0.6);
-      padding: 1rem;
-      border-radius: 1rem;
-      backdrop-filter: blur(4px);
-    }
+  .form-header {
+    text-align: center;
+    margin-bottom: 1.5rem;
+  }
 
-    input, select, textarea, button {
-      background-color: rgba(255, 255, 255, 0.95);
-      color: #000;
-    }
+  .form-header img {
+    max-height: 100px;
+    margin-bottom: 0.2rem;
+  }
 
-    label {
-      font-weight: bold;
-      color: #fff;
-    }
+  .form-header h2 {
+    font-size: 1.5rem;
+    color: #003b5c;
+  }
 
-    #bevestiging {
-      background-color: rgba(144, 238, 144, 0.9);
-      color: #003b5c;
-    }
-    
+  label {
+    display: block;
+    margin-top: 1rem;
+    font-weight: bold;
+    color: #003b5c;
+  }
 
-    .form-container {
-      background-color: rgba(0, 0, 0, 0.65);
-      box-shadow: 0 0 18px rgba(0, 0, 0, 0.8);
-      border-radius: 0.1rem;
-      padding: 0.1rem;
-      backdrop-filter: blur(6px);
-      max-width: 600px;
-      margin: auto;
-    }
+  input, select, textarea, button {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    padding: 0.75rem;
+    font-size: 1rem;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    margin-top: 0.5rem;
+    background-color: rgba(255, 255, 255, 0.95);
+    color: #000;
+  }
 
-    .form-header {
-      text-align: center;
-      margin-bottom: 1.5rem;
-    }
+  input[type="datetime-local"] {
+    min-height: 48px;
+    display: block;
+  }
 
-    .form-header img {
-      max-height: 100px;
-      margin-bottom: 0.2rem;
-    }
+  button {
+    background: #003b5c;
+    color: white;
+    border: none;
+    cursor: pointer;
+    margin-top: 1.5rem;
+  }
 
-    .form-header h2 {
-      color: white;
-      margin: 0;
-      font-size: 1.5rem;
-    }
-    
+  #bevestiging {
+    display: none;
+    padding: 1rem;
+    background-color: rgba(200, 255, 200, 0.9);
+    color: #003b5c;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+  }
 
-    .form-header h2 {
-      color: #003b5c;
-    }
+  .etd-row {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 1rem;
+  }
 
-    label {
-      color: #003b5c;
-    }
+  .foutmelding {
+    color: red;
+    font-weight: bold;
+    text-align: center;
+    margin-top: 0.5rem;
+  }
 
-    #bevestiging {
-      background-color: rgba(200, 255, 200, 0.9);
-      color: #003b5c;
-    }
+  @keyframes shake {
+    0% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    50% { transform: translateX(5px); }
+    75% { transform: translateX(-5px); }
+    100% { transform: translateX(0); }
+  }
 
-    button {
-      background-color: #85d678;
-      color: white;
-    }
-    
+  .shake {
+    animation: shake 0.3s;
+  }
 
-    input, select, textarea {
-      width: 100%;
-      box-sizing: border-box;
-      margin-top: 0.5rem;
-      margin-bottom: 1rem;
-    }
+  /* Info-knop */
+  .infobutton-page {
+    position: fixed;
+    top: 40px;
+    right: 40px;
+    width: 50px;
+    background: none;
+    border: none;
+    padding: 0;
+    z-index: 2022;
+    cursor: pointer;
+  }
 
-    button {
-      width: 100%;
-      margin-top: 1rem;
-    }
-    
-    
-    body, label, h2 {
-      color: #f8f9fa;
-    }
+  .info-circle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    background: #ededf0;
+    color: #003b5c;
+    font-size: 1.7rem;
+    border-radius: 50%;
+    font-weight: bold;
+    border: 2px solid #bfc3cc;
+    box-shadow: 0 2px 16px 0 #003b5c44;
+  }
 
-    input, textarea, select {
-      background-color: rgba(255, 255, 255, 0.95);
-      color: #000;
-      border: 1px solid #ccc;
-    }
+  .infobutton-page:active .info-circle,
+  .infobutton-page:focus .info-circle {
+    background: #2563eb;
+    color: #fff;
+  }
 
-    select option {
-      color: #000;
-      background-color: #fff;
-    }
-    
-    .form-container {
-      background-color: rgba(255, 255, 255, 0.7); /* 70% opaque wit */
-      box-shadow: none; /* verwijder donkere rand */
-      backdrop-filter: blur(10px);
-    }
-    
-    .form-container {
-      background: none !important;
-      box-shadow: none !important;
-      backdrop-filter: none !important;
-    }
 
-    input, select, textarea {
-      background-color: rgba(255, 255, 255, 0.95);
-      color: #000;
-    }
-    
-    body {
-      position: relative;
-      overflow-x: hidden;
-    }
+body, label, h2, .form-header h2 {
+  color: #f8f9fa;
+}
 
-    body::before {
-      content: "";
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: url('https://keystoneacademic-res.cloudinary.com/image/upload/f_auto/q_auto/g_auto/w_724/dpr_2.0/element/11/119872_rotterdam-4152380_1920.jpg') no-repeat center center fixed;
-      background-size: cover;
-      z-index: -1;
-      animation: achtergrondFade 20s ease-in-out infinite alternate;
-    }
+button {
+  background-color: #85d678;
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  margin-top: 1.5rem;
+}
 
-    .form-container {
-      background: none !important;
-      box-shadow: none !important;
-      backdrop-filter: none !important;
-    }
-    
-    #gpsButton {
-      padding: 0.5rem 1rem;
-      border: none;
-      border-radius: 0.5rem;
-      background: linear-gradient(to bottom right, #007bff, #66b3ff);
-      color: white;
-      font-weight: bold;
-      cursor: pointer;
-      margin-bottom: 1rem;
-    }
+#gpsButton {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 0.5rem;
+  background: linear-gradient(to bottom right, #007bff, #66b3ff);
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  margin-bottom: 1rem;
+}
 
-    #gpsButton:disabled {
-      background: #ccc;
-      cursor: not-allowed;
-    }
-    
-    select:disabled, #gpsButton:disabled {
-      opacity: 0.5;
-    }
-    
-    .foutmelding {
-      color: red;
-      font-weight: bold;
-      text-align: center;
-      margin-top: 0.5rem;
-    }
-
-    #handmatigSchip {
-      opacity: 0.5;
-    }
-
-    #handmatigSchip:enabled {
-      opacity: 1;
-    }
-    
+#gpsButton:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  opacity: 0.5;
+}
 
 .toggle-switch-row {
   display: flex;
@@ -244,6 +210,7 @@
   margin-bottom: 1.3rem;
   margin-top: 0.2rem;
 }
+
 #switchLabel {
   cursor: pointer;
   position: relative;
@@ -255,6 +222,7 @@
   box-shadow: 0 2px 8px #0002;
   margin: 0 3px;
 }
+
 #switchDot {
   position: absolute;
   left: 2px;
@@ -266,77 +234,22 @@
   transition: all 0.22s cubic-bezier(.8,.5,.2,1.4);
   box-shadow: 0 1px 4px #003b5c22;
 }
+
 input[type="checkbox"]#typeSwitch {
   display: none;
 }
 
-.infobutton-page {
-  position: fixed;
-  top: 40px;
-  right: 40px;
-  width: 50px;
-  background: none;
-  border: none;
-  padding: 0;
-  margin: 0;
-  z-index: 2022;
-  cursor: pointer;
+#binnenkomendLabel, #verhalendLabel {
+  color: #f8f9fa;
 }
 
-.info-circle {
+.etd-date-time-row {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 42px;
-  height: 42px;
-  background: #ededf0;
-  color: #003b5c;
-  font-size: 1.7rem;
-  font-family: Arial, sans-serif;
-  border-radius: 50%;
-  font-weight: bold;
-  box-shadow: 0 2px 16px 0 #003b5c44;
-  user-select: none;
-  border: 2px solid #bfc3cc;
-  transition: background 0.13s, color 0.13s;
+  gap: 8px;
 }
-    .infobutton-page:active .info-circle,
-.infobutton-page:focus .info-circle {
-  background: #2563eb;
-  color: #fff;
-  outline: none;
+.etd-date-time-row input {
+  flex: 1 1 0;
 }
-
-.etd-row {
-  display: flex;
-  flex-wrap: nowrap;
-  gap: 0.5rem;
-}
-
-.etd-col {
-  flex: 1;
-  min-width: 0; /* Zorgt dat het niet forceert naar vaste breedte */
-}
-
-
-.etd-col input,
-.etd-col select {
-  width: 100%;
-  box-sizing: border-box;
-}
-
-.etd-col.etd-klein {
-  flex: 0 0 50%;
-}
-
-.etd-col.etd-groot {
-  flex: 2 1 50%;
-}
-
-
-
-
-
 </style>
 
 <link rel="manifest" href="/manifest.json" />
@@ -344,6 +257,71 @@ input[type="checkbox"]#typeSwitch {
 
 </head>
 <body>
+<div class="bg"></div>
+
+<div id="policyModal" style="display:none;position:fixed;z-index:3000;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.55);align-items:center;justify-content:center;">
+  <div style="background:#fff;padding:28px 18px 18px 18px;border-radius:18px;max-width:420px;width:92vw;position:relative;box-shadow:0 4px 24px #003b5c33;">
+    <h2 style="font-size:1.18rem;font-weight:700;margin-bottom:8px;color:#2563eb;">Toestemmingsverklaring</h2>
+    <div style="color:#28323c;font-size:1rem;max-height:180px;overflow:auto;margin-bottom:1rem;">
+      <p>
+        Door deze applicatie te gebruiken, geeft u toestemming voor het verwerken van uw gegevens voor onderzoeksdoeleinden.<br>
+        Uw naam wordt uitsluitend gebruikt om uw toestemming vast te leggen en wordt niet gedeeld met derden.<br>
+        Lees de <a href="#" id="showFullPrivacy" style="color:#2563eb;text-decoration:underline;">volledige informatie en privacyvoorwaarden</a> voor meer details.
+      </p>
+      <p>
+        <b>Vul hieronder uw naam in om akkoord te gaan:</b>
+      </p>
+    </div>
+    <input id="policyNameInput" type="text" placeholder="Uw naam" style="width:100%;padding:0.7rem;font-size:1rem;border-radius:8px;border:1px solid #ccc;margin-bottom:1rem;" />
+    <div id="policyError" style="color:red;display:none;margin-bottom:0.5rem;">Vul uw naam in om akkoord te gaan.</div>
+    <button id="policyAgreeBtn" style="background:#003b5c;color:#fff;padding:0.7rem 1.2rem;border:none;border-radius:8px;font-weight:bold;cursor:pointer;width:100%;">Akkoord & Start</button>
+  </div>
+</div>
+
+<!-- Uitgebreide privacy modal -->
+<div id="fullPrivacyModal" style="display:none;position:fixed;z-index:4000;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.55);align-items:center;justify-content:center;">
+  <div style="background:#fff;padding:18px 18px 18px 18px;padding-top:76px;border-radius:18px;max-width:540px;width:96vw;position:relative;box-shadow:0 4px 24px #003b5c33;max-height:90vh;overflow:auto;">
+    <button id="closeFullPrivacy" type="button" style="position:absolute;top:10px;right:10px;font-size:28px;color:#003b5c;background:none;border:none;cursor:pointer;font-weight:bold;line-height:1;z-index:10;">&times;</button>
+    <h2 style="font-size:1.18rem;font-weight:700;margin-bottom:8px;color:#2563eb;">Volledige informatie en privacyvoorwaarden</h2>
+    <div style="color:#28323c;font-size:1rem;">
+      <b>Toestemmingsverklaring voor gebruik van de ETD-webapplicatie</b><br><br>
+      Deze webapplicatie is ontwikkeld voor het verzamelen van Estimated Time of Departure (ETD) van binnenkomende of verhalende schepen, zoals ingevoerd door loodsen. De ingevoerde gegevens worden gebruikt in het kader van een onderzoeksproject dat onderzoekt in hoeverre ETD-informatie bijdraagt aan een efficiëntere inzetplanning van loodsen in het gebied Rotterdam-Rijnmond.<br><br>
+      <b>Doel van het onderzoek</b><br>
+      Het doel van dit project is om te onderzoeken in welke mate de ETD-invoer door loodsen helpt bij het verbeteren van de betrouwbaarheid en efficiëntie van het planningsproces. Dit onderzoek wordt uitgevoerd in het kader van een afstudeerproject van de Maritieme Masteropleiding Pilotage, onder begeleiding van het Nederlands Loodswezen.<br><br>
+      <b>Verwerking van gegevens</b><br>
+      De ingevoerde gegevens worden niet gedeeld met derden.<br>
+      Uw naam wordt uitsluitend opgeslagen om uw toestemming vast te leggen.<br>
+      Alle andere gegevens worden anoniem verwerkt.<br>
+      De data worden veilig opgeslagen volgens de richtlijnen van de Algemene Verordening Gegevensbescherming (AVG).<br>
+      Geanonimiseerde gegevens kunnen worden gebruikt in rapportages en eventuele academische of professionele publicaties.<br><br>
+      <b>Vrijwillige deelname</b><br>
+      Het gebruik van deze applicatie is volledig vrijwillig. U kunt op elk moment stoppen met het invullen van gegevens. Als u eerder verzonden gegevens wilt laten verwijderen (zolang ze nog niet geanonimiseerd zijn), kunt u daar om verzoeken via onderstaande contactpersonen.<br><br>
+      <b>Contact</b><br>
+      Voor vragen over dit onderzoek kunt u contact opnemen met:
+      Gijs Smit<br><br>
+      <b>Toestemming</b><br>
+      Door het formulier in te vullen en te verzenden, verklaart u dat:<br>
+      - U deze informatie hebt gelezen en begrepen;<br>
+      - U vrijwillig instemt met deelname aan dit project;<br>
+      - U ten minste 18 jaar oud bent.
+    </div>
+  </div>
+</div>
+
+<script>
+document.getElementById("showFullPrivacy").onclick = function(e) {
+  e.preventDefault();
+  document.getElementById("fullPrivacyModal").style.display = "flex";
+};
+document.getElementById("closeFullPrivacy").onclick = function() {
+  document.getElementById("fullPrivacyModal").style.display = "none";
+  // Alleen herladen als ?consent=1 in de URL staat
+  if (window.location.search.includes("consent=1")) {
+    window.location.href = window.location.pathname;
+  }
+};
+</script>
+
     <button id="infoButton" type="button" title="Meer informatie" class="infobutton-page">
   <span class="info-circle">i</span>
 </button>
@@ -362,10 +340,16 @@ input[type="checkbox"]#typeSwitch {
 <div class="etd-row">
   <div class="etd-col etd-klein">
     <label for="etd">ETD:</label>
-    <input id="etd" name="etd" type="datetime-local"/>
+    <div style="display:flex; gap:8px;">
+  <input id="etdDate" name="etdDate" type="date" style="flex:2;" />
+  <input id="etdTime" name="etdTime" type="time" style="flex:1;" />
+</div>
+<div id="etdFoutmelding" style="display: none; color: red; font-weight: bold; margin-top: 0.2rem;">
+  Vul eerst datum en geschatte tijd in
+</div>
   </div>
   <div class="etd-col etd-groot">
-    <label for="etdTijdvak">Tijd onbekend:</label>
+    <label for="etdTijdvak">Vul in - indien tijd niet exact bekend:</label>
     <select id="etdTijdvak" name="etdTijdvak">
       <option value="">Tijdvak</option>
       <option value="00:00-06:00">Nacht 00:00 - 06:00</option>
@@ -388,7 +372,7 @@ input[type="checkbox"]#typeSwitch {
 </label>
 <label>Toelichting (optioneel):
       <textarea id="toelichting" name="toelichting" rows="4"></textarea>
-<label for="typeSwitch">Type reis gevraagd:</label>
+<label for="typeSwitch">Type (huidige) reis:</label>
 <div class="toggle-switch-row">
   <span id="binnenkomendLabel">Binnenkomend</span>
   <input type="checkbox" id="typeSwitch" name="berichtType" style="display:none;">
@@ -403,6 +387,11 @@ input[type="checkbox"]#typeSwitch {
 </label>
 <button type="submit">Verzenden</button>
 </form></div>
+
+<button id="installBtn" style="display: none; position: fixed; bottom: 20px; right: 20px; padding: 12px 20px; background: #003b5c; color: white; border: none; border-radius: 8px; font-size: 1rem; cursor: pointer; z-index: 9999;">
+  📲 App installeren
+</button>
+
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script><script>
 function vuurConfettiSerie() {
   var duration = 2 * 1000;
@@ -444,15 +433,30 @@ document.getElementById("reden").addEventListener("change", function () {
 });
 
 async function laadSchepen() {
-  try {
-    const geo = await new Promise((resolve, reject) =>
-      navigator.geolocation.getCurrentPosition(resolve, reject)
-    );
+  // Controleer of geolocatie beschikbaar is
+  if (!("geolocation" in navigator)) {
+    // Geen geolocatie: direct fallback
+    setSelectAndGPS(true);
+    const foutDiv = document.getElementById("gpsFoutmelding");
+    foutDiv.innerText = "⚠️ Locatie niet beschikbaar, vul handmatig in.";
+    foutDiv.style.display = "block";
+    if (typeof vulAutoAan === "function") vulAutoAan();
+    return;
+  }
+try {
+  const geo = await new Promise((resolve, reject) =>
+    navigator.geolocation.getCurrentPosition(resolve, reject)
+  );
+
     const lat = geo.coords.latitude;
     const lon = geo.coords.longitude;
 
     const res = await fetch("/api/schepen");
     const schepen = await res.json();
+
+    // Schepen verwerken en dropdown vullen:
+    const select = document.getElementById("huidigSchipSelect");
+    select.innerHTML = "";
 
     const dichtbij = schepen
       .map(s => {
@@ -465,9 +469,6 @@ async function laadSchepen() {
       .sort((a, b) => a.afstand - b.afstand)
       .slice(0, 15);
 
-    const select = document.getElementById("huidigSchipSelect");
-    select.innerHTML = "";
-
     dichtbij.forEach((s, i) => {
       const opt = document.createElement("option");
       opt.value = s.naam;
@@ -475,8 +476,18 @@ async function laadSchepen() {
       if (i === 0) opt.selected = true;
       select.appendChild(opt);
     });
+
+    document.getElementById("handmatigSchip").disabled = false;
+    setSelectAndGPS(false);
+
   } catch (err) {
-    console.error("Fout bij laden schepen:", err);
+    setSelectAndGPS(true);
+    const foutDiv = document.getElementById("gpsFoutmelding");
+    foutDiv.innerText = "⚠️ Locatie niet toegestaan, vul handmatig in.";
+    foutDiv.style.display = "block";
+    const handmatig = document.getElementById("handmatigSchip");
+    handmatig.disabled = false;
+    if (typeof vulAutoAan === "function") vulAutoAan();
   }
 }
 
@@ -541,15 +552,39 @@ document.getElementById("etdForm").addEventListener("submit", async function (e)
 
   e.preventDefault();
 
+  const submitBtn = this.querySelector('button[type="submit"]');
+  if (submitBtn) submitBtn.disabled = true;
+
   const nu = Date.now();
   const tijdSindsLaatste = nu - laatstVerzonden;
 
-  const etdField = document.getElementById("etd");
-  const redenField = document.getElementById("reden");
-  const etd = etdField.value.trim();
-  const reden = redenField.value.trim();
-  const tijdvak = document.getElementById("etdTijdvak").value;
-  const etdWaarde = tijdvak ? `${etd} (E:${tijdvak})` : etd;
+  const etdDate = document.getElementById("etdDate").value;
+const etdTime = document.getElementById("etdTime").value;
+const tijdvak = document.getElementById("etdTijdvak").value;
+const reden = document.getElementById("reden").value.trim();
+let etd = "";
+
+// VALIDATIE
+if (!etdDate && !reden) {
+  // Toon foutmelding: datum verplicht
+  alert("Vul een datum in óf kies een reden waarom geen ETD.");
+  return;
+}
+if (!etdTime && !tijdvak && !reden) {
+  // Toon foutmelding: tijd of tijdvak verplicht als je geen reden hebt
+  alert("Vul een tijd in of kies een tijdvak.");
+  return;
+}
+
+// ETD samenstellen
+if (etdDate && etdTime) {
+  etd = `${etdDate}T${etdTime}`;
+} else if (etdDate && tijdvak) {
+  etd = `${etdDate} (E:${tijdvak})`;
+} else if (etdDate) {
+  etd = etdDate;
+}
+
 
   // Reset borders
   etdField.style.border = "";
@@ -579,7 +614,7 @@ const data = {
   reden,
   toelichting: document.getElementById("toelichting").value.trim(),
   Status: document.getElementById('berichtTypeValue').value,
-  timestamp: new Date().toISOString()
+  timestamp: new Date().toISOString(),naam: localStorage.getItem("userName") || ""   // <-- voeg deze regel toe
 };
 
 
@@ -590,9 +625,9 @@ const data = {
   return value;
 }
 
-const csv = `Scheepsnaam, scheepsnaamHandmatig,ETD,RedenGeenETD,Toelichting,Status,Timestamp\n` +
-            `${escapeCSV(data.scheepsnaam)},${escapeCSV(data.scheepsnaamHandmatig)},${escapeCSV(data.etd)},` +
-            `${escapeCSV(data.reden)},${escapeCSV(data.toelichting)},${escapeCSV(data.Status)},${escapeCSV(data.timestamp)}`;
+const csv = `Scheepsnaam,ScheepsnaamHandmatig,ETD,RedenGeenETD,Toelichting,Status,Type_naam,Lengte,Timestamp,Latitude,Longitude,Naam\n` +
+  `${escapeCSV(data.scheepsnaam)},${escapeCSV(data.scheepsnaamHandmatig)},${escapeCSV(data.etd)},` +
+  `${escapeCSV(data.reden)},${escapeCSV(data.toelichting)},${escapeCSV(data.Status)},,,${escapeCSV(data.timestamp)},,,${escapeCSV(localStorage.getItem("userName") || "")}`;
 
 
   const onderwerp = data.etd ?
@@ -643,20 +678,9 @@ function vuurConfettiSerie() {
   }, 200);
 }
 
-window.onload = laadSchepen;
 
-setTimeout(() => {
-  const select = document.getElementById("huidigSchipSelect");
-  if (select && select.options.length === 1 && select.options[0].textContent.includes("Laden")) {
-    select.disabled = true;
-    document.getElementById("gpsButton").disabled = true;
-    document.getElementById("gpsFoutmelding").innerText = "⚠️ Functie niet beschikbaar, vul handmatig in.";
-    const handmatig = document.getElementById("handmatigSchip");
-    handmatig.disabled = false;
-    handmatig.focus();
-  }
-}, 5000);</script><script>
-// Vul datalist met scheepsnamen uit fetch
+
+
 async function vulAutoAan() {
   try {
     const res = await fetch("/api/schepen");
@@ -679,48 +703,45 @@ document.getElementById("handmatigSchip").addEventListener("input", function () 
   document.getElementById("huidigSchipSelect").value = ""; // reset dropdown keuze
 });
 
-window.onload = function () {
-  laadSchepen();
-  vulAutoAan();
-};
+
 </script><script>
 function forceerGPSLaad() {
+  if (!("geolocation" in navigator)) {
+    setSelectAndGPS(true);
+    const foutDiv = document.getElementById("gpsFoutmelding");
+    foutDiv.innerText = "⚠️ Locatie niet beschikbaar, vul handmatig in.";
+    foutDiv.style.display = "block";
+    if (typeof vulAutoAan === "function") vulAutoAan();
+    return;
+  }
+
   navigator.geolocation.getCurrentPosition(
     async (geo) => {
       const lat = geo.coords.latitude;
       const lon = geo.coords.longitude;
-
       try {
         const res = await fetch("/api/schepen");
         const schepen = await res.json();
-
-        const dichtbij = schepen
-          .map(s => {
-            const laatst = s.track?.[s.track.length - 1];
-            if (!s.naam || !s.mmsi || !laatst) return null;
-            const afstand = afstandKm(lat, lon, laatst.lat, laatst.lon);
-            return { naam: s.naam, mmsi: s.mmsi, afstand };
-          })
-          .filter(Boolean)
-          .sort((a, b) => a.afstand - b.afstand)
-          .slice(0, 15);
-
-        const select = document.getElementById("huidigSchipSelect");
-        select.innerHTML = "";
-
-        dichtbij.forEach((s, i) => {
-          const opt = document.createElement("option");
-          opt.value = s.naam;
-          opt.textContent = `${s.naam} ${landVlag(s.mmsi)} (${Math.round(s.afstand * 1000)}m)`;
-          if (i === 0) opt.selected = true;
-          select.appendChild(opt);
-        });
+        // ...verder zoals je al had...
+        setSelectAndGPS(false);
       } catch (err) {
-        console.error("GPS refresh fout:", err);
+        setSelectAndGPS(true);
+        const foutDiv = document.getElementById("gpsFoutmelding");
+        foutDiv.innerText = "⚠️ Fout bij ophalen schepen, vul handmatig in.";
+        foutDiv.style.display = "block";
+        const handmatig = document.getElementById("handmatigSchip");
+        handmatig.disabled = false;
+        if (typeof vulAutoAan === "function") vulAutoAan();
       }
     },
     (err) => {
-      alert("Kon GPS-locatie niet ophalen: " + err.message);
+      setSelectAndGPS(true);
+      const foutDiv = document.getElementById("gpsFoutmelding");
+      foutDiv.innerText = "⚠️ Locatie niet toegestaan, vul handmatig in.";
+      foutDiv.style.display = "block";
+      const handmatig = document.getElementById("handmatigSchip");
+      handmatig.disabled = false;
+      if (typeof vulAutoAan === "function") vulAutoAan();
     }
   );
 }
@@ -743,13 +764,7 @@ window.addEventListener("DOMContentLoaded", function() {
     if (manualField) manualField.disabled = false;
     setSelectAndGPS(false);
 
-    // 5-seconden check of laden klaar is
-    setTimeout(function() {
-        // Controleer of eerste optie nog steeds 'Laden...' is
-        if (selectField && selectField.options.length && selectField.options[0].textContent.includes('Laden')) {
-            setSelectAndGPS(true);
-        }
-    }, 5000);
+
 });
 
 // Wanneer je in het handmatige veld typt
@@ -769,6 +784,48 @@ manualField && manualField.addEventListener("input", function() {
 if (manualField) manualField.disabled = false;
 
 </script>
+
+<script>
+document.getElementById("etdTijdvak").addEventListener("change", function () {
+  const tijdvak = this.value;
+  const etdField = document.getElementById("etd");
+  const foutmelding = document.getElementById("etdFoutmelding");
+
+  if (tijdvak && !etdField.value.trim()) {
+    // Reset selectie terug naar beginoptie
+    this.value = "";
+
+    // Toon foutmelding + rode rand + shake
+    etdField.style.border = "2px solid red";
+    etdField.classList.add("shake");
+    foutmelding.style.display = "block";
+
+    // Shake stoppen
+    setTimeout(() => etdField.classList.remove("shake"), 2000);
+
+    // Verwijder foutmelding na 4s
+    setTimeout(() => {
+      foutmelding.style.display = "none";
+      etdField.style.border = "";
+    }, 4000);
+
+    // Probeer picker te openen op niet-iOS
+    setTimeout(() => {
+      const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || 
+                    (navigator.userAgent.includes('Mac') && 'ontouchend' in document);
+
+      if (!isIOS) {
+        etdField.blur();
+        setTimeout(() => {
+          etdField.focus();
+          if (etdField.showPicker) etdField.showPicker();
+        }, 200);
+      }
+    }, 50);
+  }
+});
+</script>
+
 
 
 <script>
@@ -809,6 +866,17 @@ if (manualField) manualField.disabled = false;
   </div>
 </div>
 
+<!-- Popup voor push toestemming -->
+<div id="pushModal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.65);z-index:5000;align-items:center;justify-content:center;">
+  <div style="background:#fff;padding:24px 18px;border-radius:18px;max-width:420px;width:92vw;position:relative;box-shadow:0 4px 24px #003b5c33;text-align:center;">
+    <h2 style="font-size:1.2rem;font-weight:700;margin-bottom:12px;color:#2563eb;">Schakel push notificaties in</h2>
+    <p style="color:#28323c;font-size:1rem;margin-bottom:1rem;">
+      Wil je meldingen ontvangen als er belangrijke updates zijn? Klik hieronder om push notificaties toe te staan.
+    </p>
+    <button id="pushAllowBtn" style="background:#2563eb;color:white;padding:0.7rem 1.2rem;border:none;border-radius:8px;font-weight:bold;cursor:pointer;margin-right:8px;">Ja, inschakelen</button>
+    <button id="pushDeclineBtn" style="background:#ccc;color:#333;padding:0.7rem 1.2rem;border:none;border-radius:8px;cursor:pointer;">Nee, bedankt</button>
+  </div>
+</div>
 
 <script>
   // Info popup
@@ -849,6 +917,219 @@ if (manualField) manualField.disabled = false;
   }
   typeSwitch.onchange = updateToggleUI;
   updateToggleUI();
+</script>
+<script>
+(function() {
+  const agreed = localStorage.getItem("policyAgreed");
+  const modal = document.getElementById("policyModal");
+  const agreeBtn = document.getElementById("policyAgreeBtn");
+  const nameInput = document.getElementById("policyNameInput");
+  const errorDiv = document.getElementById("policyError");
+  const form = document.getElementById("etdForm");
+  const params = new URLSearchParams(window.location.search);
+
+  function showModal() {
+    modal.style.display = "flex";
+    if (form) form.style.filter = "blur(2px)";
+    document.body.style.overflow = "hidden";
+  }
+  function hideModal() {
+    modal.style.display = "none";
+    if (form) form.style.filter = "";
+    document.body.style.overflow = "";
+  }
+
+  function startNaAkkoord() {
+    if (form) form.querySelectorAll("input,select,textarea,button").forEach(el => el.disabled = false);
+    laadSchepen();
+
+  }
+
+  
+  if (!agreed && !params.get("consent")) {
+    showModal();
+    if (form) form.querySelectorAll("input,select,textarea,button").forEach(el => el.disabled = true);
+
+    agreeBtn.onclick = async function() {
+      const name = nameInput.value.trim();
+      if (!name) {
+        errorDiv.style.display = "block";
+        return;
+      }
+      localStorage.setItem("policyAgreed", "1");
+      localStorage.setItem("policyAgreedTime", Date.now().toString());
+      vraagNotificationToestemming();
+      localStorage.setItem("userName", name);
+      hideModal();
+      startNaAkkoord();
+      await new Promise(r => setTimeout(r, 100));
+
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        await deferredPrompt.userChoice;
+        deferredPrompt = null;
+      }
+      // location.reload();
+    };
+  } else if (!params.get("consent")) {
+  
+    startNaAkkoord();
+  }
+})();
+
+(function() {
+  const params = new URLSearchParams(window.location.search);
+  const showFullPrivacy = params.get("consent") === "1";
+  const fullPrivacyModal = document.getElementById("fullPrivacyModal");
+  const policyModal = document.getElementById("policyModal");
+  const form = document.getElementById("etdForm");
+
+  if (showFullPrivacy) {
+    fullPrivacyModal.style.display = "flex";
+    policyModal.style.display = "none";
+    if (form) form.style.filter = "blur(2px)";
+    document.body.style.overflow = "hidden";
+    if (form) form.querySelectorAll("input,select,textarea,button").forEach(el => el.disabled = true);
+  }
+})();
+
+async function vraagNotificationToestemming() {
+  if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+    console.warn("Push notifications niet ondersteund");
+    return;
+  }
+  const toestemming = await Notification.requestPermission();
+  if (toestemming !== "granted") {
+    console.log("❌ Gebruiker gaf geen toestemming voor notificaties");
+    return;
+  }
+
+  const registration = await navigator.serviceWorker.ready;
+  const subscription = await registration.pushManager.subscribe({
+    userVisibleOnly: true,
+    applicationServerKey: "BNlpqBd4hNBtLxsbRY4ScgmprUOm2FmeBf8RjRTGcWj7bCecKsrWSs7T7LWzKZ_v0nD2b5mpG1xXenq0r66QEqs"
+  });
+
+  // Verstuur naar backend
+  await fetch("/api/save-subscription", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ subscription })
+  });
+
+  console.log("✅ Subscription opgeslagen");
+}
+
+</script>
+<script>
+  (async function() {
+  if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+
+  const alreadyAsked = localStorage.getItem("pushAskedOnce");
+  const policyAgreed = localStorage.getItem("policyAgreed");
+  const agreedTime = localStorage.getItem("policyAgreedTime");
+
+  // Als geen akkoord op privacy, stop
+  if (!policyAgreed) return;
+
+  // Check of er al een subscription is
+  const registration = await navigator.serviceWorker.ready;
+  const existingSub = await registration.pushManager.getSubscription();
+
+  // Als al gevraagd of al subscribed, stop
+  if (alreadyAsked || existingSub) return;
+
+  // Check tijd sinds akkoord
+  let elapsed = 0;
+  if (agreedTime) {
+    elapsed = Date.now() - parseInt(agreedTime, 10);
+  }
+
+  const MIN_DELAY = 5 * 60 * 1000; // 5 minuten
+
+  // Wacht zo nodig tot 5 minuten
+  const waitTime = Math.max(MIN_DELAY - elapsed, 0);
+  setTimeout(() => {
+    document.getElementById("pushModal").style.display = "flex";
+
+    document.getElementById("pushAllowBtn").onclick = async () => {
+      const permission = await Notification.requestPermission();
+      if (permission === "granted") {
+        try {
+          const sub = await registration.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: "BNlpqBd4hNBtLxsbRY4ScgmprUOm2FmeBf8RjRTGcWj7bCecKsrWSs7T7LWzKZ_v0nD2b5mpG1xXenq0r66QEqs"
+          });
+
+          await fetch("/api/save-subscription", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ subscription: sub })
+          });
+
+          alert("✅ Push notificaties zijn ingeschakeld!");
+        } catch (e) {
+          console.error("❌ Fout bij aanmelden:", e);
+          alert("❌ Kon push notificaties niet inschakelen.");
+        }
+      } else {
+        alert("⚠️ Je hebt geen toestemming gegeven.");
+      }
+      localStorage.setItem("pushAskedOnce", "1");
+      document.getElementById("pushModal").style.display = "none";
+    };
+
+    document.getElementById("pushDeclineBtn").onclick = () => {
+      localStorage.setItem("pushAskedOnce", "1");
+      document.getElementById("pushModal").style.display = "none";
+    };
+
+  }, waitTime);
+
+})();
+
+(async function() {
+  if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+
+  const registration = await navigator.serviceWorker.ready;
+  const sub = await registration.pushManager.getSubscription();
+
+  if (sub) {
+    // Verstuur naar backend zodat hij opnieuw wordt opgeslagen
+    await fetch("/api/save-subscription", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ subscription: sub })
+    });
+    console.log("✅ Subscription opnieuw geregistreerd bij backend");
+  }
+})();
+
+</script>
+<script>
+let deferredPrompt = null;
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  document.getElementById("installBtn").style.display = "block";
+});
+
+document.getElementById("installBtn").addEventListener("click", async () => {
+  if (!deferredPrompt) return;
+
+  deferredPrompt.prompt();
+  const { outcome } = await deferredPrompt.userChoice;
+
+  if (outcome === "accepted") {
+    console.log("✅ Gebruiker heeft installatie geaccepteerd");
+  } else {
+    console.log("❌ Gebruiker heeft installatie geweigerd");
+  }
+
+  document.getElementById("installBtn").style.display = "none";
+  deferredPrompt = null;
+});
 </script>
 
 </body>
