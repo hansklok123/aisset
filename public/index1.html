@@ -250,6 +250,20 @@ input[type="checkbox"]#typeSwitch {
 .etd-date-time-row input {
   flex: 1 1 0;
 }
+
+
+input[type="date"], input[type="time"] {
+  width: 100%;
+  padding: 0.75rem;
+  font-size: 1rem;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  background-color: rgba(255,255,255,0.95);
+  color: #000;
+  margin-top: 0.2rem;
+}
+
+
 </style>
 
 <link rel="manifest" href="/manifest.json" />
@@ -339,11 +353,18 @@ document.getElementById("closeFullPrivacy").onclick = function() {
 
 <div class="etd-row">
   <div class="etd-col etd-klein">
-    <label for="etd">ETD:</label>
-    <div style="display:flex; gap:8px;">
-  <input id="etdDate" name="etdDate" type="date" style="flex:2;" />
-  <input id="etdTime" name="etdTime" type="time" style="flex:1;" />
+<div style="display: flex; gap: 8px; margin-bottom: 1rem;">
+  <div style="flex:2;">
+    <label for="etdDate">ETD datum:</label>
+    <input id="etdDate" name="etdDate" type="date" required>
+  </div>
+  <div style="flex:1;">
+    <label for="etdTime">Tijd:</label>
+    <input id="etdTime" name="etdTime" type="time">
+  </div>
 </div>
+
+
 <div id="etdFoutmelding" style="display: none; color: red; font-weight: bold; margin-top: 0.2rem;">
   Vul eerst datum en geschatte tijd in
 </div>
