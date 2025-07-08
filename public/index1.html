@@ -258,6 +258,27 @@ input[type="checkbox"]#typeSwitch {
 </head>
 <body>
 <div class="bg"></div>
+<div id="einddatumBanner" style="
+  background: #2563eb;
+  color: #fff;
+  text-align: center;
+  padding: 11px 18px;
+  font-size: 1.08rem;
+  border-radius: 0 0 18px 18px;
+  box-shadow: 0 2px 18px #003b5c30;
+  margin: 0 auto;
+  max-width: 440px;
+  transition: opacity 0.7s;
+  opacity: 1;
+  position: sticky;
+  top: 0;
+  z-index: 2000;
+  left: 0;
+  right: 0;
+  display: block;
+">
+De dataverzameling loopt t/m 10 augustus 2025.<br>
+</div>
 
 <div id="policyModal" style="display:none;position:fixed;z-index:3000;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.55);align-items:center;justify-content:center;">
   <div style="background:#fff;padding:28px 18px 18px 18px;border-radius:18px;max-width:420px;width:92vw;position:relative;box-shadow:0 4px 24px #003b5c33;">
@@ -320,6 +341,20 @@ document.getElementById("closeFullPrivacy").onclick = function() {
     window.location.href = window.location.pathname;
   }
 };
+</script>
+
+<script>
+window.addEventListener("scroll", function onScroll() {
+  const banner = document.getElementById("einddatumBanner");
+  if (!banner) return;
+  if (window.scrollY > 30) {
+    banner.style.opacity = "0";
+    banner.style.pointerEvents = "none";
+    setTimeout(() => banner.remove(), 700);
+    window.removeEventListener("scroll", onScroll);
+  }
+});
+
 </script>
 
     <button id="infoButton" type="button" title="Meer informatie" class="infobutton-page">
@@ -1162,7 +1197,7 @@ async function toonWistJeDat() {
     ];
     const randomIndex = Math.floor(Math.random() * feitjes.length);
     document.getElementById("wistjedat").style.display = "block";
-    document.getElementById("wistjedat").innerHTML = `<ul style="padding-left:1.2em;"><li>${feitjes[randomIndex]}</li></ul>`;
+    document.getElementById("wistjedat").innerHTML = `<ul style="list-style: none; padding-left: 0;"><li>${feitjes[randomIndex]}</li></ul>`;
   } catch (err) {
     console.error("Kan wist-je-dat niet laden", err);
   }
