@@ -326,7 +326,7 @@ document.getElementById("closeFullPrivacy").onclick = function() {
   <span class="info-circle">i</span>
 </button>
     
-<div id="bevestiging">✔️ Inzending succesvol verzonden</div>
+<div id="bevestiging">✔️ Inzending succesvol, bedankt!<br><div id="wistjedat"></div></div>
 <div class="form-container">
 
 <div class="form-header">
@@ -660,6 +660,7 @@ document.getElementById("etdForm").addEventListener("submit", async function (e)
     window.scrollTo({ top: 0, behavior: 'smooth' });
     setTimeout(() => location.reload(), 30000);
     vuurConfettiSerie && vuurConfettiSerie();
+    toonWistJeDat();
   } else {
     foutDiv.textContent = "❌ Fout bij verzenden";
     foutDiv.style.display = "block";
@@ -1146,6 +1147,23 @@ document.getElementById("installBtn").addEventListener("click", async () => {
   deferredPrompt = null;
 });
 </script>
+<script>
+  async function toonWistJeDat() {
+  try {
+    const res = await fetch("/api/statistieken");
+    const stats = await res.json();
+    document.getElementById("wistjedat").style.display = "block";
+    document.getElementById("wistjedat").innerHTML =
+      `Wist je dat… de meeste ETD’s momenteel binnenkomen rond <b>${stats.topLocatie}</b>?`;
+    // Je kunt hier meerdere facts/random of afwisselend tonen
+  } catch (err) {
+    console.error("Kan wist-je-dat niet laden", err);
+  }
+}
+
+// Roep dit aan na succesvolle submit!
+</script>
+
 
 </body>
 </html>
