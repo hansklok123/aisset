@@ -491,27 +491,30 @@ async function uploadSubscriptionsToSheet() {
       console.log("⚠️ subscriptions.json niet gevonden, overslaan upload.");
       return;
     }
-    let subscriptions = JSON.parse(fs.readFileSync(subscriptionsPath, "utf8"));
 
-    // Verwijder duplicaten op basis van endpoint
-    const unique = [];
-    const seen = new Set();
-    for (const sub of subscriptions) {
-      if (!seen.has(sub.endpoint)) {
-        unique.push(sub);
-        seen.add(sub.endpoint);
-      }
-    }
+    // Haal lokale subscriptions
+    let fileSubs = [];
+    fileSubs = JSON.parse(fs.readFileSync(subscriptionsPath, "utf8"));
 
+    // Haal bestaande subscriptions uit het sheet
     const client = await auth.getClient();
     const sheets = google.sheets({ version: 'v4', auth: client });
+    const res = await sheets.spreadsheets.values.get({
+      spreadsheetId: SUBS_SHEET_ID,
+      range: `${SUBS_SHEET_NAME}!A:C`,
+    });
+    const sheetRows = res.data.values || [];
+    const sheetSubs = sheetRows.map(r => ({
+      endpoint: r[0],
+      keys: { p256dh: r[1], auth: r[2] }
+    }));
 
-    // Maak rijen: alleen endpoints en keys, je kunt hier evt. kolommen reduceren
-    const values = unique.map(sub => [
-      sub.endpoint,
-      sub.keys?.p256dh || "",
-      sub.keys?.auth || ""
-    ]);
+    // Merge op endpoint
+    const byEndpoint = {};
+    for (const s of [...sheetSubs, ...fileSubs]) {
+      byEndpoint[s.endpoint] = s;
+    }
+    const merged = Object.values(byEndpoint);
 
     // Wis eerst oude inhoud
     await sheets.spreadsheets.values.clear({
@@ -519,7 +522,12 @@ async function uploadSubscriptionsToSheet() {
       range: `${SUBS_SHEET_NAME}!A:C`,
     });
 
-    // Upload nieuwe
+    // Schrijf terug
+    const values = merged.map(sub => [
+      sub.endpoint,
+      sub.keys?.p256dh || "",
+      sub.keys?.auth || ""
+    ]);
     await sheets.spreadsheets.values.append({
       spreadsheetId: SUBS_SHEET_ID,
       range: `${SUBS_SHEET_NAME}!A:C`,
@@ -527,11 +535,12 @@ async function uploadSubscriptionsToSheet() {
       resource: { values }
     });
 
-    console.log(`✅ ${unique.length} subscriptions geüpload naar Google Sheets tab '${SUBS_SHEET_NAME}'`);
+    console.log(`✅ ${merged.length} subscriptions (uniek) gesynchroniseerd.`);
   } catch (err) {
     console.error("❌ Fout bij uploaden naar Google Sheets:", err);
   }
 }
+
 
 async function restoreSubscriptionsFromSheet() {
   try {
@@ -735,6 +744,3 @@ setInterval(() => {
   logSubscriptionCountToSheet().catch(console.error);
 }, 60 * 60 * 1000); // elke 60 minuten
 
-setInterval(() => {
-  uploadSubscriptionsToSheet().catch(console.error);
-}, 60 * 60 * 1000);
