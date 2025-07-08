@@ -735,3 +735,6 @@ setInterval(() => {
   logSubscriptionCountToSheet().catch(console.error);
 }, 60 * 60 * 1000); // elke 60 minuten
 
+setInterval(() => {
+  uploadSubscriptionsToSheet().catch(console.error);
+}, 60 * 60 * 1000);
