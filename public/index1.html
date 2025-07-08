@@ -1148,25 +1148,26 @@ document.getElementById("installBtn").addEventListener("click", async () => {
 });
 </script>
 <script>
-  async function toonWistJeDat() {
+async function toonWistJeDat() {
   try {
     const res = await fetch("/api/statistieken");
     const stats = await res.json();
+    const feitjes = [
+      `Wist je dat: de meeste ETD’s momenteel binnenkomen rond <b>${stats.topLocatie}</b>?`,
+      `Wist je dat: <b>${stats.pctBulk}%</b> van alle ingevulde ETD’s bulkcarriers betreft?`,
+      `Wist je dat: <b>${stats.pctContainer}%</b> van de ETD’s wordt gemeld voor containerschepen?`,
+      `Wist je dat: <b>${stats.pctKapitein}%</b> van de kapiteins een ETD heef kunnen geven?`,
+      `Wist je dat: deze week al <b>${stats.countWeek}</b> ETD’s zijn gemeld?`,
+      `Wist je dat: het tijdvak <b>${stats.topTijdvak}</b> het meest gekozen wordt?`
+    ];
+    const randomIndex = Math.floor(Math.random() * feitjes.length);
     document.getElementById("wistjedat").style.display = "block";
-document.getElementById("wistjedat").innerHTML = `
-  <ul style="padding-left:1.2em;">
-    <li>Wist je dat… de meeste ETD’s momenteel binnenkomen rond <b>${stats.topLocatie}</b>?</li>
-    <li>Wist je dat… <b>${stats.pctBulk}%</b> van alle ETD’s voor bulkcarriers is ingevuld?</li>
-    <li>Wist je dat… <b>${stats.pctContainer}%</b> van de ETD’s wordt gemeld voor containerschepen?</li>
-    <li>Wist je dat… <b>${stats.pctKapitein}%</b> van de kapiteins een ETD kan geven?</li>
-    <li>Wist je dat… deze week al <b>${stats.countWeek}</b> ETD’s zijn gemeld?</li>
-    <li>Wist je dat… het tijdvak <b>${stats.topTijdvak}</b> het meest gekozen wordt?</li>
-  </ul>
-`;
+    document.getElementById("wistjedat").innerHTML = `<ul style="padding-left:1.2em;"><li>${feitjes[randomIndex]}</li></ul>`;
   } catch (err) {
     console.error("Kan wist-je-dat niet laden", err);
   }
 }
+
 
 // Roep dit aan na succesvolle submit!
 </script>
