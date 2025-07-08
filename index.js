@@ -623,6 +623,94 @@ app.get("/api/latest-subscription-count", authMiddleware, async (req, res) => {
   await restoreSubscriptionsFromSheet();
 })();
 
+app.get("/api/statistieken", async (req, res) => {
+  // Laad submissions.json
+  const submissionsPath = path.join(__dirname, "public", "data", "submissions.json");
+  let data = [];
+  try {
+    data = JSON.parse(fs.readFileSync(submissionsPath, "utf8"));
+  } catch (err) {
+    return res.status(500).json({ error: "Kan data niet lezen." });
+  }
+
+  // Statistieken tellers
+  let locaties = {};
+  let typeTellers = { bulk: 0, container: 0, overig: 0 };
+  let tijdvakTellers = {};
+  let countKapitein = 0;
+  let countTotal = 0;
+  let countWeek = 0;
+
+  const now = new Date();
+  const weekAgo = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7);
+
+  data.forEach(item => {
+    if (!item.Latitude || !item.Longitude) return;
+    const haven = getClosestHaven(Number(item.Latitude), Number(item.Longitude));
+    locaties[haven] = (locaties[haven] || 0) + 1;
+
+    // Scheepstype grof
+    let type = (item.Type_naam || '').toLowerCase();
+    if (type.includes("bulk")) typeTellers.bulk++;
+    else if (type.includes("container")) typeTellers.container++;
+    else typeTellers.overig++;
+
+    // Tijdvak
+    if (item.ETD && item.ETD.includes('E')) {
+      const match = item.ETD.match(/E([0-9]{2}:[0-9]{2}-[0-9]{2}:[0-9]{2})/);
+      if (match) tijdvakTellers[match[1]] = (tijdvakTellers[match[1]] || 0) + 1;
+    }
+
+    // ETD door kapitein: geen reden ingevuld = wel ETD door kapitein
+    if (item.RedenGeenETD === "" && item.ETD) countKapitein++;
+
+    // Inzendingen deze week
+    let ts = item.Timestamp || "";
+    // Verwacht formaat "07-07-25 22:20"
+    let datumStr = ts.split(" ")[0];
+    if (datumStr) {
+      let [dd, mm, yy] = datumStr.split("-");
+      let dateObj = new Date(`20${yy}-${mm}-${dd}`);
+      if (dateObj >= weekAgo && dateObj <= now) countWeek++;
+    }
+
+    countTotal++;
+  });
+
+  // Meest gemelde haven
+  let topLocatie = "Onbekend";
+  let max = 0;
+  Object.entries(locaties).forEach(([naam, count]) => {
+    if (count > max) {
+      max = count;
+      topLocatie = naam;
+    }
+  });
+
+  // Meest gebruikte tijdvak
+  let topTijdvak = "";
+  let maxTijdvak = 0;
+  Object.entries(tijdvakTellers).forEach(([tv, cnt]) => {
+    if (cnt > maxTijdvak) {
+      maxTijdvak = cnt;
+      topTijdvak = tv;
+    }
+  });
+
+  // Percentages
+  function pct(n) { return countTotal > 0 ? Math.round(100 * n / countTotal) : 0; }
+
+  res.json({
+    topLocatie,
+    pctBulk: pct(typeTellers.bulk),
+    pctContainer: pct(typeTellers.container),
+    pctKapitein: pct(countKapitein),
+    countWeek,
+    topTijdvak
+  });
+});
+
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log("✅ Server draait op poort", PORT);
