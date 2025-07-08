@@ -108,6 +108,59 @@ async function getShipInfoByMMSI(mmsi) {
   };
 }
 
+// ----------- HAVEN LOCATIES (VOOR TOPLOCATIE) -----------
+const havenAreas = [
+  { naam: "Europoort",         lat: 51.95, lon: 3.97,   radiusKm: 3 },
+  { naam: "Maasvlakte",        lat: 51.95, lon: 4.02,   radiusKm: 3 },
+  { naam: "Waalhaven",         lat: 51.88, lon: 4.40,   radiusKm: 1.5 },
+  { naam: "Botlek",            lat: 51.89, lon: 4.26,   radiusKm: 2 },
+  { naam: "Eemhaven",          lat: 51.89, lon: 4.43,   radiusKm: 1.2 },
+  { naam: "Pernis",            lat: 51.88, lon: 4.36,   radiusKm: 1.2 },
+  { naam: "Hoek van Holland",  lat: 51.98, lon: 4.13,   radiusKm: 2 },
+  { naam: "Dordrecht",         lat: 51.81, lon: 4.66,   radiusKm: 2 },
+  { naam: "Kop van Zuid",      lat: 51.90, lon: 4.49,   radiusKm: 1 },
+  { naam: "Centrum Rotterdam", lat: 51.92, lon: 4.48,   radiusKm: 1.2 },
+  { naam: "Nieuwe Maas",       lat: 51.92, lon: 4.38,   radiusKm: 2 },
+  { naam: "Moerdijk",          lat: 51.6987, lon: 4.6157, radiusKm: 2 }
+];
+
+// Haversine distance (km)
+function distanceKm(lat1, lon1, lat2, lon2) {
+  const toRad = x => (x * Math.PI) / 180;
+  const R = 6371;
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(lat1)) *
+      Math.cos(toRad(lat2)) *
+      Math.sin(dLon / 2) ** 2;
+  return 2 * R * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+// Vind dichtstbijzijnde haven(gebied)
+function getClosestHaven(lat, lon) {
+  let best = null, minDist = Infinity;
+  for (const haven of havenAreas) {
+    const d = distanceKm(lat, lon, haven.lat, haven.lon);
+    if (d < haven.radiusKm && d < minDist) {
+      minDist = d;
+      best = haven.naam;
+    }
+  }
+  // Geen specifieke haven gevonden? Geef "Onbekend" of de dichtstbijzijnde terug
+  if (!best) {
+    // Als je echt altijd wilt mappen:
+    havenAreas.forEach(haven => {
+      const d = distanceKm(lat, lon, haven.lat, haven.lon);
+      if (d < minDist) {
+        minDist = d;
+        best = haven.naam;
+      }
+    });
+  }
+  return best || "Onbekend";
+}
 
 
 // ======= sheets authenticatie, pas range aan =======
@@ -512,6 +565,7 @@ async function restoreSubscriptionsFromSheet() {
     console.error("❌ Fout bij herstellen vanuit Google Sheets:", err);
   }
 }
+
 
 
 // Endpoint om push notificaties te versturen
