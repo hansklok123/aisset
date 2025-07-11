@@ -9,6 +9,8 @@ const { google } = require('googleapis');
 const { parse } = require('csv-parse/sync');
 const fetch = require('node-fetch');
 const cheerio = require('cheerio');
+const visitorsPerHourPath = path.join(__dirname, "public", "data", "visitors_per_hour.json");
+
 
 
 startStream();
@@ -54,6 +56,19 @@ const auth = new google.auth.GoogleAuth({
 });
 const SPREADSHEET_ID = '1RX5vPm3AzYjlpdXgsbuVkupb4UbJSct2wgpVArhMaRQ';
 const SHEET_NAME = 'submissions';
+
+function logVisitorHour() {
+  let data = {};
+  if (fs.existsSync(visitorsPerHourPath)) {
+    data = JSON.parse(fs.readFileSync(visitorsPerHourPath, "utf8"));
+  }
+  // Formaat: "2025-07-11 16:00"
+  const dt = DateTime.now().setZone("Europe/Amsterdam").toFormat("yyyy-LL-dd HH:00");
+  if (!data[dt]) data[dt] = 0;
+  data[dt]++;
+  fs.writeFileSync(visitorsPerHourPath, JSON.stringify(data, null, 2));
+  return data;
+}
 
 async function getShipInfoByMMSI(mmsi) {
   // Eerste stap: haal de hoofdpagina op en zoek IMO
@@ -247,6 +262,7 @@ app.post("/api/verstuur", async (req, res) => {
     return res.status(400).send("CSV ontbreekt");
   }
 
+
   const parsed = parse(csv, {
     skip_empty_lines: true,
     trim: true
@@ -365,7 +381,10 @@ if (record.Lengte_actueel) {
   record.Lengte = record.Lengte_actueel;
 }
 
-
+ app.post("/api/visit", (req, res) => {
+  const data = logVisitorHour();
+  res.json({ total: Object.values(data).reduce((a, b) => a + b, 0) });
+});
 
 
   try {
@@ -744,3 +763,32 @@ setInterval(() => {
   logSubscriptionCountToSheet().catch(console.error);
 }, 60 * 60 * 1000); // elke 60 minuten
 
+async function uploadVisitorsPerHourToSheet() {
+  if (!fs.existsSync(visitorsPerHourPath)) return;
+  const data = JSON.parse(fs.readFileSync(visitorsPerHourPath, "utf8"));
+  // Zet om naar array van [datetime, count]
+  const values = Object.entries(data).map(([datetime, count]) => [datetime, count]);
+  // Sorteer op datetime
+  values.sort(([a], [b]) => a.localeCompare(b));
+
+  const client = await auth.getClient();
+  const sheets = google.sheets({ version: 'v4', auth: client });
+  // Eerst leegmaken
+  await sheets.spreadsheets.values.clear({
+    spreadsheetId: SUBS_SHEET_ID,
+    range: 'visitors!A:B',
+  });
+  // Dan uploaden
+  await sheets.spreadsheets.values.append({
+    spreadsheetId: SUBS_SHEET_ID,
+    range: 'visitors!A1:B',
+    valueInputOption: 'USER_ENTERED',
+    resource: { values: [['datetime', 'unique_visitors'], ...values] }
+  });
+
+  console.log(`✅ ${values.length} bezoekers-uren geüpload naar Google Sheets (tabblad visitors).`);
+}
+
+setInterval(() => {
+  uploadVisitorsPerHourToSheet().catch(console.error);
+}, 60 * 60 * 1000); // elke 60 minuten
