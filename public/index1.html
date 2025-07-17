@@ -277,7 +277,7 @@ input[type="checkbox"]#typeSwitch {
   right: 0;
   display: block;
 ">
-De dataverzameling loopt t/m 10 augustus 2025.<br>
+De dataverzameling loopt t/m 20 augustus 2025.<br>
 </div>
 
 <div id="policyModal" style="display:none;position:fixed;z-index:3000;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.55);align-items:center;justify-content:center;">
@@ -369,7 +369,7 @@ window.addEventListener("scroll", function onScroll() {
 </div>
 <form id="etdForm">
 <h2>ETD Invoeren</h2>
-<label>Scheepsnaam:<select id="huidigSchipSelect" name="scheepsnaam"><option value="">Laden...</option></select></label><button id="gpsButton" onclick="forceerGPSLaad()" type="button">📍 Haal locatie op</button><div class="foutmelding" id="gpsFoutmelding"></div><label>Of typ handmatig de scheepsnaam:</label><input disabled="true" id="handmatigSchip" list="schiplijst" name="handmatig_scheepsnaam" placeholder="Begin met typen..." type="text"/>
+<label>Scheepsnaam:<select id="huidigSchipSelect" name="scheepsnaam"><option value="">Laden...</option></select></label><button id="gpsButton" onclick="forceerGPSLaad()" type="button">📍 Haal locatie op</button><div class="foutmelding" id="gpsFoutmelding"></div><label>Of typ handmatig de scheepsnaam:</label><input id="handmatigSchip" list="schiplijst" name="handmatig_scheepsnaam" placeholder="Begin met typen..." type="text"/>
 <input type="hidden" id="hiddenHandmatigScheepsnaam" name="ScheepsnaamHandmatig"><datalist id="schiplijst"></datalist>
 
 <div class="etd-row">
@@ -749,6 +749,8 @@ async function vulAutoAan() {
     console.error("Auto-aanvul fout:", err);
   }
 }
+  
+window.addEventListener("DOMContentLoaded", vulAutoAan);
 
 document.getElementById("handmatigSchip").addEventListener("input", function () {
   document.getElementById("huidigSchipSelect").value = ""; // reset dropdown keuze
@@ -1188,11 +1190,10 @@ async function toonWistJeDat() {
     const res = await fetch("/api/statistieken");
     const stats = await res.json();
     const feitjes = [
-      `Wist je dat: de meeste ETD’s momenteel binnenkomen rond <b>${stats.topLocatie}</b>?`,
+      `Wist je dat: de meeste ETD’s momenteel worden ingezonden rond <b>${stats.topLocatie}</b>?`,
       `Wist je dat: <b>${stats.pctBulk}%</b> van alle ingevulde ETD’s bulkcarriers betreft?`,
       `Wist je dat: <b>${stats.pctContainer}%</b> van de ETD’s wordt gemeld voor containerschepen?`,
       `Wist je dat: <b>${stats.pctKapitein}%</b> van de kapiteins een ETD heef kunnen geven?`,
-      `Wist je dat: deze week al <b>${stats.countWeek}</b> ETD’s zijn gemeld?`,
       `Wist je dat: het tijdvak <b>${stats.topTijdvak}</b> het meest gekozen wordt?`
     ];
     const randomIndex = Math.floor(Math.random() * feitjes.length);
