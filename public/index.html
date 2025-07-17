@@ -369,7 +369,7 @@ window.addEventListener("scroll", function onScroll() {
 </div>
 <form id="etdForm">
 <h2>ETD Invoeren</h2>
-<label>Scheepsnaam:<select id="huidigSchipSelect" name="scheepsnaam"><option value="">Laden...</option></select></label><button id="gpsButton" onclick="forceerGPSLaad()" type="button">📍 Haal locatie op</button><div class="foutmelding" id="gpsFoutmelding"></div><label>Of typ handmatig de scheepsnaam:</label><input disabled="true" id="handmatigSchip" list="schiplijst" name="handmatig_scheepsnaam" placeholder="Begin met typen..." type="text"/>
+<label>Scheepsnaam:<select id="huidigSchipSelect" name="scheepsnaam"><option value="">Laden...</option></select></label><button id="gpsButton" onclick="forceerGPSLaad()" type="button">📍 Haal locatie op</button><div class="foutmelding" id="gpsFoutmelding"></div><label>Of typ handmatig de scheepsnaam:</label><input id="handmatigSchip" list="schiplijst" name="handmatig_scheepsnaam" placeholder="Begin met typen..." type="text"/>
 <input type="hidden" id="hiddenHandmatigScheepsnaam" name="ScheepsnaamHandmatig"><datalist id="schiplijst"></datalist>
 
 <div class="etd-row">
@@ -749,6 +749,8 @@ async function vulAutoAan() {
     console.error("Auto-aanvul fout:", err);
   }
 }
+  
+window.addEventListener("DOMContentLoaded", vulAutoAan);
 
 document.getElementById("handmatigSchip").addEventListener("input", function () {
   document.getElementById("huidigSchipSelect").value = ""; // reset dropdown keuze
