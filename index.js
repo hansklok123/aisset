@@ -778,7 +778,8 @@ app.get("/api/statistieken", async (req, res) => {
     pctContainer: pct(typeTellers.container),
     pctKapitein: pct(countKapitein),
     countWeek,
-    topTijdvak
+    topTijdvak,
+    totaal: countTotal
   });
 });
 
