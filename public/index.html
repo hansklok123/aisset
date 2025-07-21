@@ -696,6 +696,8 @@ document.getElementById("etdForm").addEventListener("submit", async function (e)
     setTimeout(() => location.reload(), 30000);
     vuurConfettiSerie && vuurConfettiSerie();
     toonWistJeDat();
+    document.getElementById("infoButton").style.opacity = "0.3";
+
   } else {
     foutDiv.textContent = "❌ Fout bij verzenden";
     foutDiv.style.display = "block";
