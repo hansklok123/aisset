@@ -289,7 +289,7 @@ function getFactsAndBadges(submissions) {
         badges.push({
           type: typeDisplay,
           milestone: n,
-          msg: `🎉 Mijlpaal: de ${n}e <b>${typeDisplay}</b> is aangemeld!`
+          msg: `🎉 Mijlpaal: het/de ${n}e <b>${typeDisplay}</b> is aangemeld!`
         });
       }
     });
