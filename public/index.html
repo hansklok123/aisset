@@ -1193,19 +1193,34 @@ async function toonWistJeDat() {
       `Wist je dat: de meeste ETD’s momenteel worden ingezonden rond <b>${stats.topLocatie}</b>?`,
       `Wist je dat: <b>${stats.pctBulk}%</b> van alle ingevulde ETD’s bulkcarriers betreft?`,
       `Wist je dat: <b>${stats.pctContainer}%</b> van de ETD’s wordt gemeld voor containerschepen?`,
-      `Wist je dat: <b>${stats.pctKapitein}%</b> van de kapiteins een ETD heef kunnen geven?`,
+      `Wist je dat: <b>${stats.pctKapitein}%</b> van de kapiteins een ETD heeft kunnen geven?`,
       `Wist je dat: het tijdvak <b>${stats.topTijdvak}</b> het meest gekozen wordt?`
     ];
-    const randomIndex = Math.floor(Math.random() * feitjes.length);
+
+    // Badge feitje toevoegen
+    const badgeFeit = `<span style="font-size:1.4em;">🏅</span> <b>Samen hebben jullie al ${stats.totaal} ETD’s gedeeld!</b>`;
+    
+    // Maak een array met feitjes + badge, zodat de badge af en toe wordt gekozen (20% kans, bijv.)
+    let keuzes = feitjes;
+    if (Math.random() < 0.30) { // 20% kans badge feit
+      keuzes = [badgeFeit];
+    }
+
+    const feitje = keuzes[Math.floor(Math.random() * keuzes.length)];
+
     document.getElementById("wistjedat").style.display = "block";
-    document.getElementById("wistjedat").innerHTML = `<ul style="list-style: none; padding-left: 0;"><li>${feitjes[randomIndex]}</li></ul>`;
+    document.getElementById("wistjedat").innerHTML =
+      `<ul style="list-style: none; padding-left: 0;"><li>${feitje}</li></ul>`;
+
+    // (Optioneel) Confetti bij badge
+    if (feitje === badgeFeit) {
+      vuurConfettiSerie && vuurConfettiSerie();
+    }
   } catch (err) {
     console.error("Kan wist-je-dat niet laden", err);
   }
 }
 
-
-// Roep dit aan na succesvolle submit!
 </script>
 
 
