@@ -254,6 +254,50 @@ function formatETDWaarde(waarde) {
   return waarde; // fallback
 }
 
+// ==== Feitjes & badges logica ====
+const milestones = [10, 25, 50, 100, 250, 500];
+
+function getFactsAndBadges(submissions) {
+  const typeStats = {};
+  let totaal = 0;
+
+  submissions.forEach(item => {
+    // Alleen als type niet leeg of 'onbekend'
+    let type = (item.Type_naam || '').trim().toLowerCase();
+    if (type && type !== 'onbekend') {
+      typeStats[type] = (typeStats[type] || 0) + 1;
+      totaal++;
+    }
+  });
+
+  // Sorteer aflopend op aantal
+  const sortedTypes = Object.entries(typeStats).sort((a, b) => b[1] - a[1]);
+  
+  // Feitjes per type
+  const facts = sortedTypes.map(([type, count]) => {
+    const pct = Math.round((count / totaal) * 100);
+    const typeDisplay = type.charAt(0).toUpperCase() + type.slice(1);
+    return `Wist je dat: <b>${pct}%</b> van de ETD’s voor <b>${typeDisplay}</b> is ingevuld?`;
+  });
+
+  // Badges/mijlpalen per type
+  const badges = [];
+  sortedTypes.forEach(([type, count]) => {
+    milestones.forEach(n => {
+      if (count === n) {
+        const typeDisplay = type.charAt(0).toUpperCase() + type.slice(1);
+        badges.push({
+          type: typeDisplay,
+          milestone: n,
+          msg: `🎉 Mijlpaal: de ${n}e <b>${typeDisplay}</b> is aangemeld!`
+        });
+      }
+    });
+  });
+
+  return { facts, badges };
+}
+
 
 app.post("/api/verstuur", async (req, res) => {
   const csv = req.body.csv;
@@ -736,6 +780,27 @@ app.get("/api/statistieken", async (req, res) => {
     countWeek,
     topTijdvak
   });
+});
+
+app.get("/api/feitje", (req, res) => {
+  const submissionsPath = path.join(__dirname, "public", "data", "submissions.json");
+  let data = [];
+  try {
+    data = JSON.parse(fs.readFileSync(submissionsPath, "utf8"));
+  } catch (err) {
+    return res.status(500).json({ error: "Kan data niet lezen." });
+  }
+
+  const { facts, badges } = getFactsAndBadges(data);
+
+  // Kies random of feitje of badge (enkel badge tonen als die er nu één is)
+  let keuzes = facts;
+  if (badges.length > 0 && Math.random() < 0.5) keuzes = badges.map(b => b.msg);
+
+  // Altijd minstens 1 item
+  const feitje = keuzes[Math.floor(Math.random() * keuzes.length)];
+
+  res.json({ feitje }); // Je frontend toont dit als feitje/badge
 });
 
 
